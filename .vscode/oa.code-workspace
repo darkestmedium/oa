@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "path": "../"
+    }
+  ],
+  "settings": {
+    // Python
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "/usr/autodesk/maya2024/bin/mayapy",
+        
+    "python.analysis.extraPaths": [
+      "./devkit/completion/py",
+      "./python/310/packages",
+      "./thirdparty/maya/studiolibrary"
+    ],
+    "python.autoComplete.extraPaths": [
+      "./devkit/completion/py",
+      "./python/310/packages",
+      "./thirdparty/maya/studiolibrary"
+    ],
+  }
+}

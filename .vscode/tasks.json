@@ -1,0 +1,52 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558 for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+// BUILD TASKS
+    {
+      "label": "Build maya plugin",
+      "type": "shell",
+      "command": "export mayaVersion=${input:mayaVersion} && python3 .vscode/scripts/build-maya-plugin.py",
+      // "windows": {"command": "cmd SET mayaVersion=${input:mayaVersion} && python3 .\\build\\scripts\\maya_build_plugin.py"},
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+// CLEAN TASKS
+    {
+      "label": "Clean workspace",
+      "type": "shell",
+      "command": "sh .vscode/scripts/clean-workspace.sh",
+      "group": {
+        
+        "kind": "build",
+        "isDefault": false
+      },
+    },
+    {
+      "label": "Clean build",
+      "type": "shell",
+      "command": "rm -r build",
+      "windows": {"command": "del /f .\\build"},
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+    },
+  ],
+// INPUTS
+  "inputs": [
+    {
+      "id": "mayaVersion",
+      "description": "Maya Version:",
+      "default": "2024",
+      "type": "promptString"
+    },
+  ]
+}
