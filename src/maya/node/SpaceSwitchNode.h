@@ -53,11 +53,10 @@
 #include <maya/MPxDrawOverride.h>
 
 // Lunar
-#include "../maya/api/Utils.h"
-#include "../maya/api/LMText.h"
-
-#include "../maya/api/LMAttribute.h"
-#include "../maya/api/Utils.h"
+#include "api/Utils.h"
+#include "api/LMText.h"
+#include "api/LMAttribute.h"
+#include "api/Utils.h"
 
 
 

@@ -27,11 +27,12 @@
 // Proxies
 #include <maya/MPxCommand.h>
 
+
 // Lunar
 #include "CtrlNode.h"
-#include "../maya/api/Utils.h"
-#include "../maya/api/LMAttribute.h"
-#include "../maya/api/LMObject.h"
+#include "api/Utils.h"
+#include "api/LMAttribute.h"
+#include "api/LMObject.h"
 
 
 

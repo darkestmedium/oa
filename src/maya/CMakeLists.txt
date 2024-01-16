@@ -1,29 +1,27 @@
 set(MAYA_FILES
-# Plugins
-	CtrlNode.h
-	CtrlNode.cpp
-	ComponentNode.h
-	CtrlCmd.h
-	CtrlCmd.cpp
-	FootRollSolver.h
-	FootRollSolver.cpp
-	Ik2bSolver.h
-	Ik2bSolver.cpp
-	IkCommand.h
-	IkCommand.cpp
-	MetaDataCmd.h
-	MetaDataCmd.cpp
-	MetaDataNode.h
-	MetaDataNode.cpp
-	ShapesDefinition.h
-	TwistSolver.cpp
-	TwistSolver.h
-
-	SpaceSwitchNode.h
-	# DisplayNode.h
-
+# Nodes
+  node/ComponentNode.h
+  node/CtrlNode.h
+  node/CtrlNode.cpp
+  node/CtrlCmd.h
+  node/CtrlCmd.cpp
+  node/SpaceSwitchNode.h
+  node/ShapesDefinition.h
+# Solvers
+  FootRollSolver.h
+  FootRollSolver.cpp
+  Ik2bSolver.h
+  Ik2bSolver.cpp
+  IkCommand.h
+  IkCommand.cpp
+  MetaDataCmd.h
+  MetaDataCmd.cpp
+  MetaDataNode.h
+  MetaDataNode.cpp
+  TwistSolver.cpp
+  TwistSolver.h
 # Main
-	MainPlugin.cpp
+  MainPlugin.cpp
 )
 
 find_package(Maya REQUIRED)
@@ -33,18 +31,15 @@ add_library(oam SHARED ${MAYA_FILES})
 # Link any dependencies needed for the root project
 target_link_libraries(oam PRIVATE Maya::Maya)
 target_include_directories(oam 
-	PRIVATE Maya::Maya
-	PUBLIC "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
+  PRIVATE Maya::Maya
+  PUBLIC "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 MAYA_PLUGIN(oam)
 
+
 # # Add the subdirectory for the nested project
 add_subdirectory(api)
-# add_subdirectory(ctrl)
-# add_subdirectory(solver)
-# add_subdirectory(misc)
 
-# # Link the nested project to the root project
-# target_include_directories(lunarmayactrl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ctrl)
-# target_include_directories(lunarmayamisc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/misc)
-# target_include_directories(lunarmayasolver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/solver)
+# add_subdirectory(node)
+# target_link_libraries(oam PRIVATE oamayanode)
+

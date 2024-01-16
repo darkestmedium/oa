@@ -1,5 +1,9 @@
-#include "CtrlNode.h"
-#include "CtrlCmd.h"
+// Nodes
+#include "node/ComponentNode.h"
+#include "node/CtrlNode.h"
+#include "node/CtrlCmd.h"
+#include "node/SpaceSwitchNode.h"
+
 #include "Ik2bSolver.h"
 #include "IkCommand.h"
 #include "FootRollSolver.h"
@@ -8,8 +12,6 @@
 #include "TwistSolver.h"
 
 
-#include "ComponentNode.h"
-#include "SpaceSwitchNode.h"
 
 // Function Sets
 #include <maya/MFnPlugin.h>

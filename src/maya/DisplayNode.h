@@ -13,7 +13,7 @@
 #include <maya/MMatrix.h>
 #include <maya/MPlug.h>
 #include <maya/MPoint.h>
-#include <maya/MDataHandle.h>w
+#include <maya/MDataHandle.h>
 #include <maya/MAnimControl.h>
 #include <maya/MDrawRegistry.h>
 #include <maya/MStringArray.h>
