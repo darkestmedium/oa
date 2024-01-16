@@ -44,9 +44,8 @@
 
 
 namespace LMSolve {
-	/* LMSolver
-	 * Lunar Maya Solver utiliteis
-	 */
+	/* Solver utilities.
+	*/
 
 
 	inline double softenIk(double lenAT, double lenAB, double vecBC, double lenABC, double softness) {

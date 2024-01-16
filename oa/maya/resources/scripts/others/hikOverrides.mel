@@ -1,0 +1,38 @@
+
+
+global proc hikConnectSkFromCharacterState(string $pState, string $pCharacter, int $bakeMode) {
+	/* Mel override for python wrap for hikConnectSkFromCharacterState from others/hikSkeletonUtils.mel
+
+	Note: 
+		Ensure SK is not connected prior to call this proc
+
+	*/
+	string $cmd =
+		"import lunar.maya.LunarMayaRetarget as lmrtg; \
+		lmrtg.LMHik.connectSkFromCharacterState( \
+			pCharacter='"+$pCharacter+"', \
+			pState='"+$pState+"', \
+			bakeMode='"+$bakeMode+"', \
+		)";
+	python($cmd);
+};
+
+
+global proc connectSourceAndSaveAnim(string $pTransform, string $pSrcT, string $pSrcR, string $pSrcS, int $forcePairBlendCreation) {
+	/* If nodes already has sources, create a pairblend to preserve the animation
+
+	Note: 
+		pairBlends are just supportign T and R, not S, anim on S will be lost if $pSrcS is set
+
+	*/
+	string $cmd =
+		"import lunar.maya.LunarMayaRetarget as lmrtg; \
+		lmrtg.LMHik.connectSourceAndSaveAnim( \
+			pTransform='"+$pTransform+"', \
+			pSrcT='"+$pSrcT+"', \
+			pSrcR='"+$pSrcR+"', \
+			pSrcS='"+$pSrcS+"', \
+			forcePairBlend=bool("+$forcePairBlendCreation+") \
+		)";
+	python($cmd);
+};

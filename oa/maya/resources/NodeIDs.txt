@@ -5,8 +5,6 @@ For plug-ins that will forever be internal to your site use the numeric range 0 
 
 ComponentMatrix::type_id(0x9000000);
 ComponentNode::type_id(0x9000001);
-
-
 CtrlNode::type_id(0x9000002);
 
 

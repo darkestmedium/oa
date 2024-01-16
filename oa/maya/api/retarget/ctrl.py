@@ -3,19 +3,19 @@
 # Third-party imports
 
 # OAPi imports
-import oa.maya.api.retarget.humanik
+import oa.maya.api.retarget.hik
 
 
 
 
 
-class Ctrl(oa.maya.api.retarget.humanik.HumanIk):
+class Ctrl(oa.maya.api.retarget.hik.HumanIk):
   """Class for setting up the control rig.
   """
 
 
 
 
-class Skeleton(oa.maya.api.retarget.humanik.HumanIk):
+class Skeleton(oa.maya.api.retarget.hik.HumanIk):
   """Class for setting up the skeleton.
   """

@@ -3,12 +3,12 @@
 # Third-party imports
 
 # OAPi imports
-import oa.maya.api.retarget.humanik
+import oa.maya.api.retarget.hik
 
 
 
 
-class MetaHuman(oa.maya.api.retarget.humanik.HumanIk):
+class MetaHuman(oa.maya.api.retarget.hik.HumanIk):
   """Class for setting up the MetaHuman skeleton in Maya.
 
   Contains full hik joint definition which propagates down to the UE5 and UE4 Skeleton
