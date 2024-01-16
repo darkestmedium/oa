@@ -15,10 +15,6 @@
 // Temp
 #include "temp/rawfootPrintNode.hpp"
 
-
-
-
-
 // Function Sets
 #include <maya/MFnPlugin.h>
 
@@ -203,8 +199,6 @@ MStatus initializePlugin(MObject obj) {
 
 
 
-
-
   if (MGlobal::mayaState() == MGlobal::kInteractive) {
     // Register callback to set selection priority on locators to 999
     setMelConfig(NULL);
@@ -243,21 +237,9 @@ MStatus uninitializePlugin(MObject obj) {
     rawfootPrint::drawRegistrantId
   );
   fn_plugin.deregisterNode(rawfootPrint::id);
-
-  // Release DX resources
-#ifdef _WIN32
-  {
-    RawFootPrintDrawAgentDX& drawAgentRef = RawFootPrintDrawAgentDX::getDrawAgent();
-    drawAgentRef.releaseDXResources();
-  }
-#endif
   // Release GL Core resources
-  {
-    RawFootPrintDrawAgentCoreProfile& drawAgentRef = RawFootPrintDrawAgentCoreProfile::getDrawAgent();
-    drawAgentRef.releaseCoreProfileResources();
-  }
-
-
+  RawFootPrintDrawAgentCoreProfile& drawAgentRef = RawFootPrintDrawAgentCoreProfile::getDrawAgent();
+  drawAgentRef.releaseCoreProfileResources();
 
 
 

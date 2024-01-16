@@ -859,13 +859,13 @@ void RawFootPrintDrawAgentGL::drawBoundingBox()
   glEnd();
 }
 
-
-void RawFootPrintDrawAgentGL::drawWireframe() {
+void RawFootPrintDrawAgentGL::drawWireframe()
+{
   // set color
   glColor4fv( &(mColor.r) );
 
   // draw wire
-  glBegin(GL_LINES);
+  glBegin( GL_LINES );
   int i;
   int last = soleCount - 1;
   for ( i = 0; i < last; ++i ) {
@@ -976,7 +976,6 @@ void RawFootPrintDrawAgentCoreProfile::drawWireframe()
   GLCP::BindVertexArray(mHeelWireframeVAO);
   glDrawElements(GL_LINES, 2 * (heelCount-1), GL_UNSIGNED_SHORT, 0);
 }
-
 
 
 
@@ -1721,11 +1720,9 @@ void RawFootPrintDrawOverride::drawImpl(
   // End the draw work
   //================================================
 
-
   if ( passShaderOverride ) {
     theRenderer->getShaderManager()->releaseShader( passShaderOverride );
   }
-
 
   //================================================
   // Restore old blend state and old raster state
@@ -1733,23 +1730,26 @@ void RawFootPrintDrawOverride::drawImpl(
   if(stateMgr && (displayStyle & MHWRender::MFrameContext::kGouraudShaded  ||
           displayStyle & MHWRender::MFrameContext::kFlatShaded))
   {
-    if (stateMgr && pOldBlendState) {
+    if (stateMgr && pOldBlendState)
+    {
       stateMgr->setBlendState(pOldBlendState);
       stateMgr->releaseBlendState(pOldBlendState);
     }
-    if (pOldRasterState) {
+    if (pOldRasterState)
+    {
       stateMgr->setRasterizerState(pOldRasterState);
       stateMgr->releaseRasterizerState(pOldRasterState);
     }
-    if (rasterState) {
+    if (rasterState)
+    {
       stateMgr->releaseRasterizerState(rasterState);
       rasterState = NULL;
     }
   }
 }
 
-
-bool RawFootPrintDrawAgentCoreProfile::initShadersCoreProfile() {
+bool RawFootPrintDrawAgentCoreProfile::initShadersCoreProfile()
+{
   static const char* vertexShaderText = 
     "#version 330  \n"
     "in vec3 Pm;  \n"
@@ -1823,7 +1823,8 @@ bool RawFootPrintDrawAgentCoreProfile::initShadersCoreProfile() {
   return true;
 }
 
-bool RawFootPrintDrawAgentCoreProfile::initBuffersCoreProfile() {
+bool RawFootPrintDrawAgentCoreProfile::initBuffersCoreProfile()
+{
   GLCP::GenVertexArrays(1, &mBBoxVAO);
   GLCP::BindVertexArray(mBBoxVAO);
 
@@ -1906,74 +1907,88 @@ bool RawFootPrintDrawAgentCoreProfile::initBuffersCoreProfile() {
   return true;
 }
 
-
-bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources() {
-  if (mShaderProgram) {
+bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources()
+{
+  if (mShaderProgram)
+  {
     GLCP::DeleteProgram(mShaderProgram);
     mShaderProgram = 0;
   }
 
-  if (mBBoxVAO) {
+  if (mBBoxVAO)
+  {
     GLCP::DeleteVertexArrays(1, &mBBoxVAO);
     mBBoxVAO = 0;
   }
 
-  if (mSoleWireframeVAO) {
+  if (mSoleWireframeVAO)
+  {
     GLCP::DeleteVertexArrays(1, &mSoleWireframeVAO);
     mSoleWireframeVAO = 0;
   }
 
-  if (mHeelWireframeVAO) {
+  if (mHeelWireframeVAO)
+  {
     GLCP::DeleteVertexArrays(1, &mHeelWireframeVAO);
     mHeelWireframeVAO = 0;
   }
 
-  if (mSoleShadedVAO) {
+  if (mSoleShadedVAO)
+  {
     GLCP::DeleteVertexArrays(1, &mSoleShadedVAO);
     mSoleShadedVAO = 0;
   }
 
-  if (mHeelShadedVAO) {
+  if (mHeelShadedVAO)
+  {
     GLCP::DeleteVertexArrays(1, &mHeelShadedVAO);
     mHeelShadedVAO = 0;
   }
 
-  if (mBoundingboxVertexBuffer) {
+  if (mBoundingboxVertexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mBoundingboxVertexBuffer);
     mBoundingboxVertexBuffer = 0;
   }
 
-  if (mBoundingboxIndexBuffer) {
+  if (mBoundingboxIndexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mBoundingboxIndexBuffer);
     mBoundingboxIndexBuffer = 0;
   }
 
-  if (mSoleVertexBuffer) {
+  if (mSoleVertexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mSoleVertexBuffer);
     mSoleVertexBuffer = 0;
   }
 
-  if (mHeelVertexBuffer) {
+  if (mHeelVertexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mHeelVertexBuffer);
     mHeelVertexBuffer = 0;
   }
 
-  if (mSoleWireIndexBuffer) {
+  if (mSoleWireIndexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mSoleWireIndexBuffer);
     mSoleWireIndexBuffer = 0;
   }
 
-  if (mSoleShadedIndexBuffer) {
+  if (mSoleShadedIndexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mSoleShadedIndexBuffer);
     mSoleShadedIndexBuffer = 0;
   }
 
-  if (mHeelWireIndexBuffer) {
+  if (mHeelWireIndexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mHeelWireIndexBuffer);
     mHeelWireIndexBuffer = 0;
   }
 
-  if (mHeelShadedIndexBuffer) {
+  if (mHeelShadedIndexBuffer)
+  {
     GLCP::DeleteBuffers(1, &mHeelShadedIndexBuffer);
     mHeelShadedIndexBuffer = 0;
   }
@@ -1992,7 +2007,8 @@ bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources() {
 
 
 
-MStatus rawfootPrint::initialize() {
+MStatus rawfootPrint::initialize()
+{
   MFnUnitAttribute unitFn;
   MFnNumericAttribute numberFn;
   
