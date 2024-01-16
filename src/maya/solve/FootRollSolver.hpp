@@ -1,6 +1,6 @@
 #pragma once
 
-// #include "MathUtility.h"
+// #include "MathUtility.hpp"
 
 // System Includes
 // #include <cmath>
@@ -40,10 +40,10 @@
 // Proxies
 #include <maya/MPxNode.h>
 
-// Lunar
-#include "../maya/api/LMAttribute.h"
-#include "../maya/api/LMPlugin.h"
-#include "../maya/api/Utils.h"
+// Open APi
+#include "api/LMAttribute.hpp"
+#include "api/LMPlugin.hpp"
+#include "api/Utils.hpp"
 
 
 

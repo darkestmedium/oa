@@ -1704,10 +1704,10 @@ MUserData* RawFootPrintDrawOverride::prepareForDraw(
         for(int i = 0; i < (blendStateDesc.independentBlendEnable ? MHWRender::MBlendState::kMaxTargets : 1); ++i)
         {
             blendStateDesc.targetBlends[i].blendEnable = true;
-            blendStateDesc.targetBlends[i].sourceBlend = MHWRender::MBlendState::kSourceAlpha;
+               blendStateDesc.targetBlends[i].sourceBlend = MHWRender::MBlendState::kSourceAlpha;
             blendStateDesc.targetBlends[i].destinationBlend = MHWRender::MBlendState::kInvSourceAlpha;
             blendStateDesc.targetBlends[i].blendOperation = MHWRender::MBlendState::kAdd;
-            blendStateDesc.targetBlends[i].alphaSourceBlend = MHWRender::MBlendState::kOne;
+               blendStateDesc.targetBlends[i].alphaSourceBlend = MHWRender::MBlendState::kOne;
             blendStateDesc.targetBlends[i].alphaDestinationBlend = MHWRender::MBlendState::kInvSourceAlpha;
             blendStateDesc.targetBlends[i].alphaBlendOperation = MHWRender::MBlendState::kAdd;
         }

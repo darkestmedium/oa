@@ -1,8 +1,7 @@
 #pragma once
 
-#include "MathUtility.h"
-
 // System Includes
+#include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -38,34 +37,33 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "LMObject.h"
+#include "MathUtility.hpp"
+#include "LMObject.hpp"
 
 
 
 
-namespace LMRigUtils {
-	/* LMRigUtils
-	 * Lunar Maya Rig Utilities
+namespace LMText {
+	/* LMText
+	 * Lunar Maya Text wrapper class.
 	 */
 
-	inline MVector getPvPosition(MVector& vecA, MVector& vecB, MVector& vecC, MString space="world") {
-		/* Gets the pole vector position from the input of three vectors.
-
-		From Greg's Hendrix tutorial https://www.youtube.com/watch?v=bB_HL1tBVHY
+	inline std::string doublePrecision(const double number, unsigned int decimalDigits) {
+		/* Set the decimal precision od doubles.
+		
+		Args:
+			number (double): Given number
+		
+		Returns:
+			decimalDigits (unsigned int): Decimal precision
 
 		*/
-		MVector vecAC = vecC - vecA;
-		MVector vecAB = vecB - vecA;
-		MVector vecBC = vecC - vecB;
+		std::stringstream ss;
+		ss.precision(decimalDigits);  // set # places after decimal
+		ss << std::fixed;
+		ss << number;
 
-		double valScale = (vecAC * vecAB) / (vecAC * vecAC);
-		MVector vecProjection = vecAC * valScale + vecA;
-		double lenABC = vecAB.length() + vecBC.length();
-
-		MVector posPv((vecB - vecProjection).normal() * lenABC);
-
-		if (space == "world") {return posPv + vecB;}
-		return posPv;
+		return ss.str();
 	}
-};
 
+}

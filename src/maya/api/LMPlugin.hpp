@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MathUtility.h"
+#include "MathUtility.hpp"
 
 // System Includes
 #include <algorithm>
@@ -38,8 +38,8 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "Utils.h"
-#include "LMObject.h"
+#include "Utils.hpp"
+#include "LMObject.hpp"
 
 
 

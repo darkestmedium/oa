@@ -2,16 +2,16 @@
 project(oamayanode LANGUAGES CXX)
 
 set(NODE_FILES
-  ComponentNode.h
-  CtrlNode.h
+  ComponentNode.hpp
+  CtrlNode.hpp
   CtrlNode.cpp
-  CtrlCmd.h
+  CtrlCmd.hpp
   CtrlCmd.cpp
-  SpaceSwitchNode.h
-  ShapesDefinition.h
-  MetaDataNode.h
+  SpaceSwitchNode.hpp
+  ShapesDefinition.hpp
+  MetaDataNode.hpp
   MetaDataNode.cpp
-  MetaDataCmd.h
+  MetaDataCmd.hpp
   MetaDataCmd.cpp
 )
 

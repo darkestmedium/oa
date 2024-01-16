@@ -87,14 +87,14 @@
 #include <maya/MPxNode.h>
 
 // Lunar
-#include "../maya/api/LMAttribute.h"
-#include "../maya/api/LMGlobal.h"
-#include "../maya/api/LMAnimControl.h"
-#include "../maya/api/LMSolve.h"
-#include "../maya/api/LMRigUtils.h"
-#include "../maya/api/LMPlugin.h"
-#include "../maya/api/Utils.h"
-#include "../maya/api/MathUtility.h"
+#include "api/LMAttribute.hpp"
+#include "api/LMGlobal.hpp"
+#include "api/LMAnimControl.hpp"
+#include "api/LMSolve.hpp"
+#include "api/LMRigUtils.hpp"
+#include "api/LMPlugin.hpp"
+#include "api/Utils.hpp"
+#include "api/MathUtility.hpp"
 
 const float RADTODEG = (float)(180 / M_PI);
 

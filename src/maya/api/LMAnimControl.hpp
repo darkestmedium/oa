@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MathUtility.h"
+#include "MathUtility.hpp"
 
 // System Includes
 #include <algorithm>

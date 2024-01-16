@@ -2,13 +2,13 @@
 project(oamayasolve LANGUAGES CXX)
 
 set(NODE_FILES
-  Ik2bSolver.h
+  Ik2bSolver.hpp
   Ik2bSolver.cpp
-  IkCommand.h
+  IkCommand.hpp
   IkCommand.cpp
-  TwistSolver.h
+  TwistSolver.hpp
   TwistSolver.cpp
-  FootRollSolver.h
+  FootRollSolver.hpp
   FootRollSolver.cpp
 )
 

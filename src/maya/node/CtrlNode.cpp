@@ -1,5 +1,5 @@
-#include "CtrlNode.h"
-#include "ShapesDefinition.h"
+#include "CtrlNode.hpp"
+#include "ShapesDefinition.hpp"
 
 
 

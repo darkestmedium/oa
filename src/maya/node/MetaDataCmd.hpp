@@ -27,9 +27,9 @@
 // Proxies
 #include <maya/MPxCommand.h>
 
-#include "MetaDataNode.h"
+#include "MetaDataNode.hpp"
 // Lunar
-#include "../maya/api/Utils.h"
+#include "api/Utils.hpp"
 
 
 

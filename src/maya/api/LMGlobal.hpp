@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MathUtility.h"
+#include "MathUtility.hpp"
 
 // System Includes
 #include <algorithm>
@@ -30,7 +30,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnUnitAttribute.h>
-// #include <maya/MFnPlugin.h>
+#include <maya/MFnToolContext.h>
 
 // Iterators
 
@@ -38,32 +38,28 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "LMObject.h"
+#include "LMObject.hpp"
 
 
 
 
-namespace LMScene {
+namespace LMGLobal {
 	/* LMScene
-	 * Lunar Maya Scene wrapper class.
+	 * Lunar Maya Global wrapper class.
 	 */
 
-	inline MObject getTime1Node() {return LMObject::getObjFromString("time1");}
+	inline bool currentToolIsTransformContext() {
+		/* Checks wheter or not the current tool context is the 'Move Tool' or 'Rotate Tool'
 
-	inline MStatus connectSceneTime(MObject& object, MString plug, MDGModifier& modDg) {
-		/* Connects the scene's default time1 node to the given target.
 		 */
-		MFnDependencyNode fnDestinationNode = object;
-		MPlug plugDestinationInTime = fnDestinationNode.findPlug(plug, false);
+		MFnToolContext fnCurrentToolContext = MGlobal::currentToolContext();
+		MString strToolTitle = fnCurrentToolContext.title();
+		if (strToolTitle == "Move Tool" || strToolTitle == "Rotate Tool") {
+			return true;
+		}
 
-		MFnDependencyNode fnTimeNode = getTime1Node();
-		MPlug plugTimeOutTime = fnTimeNode.findPlug("outTime", false);
-		
-		// MDGModifier dgMod;
-		modDg.connect(plugTimeOutTime, plugDestinationInTime);
-		// dgMod.doIt();
-	
-		return MS::kSuccess;
-	};
+		return false;
+	}
+
 
 }

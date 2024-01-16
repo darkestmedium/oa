@@ -1,24 +1,24 @@
 set(MAYA_FILES
 # Nodes
-  node/ComponentNode.h
-  node/CtrlNode.h
+  node/ComponentNode.hpp
+  node/CtrlNode.hpp
   node/CtrlNode.cpp
-  node/CtrlCmd.h
+  node/CtrlCmd.hpp
   node/CtrlCmd.cpp
-  node/SpaceSwitchNode.h
-  node/ShapesDefinition.h
-  node/MetaDataCmd.h
+  node/SpaceSwitchNode.hpp
+  node/ShapesDefinition.hpp
+  node/MetaDataCmd.hpp
   node/MetaDataCmd.cpp
-  node/MetaDataNode.h
+  node/MetaDataNode.hpp
   node/MetaDataNode.cpp
 # Solvers
-  solve/Ik2bSolver.h
+  solve/Ik2bSolver.hpp
   solve/Ik2bSolver.cpp
-  solve/IkCommand.h
+  solve/IkCommand.hpp
   solve/IkCommand.cpp
   solve/TwistSolver.cpp
-  solve/TwistSolver.h
-  solve/FootRollSolver.h
+  solve/TwistSolver.hpp
+  solve/FootRollSolver.hpp
   solve/FootRollSolver.cpp
 # Main
   MainPlugin.cpp

@@ -3,7 +3,7 @@
 // Use of this source code is governed by an MIT license that can be found in the LICENSE file.
 #pragma once
 
-#include "MathUtility.h"
+#include "MathUtility.hpp"
 
 // System Includes
 #include <algorithm>

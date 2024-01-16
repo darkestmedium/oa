@@ -36,9 +36,9 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "Utils.h"
-#include "MathUtility.h"
-#include "LMObject.h"
+#include "Utils.hpp"
+#include "MathUtility.hpp"
+#include "LMObject.hpp"
 
 
 

@@ -2,9 +2,9 @@
 project(oamayatest LANGUAGES CXX)
 
 set(NODE_FILES
-  DisplayNode.h
-  footPrintNodeGeoOverride.h
-  rawfootPrintNode.h
+  DisplayNode.hpp
+  footPrintNodeGeoOverride.hpp
+  rawfootPrintNode.hpp
 )
 
 add_library(oamayatest ${NODE_FILES})

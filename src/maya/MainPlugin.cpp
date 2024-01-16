@@ -1,19 +1,19 @@
 // Nodes
-#include "node/ComponentNode.h"
-#include "node/CtrlNode.h"
-#include "node/CtrlCmd.h"
-#include "node/SpaceSwitchNode.h"
-#include "node/MetaDataNode.h"
-#include "node/MetaDataCmd.h"
+#include "node/ComponentNode.hpp"
+#include "node/CtrlNode.hpp"
+#include "node/CtrlCmd.hpp"
+#include "node/SpaceSwitchNode.hpp"
+#include "node/MetaDataNode.hpp"
+#include "node/MetaDataCmd.hpp"
 
 // Solvers
-#include "solve/Ik2bSolver.h"
-#include "solve/IkCommand.h"
-#include "solve/TwistSolver.h"
-#include "solve/FootRollSolver.h"
+#include "solve/Ik2bSolver.hpp"
+#include "solve/IkCommand.hpp"
+#include "solve/TwistSolver.hpp"
+#include "solve/FootRollSolver.hpp"
 
 // Temp
-#include "temp/rawfootPrintNode.h"
+#include "temp/rawfootPrintNode.hpp"
 
 
 

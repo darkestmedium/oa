@@ -29,10 +29,10 @@
 
 
 // Lunar
-#include "CtrlNode.h"
-#include "api/Utils.h"
-#include "api/LMAttribute.h"
-#include "api/LMObject.h"
+#include "CtrlNode.hpp"
+#include "api/Utils.hpp"
+#include "api/LMAttribute.hpp"
+#include "api/LMObject.hpp"
 
 
 
