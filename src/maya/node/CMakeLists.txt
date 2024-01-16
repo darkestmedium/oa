@@ -3,12 +3,16 @@ project(oamayanode LANGUAGES CXX)
 
 set(NODE_FILES
   ComponentNode.h
-	CtrlNode.h
-	CtrlNode.cpp
-	CtrlCmd.h
-	CtrlCmd.cpp
+  CtrlNode.h
+  CtrlNode.cpp
+  CtrlCmd.h
+  CtrlCmd.cpp
   SpaceSwitchNode.h
   ShapesDefinition.h
+  MetaDataNode.h
+  MetaDataNode.cpp
+  MetaDataCmd.h
+  MetaDataCmd.cpp
 )
 
 # add_library(oamayanode ${NODE_FILES})

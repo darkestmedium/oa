@@ -3,13 +3,19 @@
 #include "node/CtrlNode.h"
 #include "node/CtrlCmd.h"
 #include "node/SpaceSwitchNode.h"
+#include "node/MetaDataNode.h"
+#include "node/MetaDataCmd.h"
 
-#include "Ik2bSolver.h"
-#include "IkCommand.h"
-#include "FootRollSolver.h"
-#include "MetaDataNode.h"
-#include "MetaDataCmd.h"
-#include "TwistSolver.h"
+// Solvers
+#include "solve/Ik2bSolver.h"
+#include "solve/IkCommand.h"
+#include "solve/TwistSolver.h"
+#include "solve/FootRollSolver.h"
+
+// Temp
+#include "temp/rawfootPrintNode.h"
+
+
 
 
 
@@ -36,7 +42,7 @@ void setMelConfig(void*) {
 
 
 static void onSceneSaved(void* clientData) {
-  MGlobal::executePythonCommand("import lunar.maya.LunarMaya as lm");
+  MGlobal::executePythonCommand("import oa.maya.Core as omc");
   MGlobal::executePythonCommand("lm.LMMetaData().setFromSceneName()");
 }
 
@@ -156,6 +162,16 @@ MStatus initializePlugin(MObject obj) {
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
+  // Register TwistSolver node
+  status = fn_plugin.registerNode(
+    TwistSolver::typeName,
+    TwistSolver::typeId,
+    TwistSolver::creator,
+    TwistSolver::initialize,
+    MPxNode::kDependNode
+  );
+  CHECK_MSTATUS_AND_RETURN_IT(status);
+
   // // Register FootRoll node
   // status = fn_plugin.registerNode(
   // 	FootRollSolver::typeName,
@@ -166,15 +182,24 @@ MStatus initializePlugin(MObject obj) {
   // );
   // CHECK_MSTATUS_AND_RETURN_IT(status);
 
-  // Register TwistSolver node
+
+  // TEMP
   status = fn_plugin.registerNode(
-    TwistSolver::typeName,
-    TwistSolver::typeId,
-    TwistSolver::creator,
-    TwistSolver::initialize,
-    MPxNode::kDependNode
+    "rawfootPrint",
+    rawfootPrint::id,
+    &rawfootPrint::creator,
+    &rawfootPrint::initialize,
+    MPxNode::kLocatorNode,
+    &rawfootPrint::drawDbClassification
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
+  status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+    rawfootPrint::drawDbClassification,
+    rawfootPrint::drawRegistrantId,
+    RawFootPrintDrawOverride::Creator
+  );
+  CHECK_MSTATUS_AND_RETURN_IT(status);
+
 
 
 
@@ -212,6 +237,30 @@ MStatus uninitializePlugin(MObject obj) {
 
   MMessage::removeCallbacks(callbackIds);
 
+
+  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+    rawfootPrint::drawDbClassification,
+    rawfootPrint::drawRegistrantId
+  );
+  fn_plugin.deregisterNode(rawfootPrint::id);
+
+  // Release DX resources
+#ifdef _WIN32
+  {
+    RawFootPrintDrawAgentDX& drawAgentRef = RawFootPrintDrawAgentDX::getDrawAgent();
+    drawAgentRef.releaseDXResources();
+  }
+#endif
+  // Release GL Core resources
+  {
+    RawFootPrintDrawAgentCoreProfile& drawAgentRef = RawFootPrintDrawAgentCoreProfile::getDrawAgent();
+    drawAgentRef.releaseCoreProfileResources();
+  }
+
+
+
+
+
   // Deregister TwistSolver
   status = fn_plugin.deregisterNode(TwistSolver::typeId);
   CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -224,21 +273,19 @@ MStatus uninitializePlugin(MObject obj) {
   fn_plugin.deregisterCommand(IkCommand::commandName);
 
   // Deregister MetaData draw override
-  status = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
     MetaDataNode::type_drawdb,
     MetaDataNode::type_drawid
   );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+
   // Deregister MetaDataNode
-  status = fn_plugin.deregisterNode(MetaDataNode::type_id);
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  fn_plugin.deregisterNode(MetaDataNode::type_id);
 
   // Deregister IkCommand
-  status = fn_plugin.deregisterCommand(IkCommand::commandName);
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  fn_plugin.deregisterCommand(IkCommand::commandName);
+
   // Deregister Ik2bSolver
-  status = fn_plugin.deregisterNode(Ik2bSolver::typeId);
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  fn_plugin.deregisterNode(Ik2bSolver::typeId);
 
   // Deregister Controller draw override
   MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
