@@ -232,14 +232,17 @@ MStatus uninitializePlugin(MObject obj) {
   MMessage::removeCallbacks(callbackIds);
 
 
+
   MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
     rawfootPrint::drawDbClassification,
     rawfootPrint::drawRegistrantId
   );
   fn_plugin.deregisterNode(rawfootPrint::id);
-  // Release GL Core resources
   RawFootPrintDrawAgentCoreProfile& drawAgentRef = RawFootPrintDrawAgentCoreProfile::getDrawAgent();
   drawAgentRef.releaseCoreProfileResources();
+
+
+
 
 
 

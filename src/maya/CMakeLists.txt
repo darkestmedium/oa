@@ -20,6 +20,8 @@ set(MAYA_FILES
   solve/TwistSolver.hpp
   solve/FootRollSolver.hpp
   solve/FootRollSolver.cpp
+# Temp
+  # temp/rawfootPrintNode.hpp
 # Main
   MainPlugin.cpp
 )
@@ -43,7 +45,9 @@ MAYA_PLUGIN(oam)
 # # Add the subdirectory for the nested project
 add_subdirectory(api)
 
-add_subdirectory(node)
+add_subdirectory(temp)
+
+# add_subdirectory(node)
 # target_link_libraries(oam PRIVATE oamayanode)
 
 # add_subdirectory(solve)

@@ -11,7 +11,7 @@
 
 
 // MObject CtrlNode::attr_out_line_matrix	= {};
-// MObject CtrlNode::inputSize            	= {};
+// MObject CtrlNode::inputSize            = {};
 MObject CtrlNode::geometryChanging        = {};
 
 

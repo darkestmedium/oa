@@ -52,6 +52,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
+// Open APi
+#include "api/Utils.hpp"
+
 
 // GL stuff
 #if defined (__APPLE__)
@@ -116,29 +119,29 @@ static int soleCount = 21;
 static int heelCount = 17;
 
 // Index buffer data for drawing in Dx and Core Profile modes:
-static unsigned short soleWireIndices[] =
-    {
-      0, 1,
-      1, 2,
-      2, 3,
-      3, 4,
-      4, 5,
-      5, 6,
-      6, 7,
-      7, 8,
-      8, 9,
-      9, 10,
-      10, 11,
-      11, 12,
-      12, 13,
-      13, 14,
-      14, 15,
-      15, 16,
-      16, 17,
-      17, 18,
-      18, 19,
-      19, 20
-    };
+static unsigned short soleWireIndices[] = {
+  0, 1,
+  1, 2,
+  2, 3,
+  3, 4,
+  4, 5,
+  5, 6,
+  6, 7,
+  7, 8,
+  8, 9,
+  9, 10,
+  10, 11,
+  11, 12,
+  12, 13,
+  13, 14,
+  14, 15,
+  15, 16,
+  16, 17,
+  17, 18,
+  18, 19,
+  19, 20
+};
+
 static unsigned short heelWireIndices[] =
     {
       0, 1,
@@ -212,21 +215,23 @@ static float bbData[][3] = {
     { -0.18f, 0.f,  0.31f}};
 
 // Index buffer for Wireframe drawing in Dx and Core Profile
-static unsigned short bbWireIndices[] =
-    {
-      0,1,
-      1,2,
-      2,3,
-      3,0,
-      4,5,
-      5,6,
-      6,7,
-      7,4,
-      0,4,
-      1,5,
-      2,6,
-      3,7
-    };
+static unsigned short bbWireIndices[] = {
+  0,1,
+  1,2,
+  2,3,
+  3,0,
+  4,5,
+  5,6,
+  6,7,
+  7,4,
+  0,4,
+  1,5,
+  2,6,
+  3,7
+};
+
+
+
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -234,66 +239,87 @@ static unsigned short bbWireIndices[] =
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
-class rawfootPrint : public MPxLocatorNode
-{
+
+
+
+class rawfootPrint : public MPxLocatorNode {
+
 public:
-  rawfootPrint();
-  ~rawfootPrint() override;
+  static MTypeId id;
+  static MString drawDbClassification;
+  static MString drawRegistrantId;
 
-  MStatus   		compute( const MPlug& plug, MDataBlock& data ) override;
+  static MObject size;               // The size of the foot
+  static MObject transparencySort;   // The transparent status of the foot
+  static MObject transparency;       // The transparent value of the foot
 
-  bool            isBounded() const override;
-  MBoundingBox    boundingBox() const override;
+  // Constructors
+  rawfootPrint()
+    : MPxLocatorNode()
+   {};
+
+  // Destructors
+  ~rawfootPrint() override {};
+
+  static void *  creator() {return new rawfootPrint();};
+  static MStatus initialize();
+
+  MStatus   	 compute(const MPlug& plug, MDataBlock& data) override {return MS::kUnknownParameter;};
+  bool         isBounded() const override {return true;};
+  MBoundingBox boundingBox() const override;
 
   MStatus preEvaluation(const MDGContext& context, const MEvaluationNode& evaluationNode) override;
   void    getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
 
-  static  void *          creator();
-  static  MStatus         initialize();
-
-  static  MObject         size;               // The size of the foot
-  static  MObject         transparencySort;   // The transparent status of the foot
-  static  MObject         transparency;       // The transparent value of the foot
-  
-public:
-  static	MTypeId		id;
-  static	MString		drawDbClassification;
-  static	MString		drawRegistrantId;
 };
+
 
 MObject rawfootPrint::size;
 MObject rawfootPrint::transparencySort;
 MObject rawfootPrint::transparency;
-MTypeId rawfootPrint::id( 0x0008002D );
+MTypeId rawfootPrint::id(0x0008002D);
 MString	rawfootPrint::drawDbClassification("drawdb/geometry/rawfootPrint");
 MString	rawfootPrint::drawRegistrantId("RawFootprintNodePlugin");
 
-rawfootPrint::rawfootPrint() {}
-rawfootPrint::~rawfootPrint() {}
 
-MStatus rawfootPrint::compute( const MPlug& /*plug*/, MDataBlock& /*data*/ )
-{
-  return MS::kUnknownParameter;
+MStatus rawfootPrint::initialize() {
+  MFnUnitAttribute unitFn;
+  MFnNumericAttribute numberFn;
+  
+  MStatus stat;
+
+  size = unitFn.create("size", "sz", MFnUnitAttribute::kDistance);
+  unitFn.setDefault(1.0);
+  
+  transparencySort = numberFn.create("transparencySort", "ts", MFnNumericData::kBoolean);
+  numberFn.setDefault(false);
+  
+  transparency = numberFn.create("transparency", "t", MFnNumericData::kFloat);
+  numberFn.setDefault(1.0);
+  numberFn.setMax(1.0);
+  numberFn.setMin(0.0);
+
+  addAttributes(size, transparencySort, transparency);
+
+  // Add dependency on the localScale attribute, so that when size is modified RawFootPrintDrawOverride::transform will get called
+  attributeAffects(rawfootPrint::size, MPxLocatorNode::localScale);
+
+  return MS::kSuccess;
 }
 
-bool rawfootPrint::isBounded() const
-{
-  return true;
-}
 
-MBoundingBox rawfootPrint::boundingBox() const
-{
+MBoundingBox rawfootPrint::boundingBox() const {
   // Get the size
   //
   MObject thisNode = thisMObject();
-  MPlug plug( thisNode, size );
+  MPlug plug(thisNode, size);
   MDistance sizeVal;
-  plug.getValue( sizeVal );
+  plug.getValue(sizeVal);
 
   double multiplier = sizeVal.asCentimeters();
 
-  MPoint corner1( -0.17, 0.0, -0.7 );
-  MPoint corner2( 0.17, 0.0, 0.3 );
+  MPoint corner1(-0.17, 0.0, -0.7);
+  MPoint corner2(0.17, 0.0, 0.3);
 
   corner1 = corner1 * multiplier;
   corner2 = corner2 * multiplier;
@@ -301,13 +327,10 @@ MBoundingBox rawfootPrint::boundingBox() const
   return MBoundingBox( corner1, corner2 );
 }
 
+
 // Called before this node is evaluated by Evaluation Manager
-MStatus rawfootPrint::preEvaluation(
-  const MDGContext& context,
-  const MEvaluationNode& evaluationNode)
-{
-  if (context.isNormal())
-  {
+MStatus rawfootPrint::preEvaluation(const MDGContext& context, const MEvaluationNode& evaluationNode) {
+  if (context.isNormal()) {
     // The size attribute is set to affect the localScale attribute during
     // initialization, thus no need to be checked here to trigger geometry
     // change.
@@ -322,17 +345,16 @@ MStatus rawfootPrint::preEvaluation(
   return MStatus::kSuccess;
 }
 
-void rawfootPrint::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const
-{
+
+
+void rawfootPrint::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const {
   MPxLocatorNode::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
   assert(!disablingInfo.getCacheDisabled());
   cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
 }
 
-void* rawfootPrint::creator()
-{
-  return new rawfootPrint();
-}
+
+
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -340,14 +362,13 @@ void* rawfootPrint::creator()
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
-class RawFootPrintData : public MUserData
-{
-public:
-  ~RawFootPrintData() override
-  { 
-    mBlendState = nullptr; 
-  }
 
+
+
+
+class RawFootPrintData : public MUserData {
+
+public:
   float                         fMultiplier;
   float                         fColor[4];
   bool                          fCustomBoxDraw;
@@ -355,38 +376,43 @@ public:
   MDAGDrawOverrideInfo          fDrawOV;
   const MHWRender::MBlendState* mBlendState{nullptr};
   MUint64                       mLastFrameStamp{0};
+
+  // Destructors
+  ~RawFootPrintData() override { 
+    mBlendState = nullptr; 
+  }
+
 };
 
+
+
+
 // Helper class declaration for the object drawing
-class RawFootPrintDrawAgent
-{
+class RawFootPrintDrawAgent {
+
 public:
-  RawFootPrintDrawAgent() : mDrawContext(NULL), mShaderOverride(NULL) {}
-  virtual ~RawFootPrintDrawAgent(){}
+  // Constructors
+  RawFootPrintDrawAgent()
+    : mDrawContext(NULL)
+    , mShaderOverride(NULL)
+  {};
+  virtual ~RawFootPrintDrawAgent() {}
 
   virtual void drawShaded() = 0;
   virtual void drawBoundingBox() = 0;
   virtual void drawWireframe() = 0;
 
-  virtual void setMatrix(
-    const MHWRender::MDrawContext& context,
-    const MHWRender::MSelectionInfo* selectInfo) = 0;
-
-  virtual void beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride ) {
+  virtual void setMatrix(const MHWRender::MDrawContext& context, const MHWRender::MSelectionInfo* selectInfo) = 0;
+  virtual void beginDraw(const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) {
     mDrawContext = &context;
     mShaderOverride = passShaderOverride;
-
-    // Sample code to debug geometry streams required for the override
-    // shader.
+    // Sample code to debug geometry streams required for the override shader.
     const bool debugShader = false;
     MHWRender::MVertexBufferDescriptorList bufferList;
-    if (mShaderOverride) 
-    {
-      if (debugShader)
-      {
+    if (mShaderOverride) {
+      if (debugShader) {
         mShaderOverride->requiredVertexBuffers(bufferList);
-        for (int i=0; i<bufferList.length(); i++)
-        {
+        for (int i=0; i<bufferList.length(); i++) {
           MHWRender::MVertexBufferDescriptor desc;
           bufferList.getDescriptor( i, desc );
           printf("Buffer[%d][name=%s]\n", i, desc.name().asChar());
@@ -397,8 +423,7 @@ public:
           printf("[offset = %d\n", desc.offset());
           printf("[stride = %d\n", desc.stride());
         }
-      }			
-
+      }
       mShaderOverride->bind( *mDrawContext );
       mShaderOverride->updateParameters( *mDrawContext );
       mShaderOverride->activatePass( *mDrawContext, 0 );
@@ -407,28 +432,28 @@ public:
 
   virtual void endDraw() {
     if (mShaderOverride) {
-      mShaderOverride->unbind( *mDrawContext );
+      mShaderOverride->unbind(*mDrawContext);
     }
-
     mDrawContext = NULL;
     mShaderOverride = NULL;
   }
 
-  void setColor( const MColor& color){
+  void setColor( const MColor& color) {
     mColor = color;
   }
 
 protected:
   const MHWRender::MDrawContext* mDrawContext;
   MHWRender::MShaderInstance* mShaderOverride;
-  MColor  mColor;
+  MColor mColor;
 };
 
+
 // GL draw agent declaration
-class RawFootPrintDrawAgentGL : public RawFootPrintDrawAgent
-{
+class RawFootPrintDrawAgentGL : public RawFootPrintDrawAgent {
+
 public:
-  static RawFootPrintDrawAgentGL& getDrawAgent(){
+  static RawFootPrintDrawAgentGL& getDrawAgent() {
     static RawFootPrintDrawAgentGL obj;
     return obj;
   }
@@ -436,13 +461,10 @@ public:
   void drawShaded() override;
   void drawBoundingBox() override;
   void drawWireframe() override;
-  void beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride ) override;
+  void beginDraw(const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) override;
   void endDraw() override;
 
-  void setMatrix(
-    const MHWRender::MDrawContext& context,
-    const MHWRender::MSelectionInfo* selectInfo) override
-  {
+  void setMatrix(const MHWRender::MDrawContext& context, const MHWRender::MSelectionInfo* selectInfo) override {
     // Get  world view matrix
     MStatus status;
     mWorldViewMatrix = context.getMatrix(MHWRender::MFrameContext::kWorldViewMtx, &status);
@@ -455,8 +477,7 @@ public:
     // Compute a pick matrix that, when it is post-multiplied with the
     // projection matrix, will cause the picking region to fill the entire
     // viewport for OpenGL selection mode.
-    if (selectInfo)
-    {
+    if (selectInfo) {
       int view_x, view_y, view_w, view_h;
       context.getViewportDimensions(view_x, view_y, view_w, view_h);
 
@@ -477,18 +498,184 @@ public:
   }
 
 private:
-  RawFootPrintDrawAgentGL(){}
-  ~RawFootPrintDrawAgentGL() override{}
-  RawFootPrintDrawAgentGL( const RawFootPrintDrawAgentGL& v ){}
-  RawFootPrintDrawAgentGL operator = (const RawFootPrintDrawAgentGL& v){ return *this; }
+  // Constructors
+  RawFootPrintDrawAgentGL() {}
+  ~RawFootPrintDrawAgentGL() override {}
+  RawFootPrintDrawAgentGL(const RawFootPrintDrawAgentGL& v) {}
+  RawFootPrintDrawAgentGL operator = (const RawFootPrintDrawAgentGL& v) {return *this;}
+  // Destructors
 
   MMatrix mWorldViewMatrix;
   MMatrix mProjectionMatrix;
 };
 
+
+
+// GL draw agent definition
+//
+void RawFootPrintDrawAgentGL::beginDraw(const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) {
+  RawFootPrintDrawAgent::beginDraw(context, passShaderOverride);
+  if (!mShaderOverride) {
+    // set world view matrix
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixd(mWorldViewMatrix.matrix[0]);
+
+    // set projection matrix
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadMatrixd(mProjectionMatrix.matrix[0]);
+
+    glPushAttrib( GL_CURRENT_BIT );
+  }
+}
+
+
+void RawFootPrintDrawAgentGL::endDraw() {
+  if (!mShaderOverride) {
+    glPopAttrib();
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+  }
+  RawFootPrintDrawAgent::endDraw();
+}
+
+
+void RawFootPrintDrawAgentGL::drawShaded() {
+  // set color
+  glColor4fv( &(mColor.r) );
+
+  glBegin(GL_TRIANGLE_FAN);
+  int i;
+  int last = soleCount - 1;
+  for ( i = 0; i < last; ++i ) {
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(sole[i][0], sole[i][1], sole[i][2]);
+  }
+  glEnd();
+
+  glBegin(GL_TRIANGLE_FAN);
+  last = heelCount - 1;
+  for ( i = 0; i < last; ++i ) {
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(heel[i][0], heel[i][1], heel[i][2]);
+  }
+  glEnd();
+}
+
+void RawFootPrintDrawAgentGL::drawBoundingBox() {
+  // set color
+  glColor4fv( &(mColor.r) );
+
+  const float* bottomLeftFront = bbData[0];
+  const float* topLeftFront = bbData[4];
+  const float* bottomRightFront = bbData[1];
+  const float* topRightFront = bbData[5];
+  const float* bottomLeftBack = bbData[3];
+  const float* topLeftBack = bbData[7];
+  const float* bottomRightBack = bbData[2];
+  const float* topRightBack = bbData[6];
+
+  glBegin( GL_LINES );
+
+  // 4 Bottom lines
+  //
+  glVertex3fv( bottomLeftFront );
+  glVertex3fv( bottomRightFront );
+  glVertex3fv( bottomRightFront );
+  glVertex3fv( bottomRightBack );
+  glVertex3fv( bottomRightBack );
+  glVertex3fv( bottomLeftBack );
+  glVertex3fv( bottomLeftBack );
+  glVertex3fv( bottomLeftFront );
+
+  // 4 Top lines
+  //
+  glVertex3fv( topLeftFront );
+  glVertex3fv( topRightFront );
+  glVertex3fv( topRightFront );
+  glVertex3fv( topRightBack );
+  glVertex3fv( topRightBack );
+  glVertex3fv( topLeftBack );
+  glVertex3fv( topLeftBack );
+  glVertex3fv( topLeftFront );
+
+  // 4 Side lines
+  //
+  glVertex3fv( bottomLeftFront );
+  glVertex3fv( topLeftFront );
+  glVertex3fv( bottomRightFront );
+  glVertex3fv( topRightFront );
+  glVertex3fv( bottomRightBack );
+  glVertex3fv( topRightBack );
+  glVertex3fv( bottomLeftBack );
+  glVertex3fv( topLeftBack );
+
+  glEnd();
+}
+
+
+void RawFootPrintDrawAgentGL::drawWireframe() {
+  // set color
+  glColor4fv( &(mColor.r) );
+
+  // draw wire
+  glBegin(GL_LINES);
+  int i;
+  int last = soleCount - 1;
+  for (i = 0; i < last; ++i) {
+    glVertex3f( sole[i][0],
+      sole[i][1],
+      sole[i][2]);
+    glVertex3f( sole[i+1][0],
+      sole[i+1][1],
+      sole[i+1][2]);
+  }
+  last = heelCount - 1;
+  for (i = 0; i < last; ++i) {
+    glVertex3f( heel[i][0],
+      heel[i][1],
+      heel[i][2]);
+    glVertex3f( heel[i+1][0],
+      heel[i+1][1],
+      heel[i+1][2]);
+  }
+  glEnd();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // GL Core Profile functions:
-class GLCP
-{
+class GLCP {
 public:
   // For more extensive OpenGL coding you will definitively want to
   // use a good extension loader framework. I recommend looking at:
@@ -581,7 +768,9 @@ public:
   static Tp_glVertexAttribPointer VertexAttribPointer;
 
   static void initGLFunctionsCoreProfile();
+
 };
+
 
 GLCP::Tp_glBindVertexArray GLCP::BindVertexArray = 0;
 GLCP::Tp_glGenVertexArrays GLCP::GenVertexArrays = 0;
@@ -610,8 +799,8 @@ GLCP::Tp_glBufferData GLCP::BufferData = 0;
 GLCP::Tp_glEnableVertexAttribArray GLCP::EnableVertexAttribArray = 0;
 GLCP::Tp_glVertexAttribPointer GLCP::VertexAttribPointer = 0;
 
-void GLCP::initGLFunctionsCoreProfile()
-{
+
+void GLCP::initGLFunctionsCoreProfile() {
 #if defined (__APPLE__)
   #define INIT_GLPOINTER(funcName) funcName = gl##funcName
 #else
@@ -659,11 +848,51 @@ void GLCP::initGLFunctionsCoreProfile()
 #define GL_INFO_LOG_LENGTH                0x8B84
 #endif
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Core Profile draw agent declaration
-class RawFootPrintDrawAgentCoreProfile : public RawFootPrintDrawAgent
-{
+class RawFootPrintDrawAgentCoreProfile : public RawFootPrintDrawAgent {
+
 public:
-  static RawFootPrintDrawAgentCoreProfile& getDrawAgent(){
+  static RawFootPrintDrawAgentCoreProfile& getDrawAgent() {
     static RawFootPrintDrawAgentCoreProfile obj;
     return obj;
   }
@@ -671,20 +900,17 @@ public:
   void drawShaded() override;
   void drawBoundingBox() override;
   void drawWireframe() override;
-  void beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride ) override;
+  void beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) override;
   void endDraw() override;
 
-  void setMatrix(
-    const MHWRender::MDrawContext& context,
-    const MHWRender::MSelectionInfo* selectInfo) override
-  {
+  void setMatrix(const MHWRender::MDrawContext& context, const MHWRender::MSelectionInfo* selectInfo) override {
     // Get world view projection matrix
     MStatus status;
-    mWorldViewProjMatrix =
-      context.getMatrix(MHWRender::MFrameContext::kWorldViewProjMtx, &status);
+    mWorldViewProjMatrix = context.getMatrix(MHWRender::MFrameContext::kWorldViewProjMtx, &status);
   }
 
   bool releaseCoreProfileResources();
+
 private:
   GLuint mShaderProgram;
   GLint mWVPIndex;
@@ -714,7 +940,9 @@ private:
   bool initShadersCoreProfile();
   bool initBuffersCoreProfile();
   void setupUniforms();
+
 private:
+  // Constructors
   RawFootPrintDrawAgentCoreProfile()
     // Shader program data
     : mShaderProgram(0)
@@ -740,158 +968,16 @@ private:
     , mHeelShadedIndexBuffer(0)
     , mInitialized(false)
     , mValid(false)
-    {}
-  ~RawFootPrintDrawAgentCoreProfile() override{}
-  RawFootPrintDrawAgentCoreProfile( const RawFootPrintDrawAgentCoreProfile& v ){}
-  RawFootPrintDrawAgentCoreProfile operator = (const RawFootPrintDrawAgentCoreProfile& v){ return *this; }
+  {};
+  ~RawFootPrintDrawAgentCoreProfile() override {};
+  RawFootPrintDrawAgentCoreProfile(const RawFootPrintDrawAgentCoreProfile& v) {};
+  RawFootPrintDrawAgentCoreProfile operator = (const RawFootPrintDrawAgentCoreProfile& v){return *this;}
+  // Destructors
 };
 
 
-// GL draw agent definition
-//
-void RawFootPrintDrawAgentGL::beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride )
-{
-  RawFootPrintDrawAgent::beginDraw(context, passShaderOverride);
 
-  if (!mShaderOverride)
-  {
-    // set world view matrix
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadMatrixd(mWorldViewMatrix.matrix[0]);
-
-    // set projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadMatrixd(mProjectionMatrix.matrix[0]);
-
-    glPushAttrib( GL_CURRENT_BIT );
-  }
-}
-
-void RawFootPrintDrawAgentGL::endDraw()
-{
-  if (!mShaderOverride)
-  {
-    glPopAttrib();
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-  }
-  RawFootPrintDrawAgent::endDraw();
-}
-
-void RawFootPrintDrawAgentGL::drawShaded()
-{
-  // set color
-  glColor4fv( &(mColor.r) );
-
-  glBegin( GL_TRIANGLE_FAN );
-  int i;
-  int last = soleCount - 1;
-  for ( i = 0; i < last; ++i ) {
-    glNormal3f( 0.0f, 1.0f, 0.0f );
-    glVertex3f( sole[i][0],
-      sole[i][1],
-      sole[i][2]);
-  }
-  glEnd();
-  glBegin( GL_TRIANGLE_FAN );
-  last = heelCount - 1;
-  for ( i = 0; i < last; ++i ) {
-    glNormal3f( 0.0f, 1.0f, 0.0f );
-    glVertex3f( heel[i][0],
-      heel[i][1],
-      heel[i][2]);
-  }
-  glEnd();
-}
-
-void RawFootPrintDrawAgentGL::drawBoundingBox()
-{
-  // set color
-  glColor4fv( &(mColor.r) );
-
-  const float* bottomLeftFront = bbData[0];
-  const float* topLeftFront = bbData[4];
-  const float* bottomRightFront = bbData[1];
-  const float* topRightFront = bbData[5];
-  const float* bottomLeftBack = bbData[3];
-  const float* topLeftBack = bbData[7];
-  const float* bottomRightBack = bbData[2];
-  const float* topRightBack = bbData[6];
-
-  glBegin( GL_LINES );
-
-  // 4 Bottom lines
-  //
-  glVertex3fv( bottomLeftFront );
-  glVertex3fv( bottomRightFront );
-  glVertex3fv( bottomRightFront );
-  glVertex3fv( bottomRightBack );
-  glVertex3fv( bottomRightBack );
-  glVertex3fv( bottomLeftBack );
-  glVertex3fv( bottomLeftBack );
-  glVertex3fv( bottomLeftFront );
-
-  // 4 Top lines
-  //
-  glVertex3fv( topLeftFront );
-  glVertex3fv( topRightFront );
-  glVertex3fv( topRightFront );
-  glVertex3fv( topRightBack );
-  glVertex3fv( topRightBack );
-  glVertex3fv( topLeftBack );
-  glVertex3fv( topLeftBack );
-  glVertex3fv( topLeftFront );
-
-  // 4 Side lines
-  //
-  glVertex3fv( bottomLeftFront );
-  glVertex3fv( topLeftFront );
-  glVertex3fv( bottomRightFront );
-  glVertex3fv( topRightFront );
-  glVertex3fv( bottomRightBack );
-  glVertex3fv( topRightBack );
-  glVertex3fv( bottomLeftBack );
-  glVertex3fv( topLeftBack );
-
-  glEnd();
-}
-
-
-void RawFootPrintDrawAgentGL::drawWireframe() {
-  // set color
-  glColor4fv( &(mColor.r) );
-
-  // draw wire
-  glBegin(GL_LINES);
-  int i;
-  int last = soleCount - 1;
-  for ( i = 0; i < last; ++i ) {
-    glVertex3f( sole[i][0],
-      sole[i][1],
-      sole[i][2]);
-    glVertex3f( sole[i+1][0],
-      sole[i+1][1],
-      sole[i+1][2]);
-  }
-  last = heelCount - 1;
-  for ( i = 0; i < last; ++i ) {
-    glVertex3f( heel[i][0],
-      heel[i][1],
-      heel[i][2]);
-    glVertex3f( heel[i+1][0],
-      heel[i+1][1],
-      heel[i+1][2]);
-  }
-  glEnd();
-}
-
-// Core Profile draw agent definition
-//
-void RawFootPrintDrawAgentCoreProfile::beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride )
-{
+void RawFootPrintDrawAgentCoreProfile::beginDraw(const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) {
   // Init common data:
   if ( !mInitialized ){
     // Set up all the one-time data:
@@ -909,8 +995,8 @@ void RawFootPrintDrawAgentCoreProfile::beginDraw( const MHWRender::MDrawContext&
   }
 }
 
-void RawFootPrintDrawAgentCoreProfile::endDraw()
-{
+
+void RawFootPrintDrawAgentCoreProfile::endDraw() {
   if (!mValid)
     return;
 
@@ -922,10 +1008,9 @@ void RawFootPrintDrawAgentCoreProfile::endDraw()
   RawFootPrintDrawAgent::endDraw();
 }
 
-void RawFootPrintDrawAgentCoreProfile::setupUniforms()
-{
-  if( mShaderOverride == NULL )
-  {
+
+void RawFootPrintDrawAgentCoreProfile::setupUniforms() {
+  if( mShaderOverride == NULL ) {
     float fMatrix[4][4];
     for (size_t i = 0; i < 4; ++i)
       for (size_t j = 0; j < 4; ++j)
@@ -937,8 +1022,8 @@ void RawFootPrintDrawAgentCoreProfile::setupUniforms()
   }
 }
 
-void RawFootPrintDrawAgentCoreProfile::drawShaded()
-{
+
+void RawFootPrintDrawAgentCoreProfile::drawShaded() {
   if (!mValid)
     return;
 
@@ -951,8 +1036,8 @@ void RawFootPrintDrawAgentCoreProfile::drawShaded()
   glDrawElements(GL_TRIANGLES, 3 * (heelCount-2), GL_UNSIGNED_SHORT, 0);
 }
 
-void RawFootPrintDrawAgentCoreProfile::drawBoundingBox()
-{
+
+void RawFootPrintDrawAgentCoreProfile::drawBoundingBox() {
   if (!mValid)
     return;
 
@@ -963,8 +1048,8 @@ void RawFootPrintDrawAgentCoreProfile::drawBoundingBox()
   glDrawElements(GL_LINES, 2 * 12, GL_UNSIGNED_SHORT, 0);
 }
 
-void RawFootPrintDrawAgentCoreProfile::drawWireframe()
-{
+
+void RawFootPrintDrawAgentCoreProfile::drawWireframe() {
   if (!mValid)
     return;
 
@@ -980,33 +1065,83 @@ void RawFootPrintDrawAgentCoreProfile::drawWireframe()
 
 
 
-class RawFootPrintDrawOverride : public MHWRender::MPxDrawOverride
-{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class RawFootPrintDrawOverride : public MHWRender::MPxDrawOverride {
+
 public:
-  static MHWRender::MPxDrawOverride* Creator(const MObject& obj)
-  {
-    return new RawFootPrintDrawOverride(obj);
-  }
+  // Constructors
+  // By setting isAlwaysDirty to false in MPxDrawOverride constructor, the
+  // draw override will be updated (via prepareForDraw()) only when the node
+  // is marked dirty via DG evaluation or dirty propagation. Additional
+  // callback is also added to explicitly mark the node as being dirty (via
+  // MRenderer::setGeometryDrawDirty()) for certain circumstances.
+  RawFootPrintDrawOverride(const MObject& obj)
+    : MHWRender::MPxDrawOverride(obj, RawFootPrintDrawOverride::draw, false)
+    // We want to perform custom bounding box drawing
+    // so return true so that the internal rendering code
+    // will not draw it for us.
+    , mCustomBoxDraw(true)
+    , mExcludeFromPostEffects(false)
+    , mTransparencySort(false)
+    , mBlendState(NULL)
+    , mLastFrameStamp(0)
+    , fRawFootPrint(obj)
+    {
+      fModelEditorChangedCbId = MEventMessage::addEventCallback("modelEditorChanged", OnModelEditorChanged, this);
+    };
 
-  ~RawFootPrintDrawOverride() override;
+  // Destructor
+  ~RawFootPrintDrawOverride() override {
+    if (mBlendState) {
+      MHWRender::MStateManager::releaseBlendState(mBlendState);
+      mBlendState = NULL;
+    }
+    if (fModelEditorChangedCbId != 0) {
+      MMessage::removeCallback(fModelEditorChangedCbId);
+      fModelEditorChangedCbId = 0;
+    }
+  };
 
-  MHWRender::DrawAPI supportedDrawAPIs() const override;
+  static MHWRender::MPxDrawOverride* Creator(const MObject& obj) {return new RawFootPrintDrawOverride(obj);}
+  MHWRender::DrawAPI supportedDrawAPIs() const override {return (MHWRender::kOpenGL | MHWRender::kOpenGLCoreProfile);};
 
-  bool isBounded(
-    const MDagPath& objPath,
-    const MDagPath& cameraPath) const override;
+  bool isBounded(const MDagPath& objPath, const MDagPath& cameraPath) const override {return true;};
+  MMatrix transform(const MDagPath& objPath, const MDagPath& cameraPath) const override;
+  MBoundingBox boundingBox(const MDagPath& objPath, const MDagPath& cameraPath) const override;
 
-  MMatrix transform(
-    const MDagPath& objPath,
-    const MDagPath& cameraPath) const override;
-
-  MBoundingBox boundingBox(
-    const MDagPath& objPath,
-    const MDagPath& cameraPath) const override;
-
-  bool disableInternalBoundingBoxDraw() const override;
-  bool excludedFromPostEffects() const override;
-  bool isTransparent() const override;
+  bool disableInternalBoundingBoxDraw() const override {return mCustomBoxDraw;};
+  bool excludedFromPostEffects() const override {return mExcludeFromPostEffects;};
+  bool isTransparent() const override {return mTransparencySort;};
 
   MUserData* prepareForDraw(
     const MDagPath& objPath,
@@ -1051,21 +1186,17 @@ public:
   // rawFootPrintNode: Start draw override draw function: |transform1|rawfootPrint1
   // rawFootPrintNode: End draw override draw function: |transform1|rawfootPrint1
   //
-  bool traceCallSequence() const override
-  {
-    // Return true if internal tracing is desired.
-    return false;
-  }
-  void handleTraceMessage( const MString &message ) const override
-  {
+
+  // Return true if internal tracing is desired.
+  bool traceCallSequence() const override {return false;}
+  void handleTraceMessage( const MString &message ) const override {
     // Some simple custom message formatting.
     fputs("rawFootPrintNode: ", stderr);
     fputs(message.asChar(), stderr);
     fputs("\n", stderr);
   }
 
-  bool wantUserSelection() const override
-  {
+  bool wantUserSelection() const override {
     // Perform user selection when the viewport renderer is using legacy
     // OpenGL API which supports OpenGL selection mode
     MHWRender::MRenderer* theRenderer = MHWRender::MRenderer::theRenderer();
@@ -1136,26 +1267,17 @@ public:
     return true;
   }
 
-  static void drawImpl(
-    const MHWRender::MDrawContext& context,
-    const MHWRender::MSelectionInfo* selectInfo,
-    const MUserData* data);
-
-  static void draw(
-    const MHWRender::MDrawContext& context,
-    const MUserData* data)
-  {
-    drawImpl(context, nullptr, data);
-  }
+  static void drawImpl(const MHWRender::MDrawContext& context, const MHWRender::MSelectionInfo* selectInfo, const MUserData* data);
+  static void draw(const MHWRender::MDrawContext& context, const MUserData* data) {drawImpl(context, nullptr, data);}
 
 protected:
   MBoundingBox mCurrentBoundingBox;
-  bool		 mCustomBoxDraw;
-  bool		 mExcludeFromPostEffects;
-  bool		 mTransparencySort;
-  MUint64		mLastFrameStamp;
+  bool		mCustomBoxDraw;
+  bool		mExcludeFromPostEffects;
+  bool		mTransparencySort;
+  MUint64	mLastFrameStamp;
 private:
-  RawFootPrintDrawOverride(const MObject& obj);
+  // RawFootPrintDrawOverride(const MObject& obj);
 
   float	getMultiplier(const MDagPath& objPath) const;
   bool	isTransparentSort(const MDagPath& objPath) const;
@@ -1169,58 +1291,19 @@ private:
   const MHWRender::MBlendState* mBlendState;
 };
 
-// By setting isAlwaysDirty to false in MPxDrawOverride constructor, the
-// draw override will be updated (via prepareForDraw()) only when the node
-// is marked dirty via DG evaluation or dirty propagation. Additional
-// callback is also added to explicitly mark the node as being dirty (via
-// MRenderer::setGeometryDrawDirty()) for certain circumstances.
-RawFootPrintDrawOverride::RawFootPrintDrawOverride(const MObject& obj)
-: MHWRender::MPxDrawOverride(obj, RawFootPrintDrawOverride::draw, false)
-// We want to perform custom bounding box drawing
-// so return true so that the internal rendering code
-// will not draw it for us.
-, mCustomBoxDraw(true)
-, mExcludeFromPostEffects(false)
-, mTransparencySort(false)
-, mBlendState(NULL)
-, mLastFrameStamp(0)
-, fRawFootPrint(obj)
-{
-  fModelEditorChangedCbId = MEventMessage::addEventCallback(
-    "modelEditorChanged", OnModelEditorChanged, this);
-}
 
-RawFootPrintDrawOverride::~RawFootPrintDrawOverride()
-{
-  if (mBlendState)
-  {
-    MHWRender::MStateManager::releaseBlendState(mBlendState);
-    mBlendState = NULL;
-  }
 
-  if (fModelEditorChangedCbId != 0)
-  {
-    MMessage::removeCallback(fModelEditorChangedCbId);
-    fModelEditorChangedCbId = 0;
-  }
-}
 
-void RawFootPrintDrawOverride::OnModelEditorChanged(void *clientData)
-{
+
+void RawFootPrintDrawOverride::OnModelEditorChanged(void *clientData) {
   // Mark the node as being dirty so that it can update on display appearance
   // switch among wireframe and shaded.
   RawFootPrintDrawOverride *ovr = static_cast<RawFootPrintDrawOverride*>(clientData);
   if (ovr) MHWRender::MRenderer::setGeometryDrawDirty(ovr->fRawFootPrint);
 }
 
-MHWRender::DrawAPI RawFootPrintDrawOverride::supportedDrawAPIs() const
-{
-  // this plugin supports both GL and DX
-  return (MHWRender::kOpenGL | MHWRender::kDirectX11 | MHWRender::kOpenGLCoreProfile);
-}
 
-float RawFootPrintDrawOverride::getMultiplier(const MDagPath& objPath) const
-{
+float RawFootPrintDrawOverride::getMultiplier(const MDagPath& objPath) const {
   // Retrieve value of the size attribute from the node
   MStatus status;
   MObject rawfootprintNode = objPath.node(&status);
@@ -1281,11 +1364,6 @@ float RawFootPrintDrawOverride::getTransparency(const MDagPath& objPath) const
   return 1.0f;
 }
 
-bool RawFootPrintDrawOverride::isBounded(const MDagPath& /*objPath*/,
-                    const MDagPath& /*cameraPath*/) const
-{
-  return true;
-}
 
 MMatrix RawFootPrintDrawOverride::transform(
   const MDagPath& objPath,
@@ -1325,20 +1403,6 @@ MBoundingBox RawFootPrintDrawOverride::boundingBox(
   return mCurrentBoundingBox;
 }
 
-bool RawFootPrintDrawOverride::disableInternalBoundingBoxDraw() const
-{
-  return mCustomBoxDraw;
-}
-
-bool RawFootPrintDrawOverride::excludedFromPostEffects() const
-{
-  return mExcludeFromPostEffects;
-}
-
-bool RawFootPrintDrawOverride::isTransparent() const
-{
-  return mTransparencySort;
-}
 
 MUserData* RawFootPrintDrawOverride::prepareForDraw(
   const MDagPath& objPath,
@@ -1422,6 +1486,7 @@ MUserData* RawFootPrintDrawOverride::prepareForDraw(
 
   return data;
 }
+
 
 void RawFootPrintDrawOverride::addUIDrawables(
   const MDagPath& objPath,
@@ -1607,8 +1672,7 @@ void RawFootPrintDrawOverride::drawImpl(
 
   bool requireBlending = false;
 
-  if (!inSelection)
-  {
+  if (!inSelection) {
     // Use some monotone version of color to show "default material mode"
     //
     //if (displayStyle & MHWRender::MFrameContext::kDefaultMaterial)
@@ -1749,6 +1813,57 @@ void RawFootPrintDrawOverride::drawImpl(
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// By setting isAlwaysDirty to false in MPxDrawOverride constructor, the
+// draw override will be updated (via prepareForDraw()) only when the node
+// is marked dirty via DG evaluation or dirty propagation. Additional
+// callback is also added to explicitly mark the node as being dirty (via
+// MRenderer::setGeometryDrawDirty()) for certain circumstances.
+// RawFootPrintDrawOverride::RawFootPrintDrawOverride(const MObject& obj)
+// : MHWRender::MPxDrawOverride(obj, RawFootPrintDrawOverride::draw, false)
+// // We want to perform custom bounding box drawing
+// // so return true so that the internal rendering code
+// // will not draw it for us.
+// , mCustomBoxDraw(true)
+// , mExcludeFromPostEffects(false)
+// , mTransparencySort(false)
+// , mBlendState(NULL)
+// , mLastFrameStamp(0)
+// , fRawFootPrint(obj)
+// {
+//   fModelEditorChangedCbId = MEventMessage::addEventCallback(
+//     "modelEditorChanged", OnModelEditorChanged, this);
+// }
+
+
+
+
+
 bool RawFootPrintDrawAgentCoreProfile::initShadersCoreProfile() {
   static const char* vertexShaderText = 
     "#version 330  \n"
@@ -1822,6 +1937,7 @@ bool RawFootPrintDrawAgentCoreProfile::initShadersCoreProfile() {
 
   return true;
 }
+
 
 bool RawFootPrintDrawAgentCoreProfile::initBuffersCoreProfile() {
   GLCP::GenVertexArrays(1, &mBBoxVAO);
@@ -1981,54 +2097,3 @@ bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources() {
   return true;
 }
 
-
-
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-// Plugin Registration
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-
-
-
-
-MStatus rawfootPrint::initialize() {
-  MFnUnitAttribute unitFn;
-  MFnNumericAttribute numberFn;
-  
-  MStatus			 stat;
-
-  size = unitFn.create( "size", "sz", MFnUnitAttribute::kDistance );
-  unitFn.setDefault( 1.0 );
-
-  stat = addAttribute( size );
-  if (!stat) {
-    stat.perror("addAttribute");
-    return stat;
-  }
-  
-  transparencySort = numberFn.create( "transparencySort", "ts", MFnNumericData::kBoolean );
-  numberFn.setDefault( false );
-  
-  stat = addAttribute( transparencySort );
-  if (!stat) {
-    stat.perror("addAttribute");
-    return stat;
-  }
-  
-  transparency = numberFn.create( "transparency", "t", MFnNumericData::kFloat );
-  numberFn.setDefault( 1.0 );
-  numberFn.setMax( 1.0 );
-  numberFn.setMin( 0.0 );
-  
-  stat = addAttribute( transparency );
-  if (!stat) {
-    stat.perror("addAttribute");
-    return stat;
-  }
-
-  // Add dependency on the localScale attribute, so that when size is modified RawFootPrintDrawOverride::transform will get called
-  attributeAffects( rawfootPrint::size, MPxLocatorNode::localScale );
-
-  return MS::kSuccess;
-}
