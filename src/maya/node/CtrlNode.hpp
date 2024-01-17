@@ -210,6 +210,7 @@ public:
 
   // Destructor
   virtual ~CtrlUserData() override {};
+
   virtual void get_plugs(const MObject& object);
   virtual void get_shape(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
   virtual void get_bbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix);

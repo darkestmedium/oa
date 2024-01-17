@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <maya/MPxLocatorNode.h>
 #include <maya/MString.h>
 #include <maya/MDagPath.h>
 #include <maya/MTypeId.h>
@@ -35,7 +34,6 @@
 
 // Viewport 2.0 includes
 #include <maya/MDrawRegistry.h>
-#include <maya/MPxDrawOverride.h>
 #include <maya/MUserData.h>
 #include <maya/MDrawContext.h>
 #include <maya/MSelectionContext.h>
@@ -48,6 +46,12 @@
 #include <maya/MRenderTargetManager.h>
 #include <maya/MAnimControl.h>
 #include <maya/MFnCamera.h>
+
+// Proxies
+#include <maya/MPxTransform.h>
+#include <maya/MPxLocatorNode.h>
+#include <maya/MPxTransformationMatrix.h>
+#include <maya/MPxDrawOverride.h>
 
 #include <assert.h>
 #include <stdlib.h>
@@ -75,48 +79,31 @@
 
 // Foot Data
 //
-static float sole[][3] = { {  0.00f, 0.0f, -0.70f },
-               {  0.04f, 0.0f, -0.69f },
-               {  0.09f, 0.0f, -0.65f },
-               {  0.13f, 0.0f, -0.61f },
-               {  0.16f, 0.0f, -0.54f },
-               {  0.17f, 0.0f, -0.46f },
-               {  0.17f, 0.0f, -0.35f },
-               {  0.16f, 0.0f, -0.25f },
-               {  0.15f, 0.0f, -0.14f },
-               {  0.13f, 0.0f,  0.00f },
-               {  0.00f, 0.0f,  0.00f },
-               { -0.13f, 0.0f,  0.00f },
-               { -0.15f, 0.0f, -0.14f },
-               { -0.16f, 0.0f, -0.25f },
-               { -0.17f, 0.0f, -0.35f },
-               { -0.17f, 0.0f, -0.46f },
-               { -0.16f, 0.0f, -0.54f },
-               { -0.13f, 0.0f, -0.61f },
-               { -0.09f, 0.0f, -0.65f },
-               { -0.04f, 0.0f, -0.69f },
-               { -0.00f, 0.0f, -0.70f } };
-
-static float heel[][3] = { {  0.00f, 0.0f,  0.06f },
-               {  0.13f, 0.0f,  0.06f },
-               {  0.14f, 0.0f,  0.15f },
-               {  0.14f, 0.0f,  0.21f },
-               {  0.13f, 0.0f,  0.25f },
-               {  0.11f, 0.0f,  0.28f },
-               {  0.09f, 0.0f,  0.29f },
-               {  0.04f, 0.0f,  0.30f },
-               {  0.00f, 0.0f,  0.30f },
-               { -0.04f, 0.0f,  0.30f },
-               { -0.09f, 0.0f,  0.29f },
-               { -0.11f, 0.0f,  0.28f },
-               { -0.13f, 0.0f,  0.25f },
-               { -0.14f, 0.0f,  0.21f },
-               { -0.14f, 0.0f,  0.15f },
-               { -0.13f, 0.0f,  0.06f },
-               { -0.00f, 0.0f,  0.06f } };
+static float sole[][3] = { 
+  {  0.00f, 0.0f, -0.70f },
+  {  0.04f, 0.0f, -0.69f },
+  {  0.09f, 0.0f, -0.65f },
+  {  0.13f, 0.0f, -0.61f },
+  {  0.16f, 0.0f, -0.54f },
+  {  0.17f, 0.0f, -0.46f },
+  {  0.17f, 0.0f, -0.35f },
+  {  0.16f, 0.0f, -0.25f },
+  {  0.15f, 0.0f, -0.14f },
+  {  0.13f, 0.0f,  0.00f },
+  {  0.00f, 0.0f,  0.00f },
+  { -0.13f, 0.0f,  0.00f },
+  { -0.15f, 0.0f, -0.14f },
+  { -0.16f, 0.0f, -0.25f },
+  { -0.17f, 0.0f, -0.35f },
+  { -0.17f, 0.0f, -0.46f },
+  { -0.16f, 0.0f, -0.54f },
+  { -0.13f, 0.0f, -0.61f },
+  { -0.09f, 0.0f, -0.65f },
+  { -0.04f, 0.0f, -0.69f },
+  { -0.00f, 0.0f, -0.70f } 
+};
 
 static int soleCount = 21;
-static int heelCount = 17;
 
 // Index buffer data for drawing in Dx and Core Profile modes:
 static unsigned short soleWireIndices[] = {
@@ -142,77 +129,41 @@ static unsigned short soleWireIndices[] = {
   19, 20
 };
 
-static unsigned short heelWireIndices[] =
-    {
-      0, 1,
-      1, 2,
-      2, 3,
-      3, 4,
-      4, 5,
-      5, 6,
-      6, 7,
-      7, 8,
-      8, 9,
-      9, 10,
-      10, 11,
-      11, 12,
-      12, 13,
-      13, 14,
-      14, 15,
-      15, 16
-    };
-static unsigned short soleShadedIndices[] =
-    {
-      0, 1, 2,
-      0, 2, 3,
-      0, 3, 4,
-      0, 4, 5,
-      0, 5, 6,
-      0, 6, 7,
-      0, 7, 8,
-      0, 8, 9,
-      0, 9, 10,
-      0, 10, 11,
-      0, 11, 12,
-      0, 12, 13,
-      0, 13, 14,
-      0, 14, 15,
-      0, 15, 16,
-      0, 16, 17,
-      0, 17, 18,
-      0, 18, 19,
-      0, 19, 20
-    };
-static unsigned short heelShadedIndices[] =
-    {
-      0, 1, 2,
-      0, 2, 3,
-      0, 3, 4,
-      0, 4, 5,
-      0, 5, 6,
-      0, 6, 7,
-      0, 7, 8,
-      0, 8, 9,
-      0, 9, 10,
-      0, 10, 11,
-      0, 11, 12,
-      0, 12, 13,
-      0, 13, 14,
-      0, 14, 15,
-      0, 15, 16
-    };
+static unsigned short soleShadedIndices[] = {
+  0, 1, 2,
+  0, 2, 3,
+  0, 3, 4,
+  0, 4, 5,
+  0, 5, 6,
+  0, 6, 7,
+  0, 7, 8,
+  0, 8, 9,
+  0, 9, 10,
+  0, 10, 11,
+  0, 11, 12,
+  0, 12, 13,
+  0, 13, 14,
+  0, 14, 15,
+  0, 15, 16,
+  0, 16, 17,
+  0, 17, 18,
+  0, 18, 19,
+  0, 19, 20
+};
+
 
 // 8 Vertices for drawing the bounding box in DX and Core Profile mode
 // lower and upper values of the sole and heel vertices +/- 0.1
 static float bbData[][3] = {
-    { -0.18f, 0.f, -0.71f},
-    {  0.18f, 0.f, -0.71f},
-    {  0.18f, 0.f,  0.31f},
-    { -0.18f, 0.f,  0.31f},
-    { -0.18f, 0.f, -0.71f},
-    {  0.18f, 0.f, -0.71f},
-    {  0.18f, 0.f,  0.31f},
-    { -0.18f, 0.f,  0.31f}};
+  { -0.18f, 0.f, -0.71f},
+  {  0.18f, 0.f, -0.71f},
+  {  0.18f, 0.f,  0.31f},
+  { -0.18f, 0.f,  0.31f},
+  { -0.18f, 0.f, -0.71f},
+  {  0.18f, 0.f, -0.71f},
+  {  0.18f, 0.f,  0.31f},
+  { -0.18f, 0.f,  0.31f}
+};
 
 // Index buffer for Wireframe drawing in Dx and Core Profile
 static unsigned short bbWireIndices[] = {
@@ -438,7 +389,7 @@ public:
     mShaderOverride = NULL;
   }
 
-  void setColor( const MColor& color) {
+  void setColor(const MColor& color) {
     mColor = color;
   }
 
@@ -526,7 +477,7 @@ void RawFootPrintDrawAgentGL::beginDraw(const MHWRender::MDrawContext& context, 
     glPushMatrix();
     glLoadMatrixd(mProjectionMatrix.matrix[0]);
 
-    glPushAttrib( GL_CURRENT_BIT );
+    glPushAttrib(GL_CURRENT_BIT);
   }
 }
 
@@ -549,17 +500,9 @@ void RawFootPrintDrawAgentGL::drawShaded() {
   glBegin(GL_TRIANGLE_FAN);
   int i;
   int last = soleCount - 1;
-  for ( i = 0; i < last; ++i ) {
+  for (i = 0; i < last; ++i) {
     glNormal3f(0.0f, 1.0f, 0.0f);
     glVertex3f(sole[i][0], sole[i][1], sole[i][2]);
-  }
-  glEnd();
-
-  glBegin(GL_TRIANGLE_FAN);
-  last = heelCount - 1;
-  for ( i = 0; i < last; ++i ) {
-    glNormal3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(heel[i][0], heel[i][1], heel[i][2]);
   }
   glEnd();
 }
@@ -577,40 +520,40 @@ void RawFootPrintDrawAgentGL::drawBoundingBox() {
   const float* bottomRightBack = bbData[2];
   const float* topRightBack = bbData[6];
 
-  glBegin( GL_LINES );
+  glBegin(GL_LINES);
 
   // 4 Bottom lines
   //
-  glVertex3fv( bottomLeftFront );
-  glVertex3fv( bottomRightFront );
-  glVertex3fv( bottomRightFront );
-  glVertex3fv( bottomRightBack );
-  glVertex3fv( bottomRightBack );
-  glVertex3fv( bottomLeftBack );
-  glVertex3fv( bottomLeftBack );
-  glVertex3fv( bottomLeftFront );
+  glVertex3fv(bottomLeftFront);
+  glVertex3fv(bottomRightFront);
+  glVertex3fv(bottomRightFront);
+  glVertex3fv(bottomRightBack);
+  glVertex3fv(bottomRightBack);
+  glVertex3fv(bottomLeftBack);
+  glVertex3fv(bottomLeftBack);
+  glVertex3fv(bottomLeftFront);
 
   // 4 Top lines
   //
-  glVertex3fv( topLeftFront );
-  glVertex3fv( topRightFront );
-  glVertex3fv( topRightFront );
-  glVertex3fv( topRightBack );
-  glVertex3fv( topRightBack );
-  glVertex3fv( topLeftBack );
-  glVertex3fv( topLeftBack );
-  glVertex3fv( topLeftFront );
+  glVertex3fv(topLeftFront);
+  glVertex3fv(topRightFront);
+  glVertex3fv(topRightFront);
+  glVertex3fv(topRightBack);
+  glVertex3fv(topRightBack);
+  glVertex3fv(topLeftBack);
+  glVertex3fv(topLeftBack);
+  glVertex3fv(topLeftFront);
 
   // 4 Side lines
   //
-  glVertex3fv( bottomLeftFront );
-  glVertex3fv( topLeftFront );
-  glVertex3fv( bottomRightFront );
-  glVertex3fv( topRightFront );
-  glVertex3fv( bottomRightBack );
-  glVertex3fv( topRightBack );
-  glVertex3fv( bottomLeftBack );
-  glVertex3fv( topLeftBack );
+  glVertex3fv(bottomLeftFront);
+  glVertex3fv(topLeftFront);
+  glVertex3fv(bottomRightFront);
+  glVertex3fv(topRightFront);
+  glVertex3fv(bottomRightBack);
+  glVertex3fv(topRightBack);
+  glVertex3fv(bottomLeftBack);
+  glVertex3fv(topLeftBack);
 
   glEnd();
 }
@@ -618,36 +561,18 @@ void RawFootPrintDrawAgentGL::drawBoundingBox() {
 
 void RawFootPrintDrawAgentGL::drawWireframe() {
   // set color
-  glColor4fv( &(mColor.r) );
+  glColor4fv(&(mColor.r));
 
   // draw wire
   glBegin(GL_LINES);
   int i;
   int last = soleCount - 1;
   for (i = 0; i < last; ++i) {
-    glVertex3f( sole[i][0],
-      sole[i][1],
-      sole[i][2]);
-    glVertex3f( sole[i+1][0],
-      sole[i+1][1],
-      sole[i+1][2]);
-  }
-  last = heelCount - 1;
-  for (i = 0; i < last; ++i) {
-    glVertex3f( heel[i][0],
-      heel[i][1],
-      heel[i][2]);
-    glVertex3f( heel[i+1][0],
-      heel[i+1][1],
-      heel[i+1][2]);
+    glVertex3f(sole[i][0], sole[i][1], sole[i][2]);
+    glVertex3f(sole[i+1][0], sole[i+1][1], sole[i+1][2]);
   }
   glEnd();
 }
-
-
-
-
-
 
 
 
@@ -979,7 +904,7 @@ private:
 
 void RawFootPrintDrawAgentCoreProfile::beginDraw(const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) {
   // Init common data:
-  if ( !mInitialized ){
+  if ( !mInitialized ) {
     // Set up all the one-time data:
     GLCP::initGLFunctionsCoreProfile();
     mValid = initShadersCoreProfile() && initBuffersCoreProfile();
@@ -1032,8 +957,7 @@ void RawFootPrintDrawAgentCoreProfile::drawShaded() {
 
   GLCP::BindVertexArray(mSoleShadedVAO);
   glDrawElements(GL_TRIANGLES, 3 * (soleCount-2), GL_UNSIGNED_SHORT, 0);
-  GLCP::BindVertexArray(mHeelShadedVAO);
-  glDrawElements(GL_TRIANGLES, 3 * (heelCount-2), GL_UNSIGNED_SHORT, 0);
+
 }
 
 
@@ -1058,8 +982,7 @@ void RawFootPrintDrawAgentCoreProfile::drawWireframe() {
 
   GLCP::BindVertexArray(mSoleWireframeVAO);
   glDrawElements(GL_LINES, 2 * (soleCount-1), GL_UNSIGNED_SHORT, 0);
-  GLCP::BindVertexArray(mHeelWireframeVAO);
-  glDrawElements(GL_LINES, 2 * (heelCount-1), GL_UNSIGNED_SHORT, 0);
+
 }
 
 
@@ -1149,7 +1072,7 @@ public:
     const MHWRender::MFrameContext& frameContext,
     MUserData* oldData) override;
 
-  bool hasUIDrawables() const override { return true; }
+  bool hasUIDrawables() const override {return false;}
 
   void addUIDrawables(
     const MDagPath& objPath,
@@ -1307,14 +1230,11 @@ float RawFootPrintDrawOverride::getMultiplier(const MDagPath& objPath) const {
   // Retrieve value of the size attribute from the node
   MStatus status;
   MObject rawfootprintNode = objPath.node(&status);
-  if (status)
-  {
+  if (status) {
     MPlug plug(rawfootprintNode, rawfootPrint::size);
-    if (!plug.isNull())
-    {
+    if (!plug.isNull()) {
       MDistance sizeVal;
-      if (plug.getValue(sizeVal))
-      {
+      if (plug.getValue(sizeVal)) {
         return (float)sizeVal.asCentimeters();
       }
     }
@@ -1323,18 +1243,14 @@ float RawFootPrintDrawOverride::getMultiplier(const MDagPath& objPath) const {
   return 1.0f;
 }
 
-bool RawFootPrintDrawOverride::isTransparentSort(const MDagPath& objPath) const
-{
+bool RawFootPrintDrawOverride::isTransparentSort(const MDagPath& objPath) const {
   MStatus status;
   MObject rawfootprintNode = objPath.node(&status);
-  if (status)
-  {
+  if (status) {
     MPlug plug(rawfootprintNode, rawfootPrint::transparencySort);
-    if (!plug.isNull())
-    {
+    if (!plug.isNull()) {
       bool isTransparent;
-      if (plug.getValue(isTransparent))
-      {
+      if (plug.getValue(isTransparent)) {
         return isTransparent;
       }
     }
@@ -1343,8 +1259,7 @@ bool RawFootPrintDrawOverride::isTransparentSort(const MDagPath& objPath) const
   return false;
 }
 
-float RawFootPrintDrawOverride::getTransparency(const MDagPath& objPath) const
-{
+float RawFootPrintDrawOverride::getTransparency(const MDagPath& objPath) const {
   // Retrieve value of the transparency attribute from the node
   MStatus status;
   MObject rawfootprintNode = objPath.node(&status);
@@ -1365,10 +1280,7 @@ float RawFootPrintDrawOverride::getTransparency(const MDagPath& objPath) const
 }
 
 
-MMatrix RawFootPrintDrawOverride::transform(
-  const MDagPath& objPath,
-  const MDagPath& cameraPath) const
-{
+MMatrix RawFootPrintDrawOverride::transform(const MDagPath& objPath, const MDagPath& cameraPath) const {
   // Update the transform matrix with the multiplier value,
   // this way, the matrices of the draw context will already contain the multiplier factor.
   // That way the WorldViewProjection uniform of the selection shader - which we do not have access to -
@@ -1384,10 +1296,8 @@ MMatrix RawFootPrintDrawOverride::transform(
   return transform;
 }
 
-MBoundingBox RawFootPrintDrawOverride::boundingBox(
-  const MDagPath& objPath,
-  const MDagPath& cameraPath) const
-{
+
+MBoundingBox RawFootPrintDrawOverride::boundingBox(const MDagPath& objPath, const MDagPath& cameraPath) const {
   MPoint corner1( -0.17, 0.0, -0.7 );
   MPoint corner2( 0.17, 0.0, 0.3 );
 
@@ -1518,27 +1428,23 @@ void RawFootPrintDrawOverride::drawImpl(
 {
   // Get renderer
   MHWRender::MRenderer* theRenderer = MHWRender::MRenderer::theRenderer();
-  if (!theRenderer)
-  {
+  if (!theRenderer) {
     return;
   }
 
   // Get user draw data
   const RawFootPrintData* footData = dynamic_cast<const RawFootPrintData*>(data);
-  if (!footData)
-  {
+  if (!footData) {
     return;
   }
 
   // Debug code to trace frame stamp numbering
   static bool traceFrameStamp = false;
-  if (traceFrameStamp)
-  {
+  if (traceFrameStamp) {
     const MHWRender::MPassContext & passCtx = context.getPassContext();
     const MStringArray & passSem = passCtx.passSemantics();
     MUint64 currentFrameStamp = context.getFrameStamp();
-    if (currentFrameStamp != footData->mLastFrameStamp)
-    {
+    if (currentFrameStamp != footData->mLastFrameStamp) {
       bool updateColorPassFrameStamp = true;
       if (passSem.length() == 1 && 
         (passSem[0] == MHWRender::MPassContext::kSelectionPassSemantic ||
@@ -1559,17 +1465,14 @@ void RawFootPrintDrawOverride::drawImpl(
   const MDAGDrawOverrideInfo& objectOverrideInfo = footData->fDrawOV;
 
   // Just return and draw nothing, if it is overridden invisible
-  if ( objectOverrideInfo.fOverrideEnabled && !objectOverrideInfo.fEnableVisible )
-  {
+  if ( objectOverrideInfo.fOverrideEnabled && !objectOverrideInfo.fEnableVisible ) {
     return;
   }
 
   // If in playback but hidden in playback, skip drawing
   bool animPlay = MAnimControl::isPlaying();
   bool animScrub = MAnimControl::isScrubbing();
-  if (!objectOverrideInfo.fPlaybackVisible &&
-    (animPlay || animScrub))
-  {
+  if (!objectOverrideInfo.fPlaybackVisible && (animPlay || animScrub)) {
     return;
   }
   
@@ -1615,10 +1518,8 @@ void RawFootPrintDrawOverride::drawImpl(
 
   // For any viewport interactions switch to bounding box mode,
   // except when we are in playback. Uncomment to enable usage.
-  if (context.inUserInteraction() || context.userChangingViewContext())
-  {
-    if (!animPlay && !animScrub)
-    {
+  if (context.inUserInteraction() || context.userChangingViewContext()) {
+    if (!animPlay && !animScrub) {
       ; //drawAsBoundingbox = true;
     }
   }
@@ -1634,10 +1535,8 @@ void RawFootPrintDrawOverride::drawImpl(
   const MHWRender::MPassContext & passCtx = context.getPassContext();
   const MStringArray & passSem = passCtx.passSemantics();
   MHWRender::MShaderInstance* passShaderOverride = NULL;
-  for (unsigned int i=0; i<passSem.length(); i++)
-  {
-    if (passSem[i] == MHWRender::MPassContext::kSelectionPassSemantic)
-    {
+  for (unsigned int i=0; i<passSem.length(); i++) {
+    if (passSem[i] == MHWRender::MPassContext::kSelectionPassSemantic) {
       inSelection = true;
     }
     else if (passSem[i] == beautyPassSemantic)
@@ -1697,14 +1596,10 @@ void RawFootPrintDrawOverride::drawImpl(
   const MHWRender::MRasterizerState* pOldRasterState = NULL;
   const MHWRender::MRasterizerState* rasterState = NULL;
 
-  if(stateMgr && ((displayStyle & MHWRender::MFrameContext::kGouraudShaded) ||
-           (displayStyle & MHWRender::MFrameContext::kFlatShaded)))
-  {
+  if(stateMgr && ((displayStyle & MHWRender::MFrameContext::kGouraudShaded) || (displayStyle & MHWRender::MFrameContext::kFlatShaded))) {
     // draw filled, and with blending if required
-    if (stateMgr && requireBlending)
-    {		
-      if (footData->mBlendState)
-      {
+    if (stateMgr && requireBlending) {		
+      if (footData->mBlendState) {
         pOldBlendState = stateMgr->getBlendState();
         stateMgr->setBlendState(footData->mBlendState);
       }
@@ -1713,23 +1608,18 @@ void RawFootPrintDrawOverride::drawImpl(
     // If the object is not draw as transparency, 
     // override culling mode since we always want double-sided
     //
-    if (!inTransparencyPass)
-    {
+    if (!inTransparencyPass) {
       pOldRasterState = stateMgr ? stateMgr->getRasterizerState() : NULL;
-      if (pOldRasterState)
-      {
-
+      if (pOldRasterState) {
         MHWRender::MRasterizerStateDesc desc( pOldRasterState->desc() );
         // It's also possible to change this to kCullFront or kCullBack if we
         // wanted to set it to that.
         MHWRender::MRasterizerState::CullMode cullMode = MHWRender::MRasterizerState::kCullNone;
-        if (desc.cullMode != cullMode)
-        {
+        if (desc.cullMode != cullMode) {
           // Just override the cullmode
           desc.cullMode = cullMode;
           rasterState = stateMgr->acquireRasterizerState(desc);
-          if (rasterState)
-          {
+          if (rasterState) {
             stateMgr->setRasterizerState(rasterState);
           }
         }
@@ -1745,16 +1635,13 @@ void RawFootPrintDrawOverride::drawImpl(
   RawFootPrintDrawAgentGL& drawAgentRef = RawFootPrintDrawAgentGL::getDrawAgent();
   RawFootPrintDrawAgent* drawAgentPtr = &drawAgentRef;
 
-  if ( theRenderer->drawAPI() == MHWRender::kOpenGLCoreProfile )
-  {
+  if (theRenderer->drawAPI() == MHWRender::kOpenGLCoreProfile) {
     RawFootPrintDrawAgentCoreProfile& drawAgentRef = RawFootPrintDrawAgentCoreProfile::getDrawAgent();
     drawAgentPtr = &drawAgentRef;
   }
 
   assert( drawAgentPtr );
-
   if (drawAgentPtr) {
-
     // Set color
     drawAgentPtr->setColor(MColor(color[0], color[1], color[2], color[3]));
     // Set matrix
@@ -1762,18 +1649,15 @@ void RawFootPrintDrawOverride::drawImpl(
 
     drawAgentPtr->beginDraw( context, passShaderOverride );
 
-    if (drawAsBoundingbox)
-    {
+    if (drawAsBoundingbox) {
       // If it is in bounding bode, draw only bounding box wireframe, nothing else
       drawAgentPtr->drawBoundingBox();
     }
     else {
-      if (drawWireframe || overideTemplated || overrideNoShaded) 
-      {
+      if (drawWireframe || overideTemplated || overrideNoShaded) {
         drawAgentPtr->drawWireframe();
       }
-      if (!overideTemplated && !overrideNoShaded  && drawShaded)
-      {
+      if (!overideTemplated && !overrideNoShaded  && drawShaded) {
         drawAgentPtr->drawShaded();
       }
     }
@@ -1786,7 +1670,7 @@ void RawFootPrintDrawOverride::drawImpl(
   //================================================
 
 
-  if ( passShaderOverride ) {
+  if (passShaderOverride) {
     theRenderer->getShaderManager()->releaseShader( passShaderOverride );
   }
 
@@ -1794,9 +1678,7 @@ void RawFootPrintDrawOverride::drawImpl(
   //================================================
   // Restore old blend state and old raster state
   //================================================
-  if(stateMgr && (displayStyle & MHWRender::MFrameContext::kGouraudShaded  ||
-          displayStyle & MHWRender::MFrameContext::kFlatShaded))
-  {
+  if(stateMgr && (displayStyle & MHWRender::MFrameContext::kGouraudShaded || displayStyle & MHWRender::MFrameContext::kFlatShaded)) {
     if (stateMgr && pOldBlendState) {
       stateMgr->setBlendState(pOldBlendState);
       stateMgr->releaseBlendState(pOldBlendState);
@@ -1827,38 +1709,6 @@ void RawFootPrintDrawOverride::drawImpl(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// By setting isAlwaysDirty to false in MPxDrawOverride constructor, the
-// draw override will be updated (via prepareForDraw()) only when the node
-// is marked dirty via DG evaluation or dirty propagation. Additional
-// callback is also added to explicitly mark the node as being dirty (via
-// MRenderer::setGeometryDrawDirty()) for certain circumstances.
-// RawFootPrintDrawOverride::RawFootPrintDrawOverride(const MObject& obj)
-// : MHWRender::MPxDrawOverride(obj, RawFootPrintDrawOverride::draw, false)
-// // We want to perform custom bounding box drawing
-// // so return true so that the internal rendering code
-// // will not draw it for us.
-// , mCustomBoxDraw(true)
-// , mExcludeFromPostEffects(false)
-// , mTransparencySort(false)
-// , mBlendState(NULL)
-// , mLastFrameStamp(0)
-// , fRawFootPrint(obj)
-// {
-//   fModelEditorChangedCbId = MEventMessage::addEventCallback(
-//     "modelEditorChanged", OnModelEditorChanged, this);
-// }
 
 
 
@@ -1960,25 +1810,13 @@ bool RawFootPrintDrawAgentCoreProfile::initBuffersCoreProfile() {
   GLCP::BindBuffer(GL_ARRAY_BUFFER, mSoleVertexBuffer);
   GLCP::BufferData(GL_ARRAY_BUFFER, sizeof(sole), (void*)sole, GL_STATIC_DRAW);
 
-  GLCP::GenBuffers(1, &mHeelVertexBuffer);
-  GLCP::BindBuffer(GL_ARRAY_BUFFER, mHeelVertexBuffer);
-  GLCP::BufferData(GL_ARRAY_BUFFER, sizeof(heel), (void*)heel, GL_STATIC_DRAW);
-
   GLCP::GenBuffers(1, &mSoleWireIndexBuffer);
   GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mSoleWireIndexBuffer);
   GLCP::BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(soleWireIndices), (void*)soleWireIndices, GL_STATIC_DRAW);
 
-  GLCP::GenBuffers(1, &mHeelWireIndexBuffer);
-  GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHeelWireIndexBuffer);
-  GLCP::BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(heelWireIndices), (void*)heelWireIndices, GL_STATIC_DRAW);
-
   GLCP::GenBuffers(1, &mSoleShadedIndexBuffer);
   GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mSoleShadedIndexBuffer);
   GLCP::BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(soleShadedIndices), (void*)soleShadedIndices, GL_STATIC_DRAW);
-
-  GLCP::GenBuffers(1, &mHeelShadedIndexBuffer);
-  GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHeelShadedIndexBuffer);
-  GLCP::BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(heelShadedIndices), (void*)heelShadedIndices, GL_STATIC_DRAW);
 
   GLCP::UseProgram(mShaderProgram);
 
@@ -1991,26 +1829,10 @@ bool RawFootPrintDrawAgentCoreProfile::initBuffersCoreProfile() {
   GLCP::VertexAttribPointer(mVtxAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
   GLCP::BindVertexArray(0);
 
-  GLCP::GenVertexArrays(1, &mHeelWireframeVAO);
-  GLCP::BindVertexArray(mHeelWireframeVAO);
-  GLCP::BindBuffer(GL_ARRAY_BUFFER, mHeelVertexBuffer);
-  GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHeelWireIndexBuffer);
-  GLCP::EnableVertexAttribArray(mVtxAttrib);
-  GLCP::VertexAttribPointer(mVtxAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  GLCP::BindVertexArray(0);
-
   GLCP::GenVertexArrays(1, &mSoleShadedVAO);
   GLCP::BindVertexArray(mSoleShadedVAO);
   GLCP::BindBuffer(GL_ARRAY_BUFFER, mSoleVertexBuffer);
   GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mSoleShadedIndexBuffer);
-  GLCP::EnableVertexAttribArray(mVtxAttrib);
-  GLCP::VertexAttribPointer(mVtxAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  GLCP::BindVertexArray(0);
-
-  GLCP::GenVertexArrays(1, &mHeelShadedVAO);
-  GLCP::BindVertexArray(mHeelShadedVAO);
-  GLCP::BindBuffer(GL_ARRAY_BUFFER, mHeelVertexBuffer);
-  GLCP::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHeelShadedIndexBuffer);
   GLCP::EnableVertexAttribArray(mVtxAttrib);
   GLCP::VertexAttribPointer(mVtxAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
   GLCP::BindVertexArray(0);
@@ -2049,11 +1871,6 @@ bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources() {
     mSoleShadedVAO = 0;
   }
 
-  if (mHeelShadedVAO) {
-    GLCP::DeleteVertexArrays(1, &mHeelShadedVAO);
-    mHeelShadedVAO = 0;
-  }
-
   if (mBoundingboxVertexBuffer) {
     GLCP::DeleteBuffers(1, &mBoundingboxVertexBuffer);
     mBoundingboxVertexBuffer = 0;
@@ -2069,11 +1886,6 @@ bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources() {
     mSoleVertexBuffer = 0;
   }
 
-  if (mHeelVertexBuffer) {
-    GLCP::DeleteBuffers(1, &mHeelVertexBuffer);
-    mHeelVertexBuffer = 0;
-  }
-
   if (mSoleWireIndexBuffer) {
     GLCP::DeleteBuffers(1, &mSoleWireIndexBuffer);
     mSoleWireIndexBuffer = 0;
@@ -2082,16 +1894,6 @@ bool RawFootPrintDrawAgentCoreProfile::releaseCoreProfileResources() {
   if (mSoleShadedIndexBuffer) {
     GLCP::DeleteBuffers(1, &mSoleShadedIndexBuffer);
     mSoleShadedIndexBuffer = 0;
-  }
-
-  if (mHeelWireIndexBuffer) {
-    GLCP::DeleteBuffers(1, &mHeelWireIndexBuffer);
-    mHeelWireIndexBuffer = 0;
-  }
-
-  if (mHeelShadedIndexBuffer) {
-    GLCP::DeleteBuffers(1, &mHeelShadedIndexBuffer);
-    mHeelShadedIndexBuffer = 0;
   }
 
   return true;

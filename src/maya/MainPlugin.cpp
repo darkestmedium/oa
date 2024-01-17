@@ -179,13 +179,17 @@ MStatus initializePlugin(MObject obj) {
   // CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
+
   // TEMP
+  // status = fn_plugin.registerTransform(
   status = fn_plugin.registerNode(
     "rawfootPrint",
     rawfootPrint::id,
     &rawfootPrint::creator,
     &rawfootPrint::initialize,
     MPxNode::kLocatorNode,
+    // &MPxTransformationMatrix::creator,
+    // MPxTransformationMatrix::baseTransformationMatrixId,
     &rawfootPrint::drawDbClassification
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
