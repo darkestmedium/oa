@@ -657,8 +657,7 @@ MShaderInstance * SolidColorShaderStore::get(MColor color) {
 // Which requires us to re-generate the geometry
 // Note, this method must return the exact same value in a cache-restoration frame
 // as it was in the corresponding cache-store frame
-bool FootPrintGeometryOverride::requiresGeometryUpdate() const
-{
+bool FootPrintGeometryOverride::requiresGeometryUpdate() const {
 	// Checking the "FootPrintNode::geometryChanging" attribute
 	// If any attribute affecting the geometry is changing, "FootPrintNode::geometryChanging" should be affected and dirtied
 	// Also check FootPrintNode::updatingGeometry() 

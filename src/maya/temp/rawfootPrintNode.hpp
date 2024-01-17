@@ -79,31 +79,17 @@
 
 // Foot Data
 //
-static float sole[][3] = { 
-  {  0.00f, 0.0f, -0.70f },
-  {  0.04f, 0.0f, -0.69f },
-  {  0.09f, 0.0f, -0.65f },
-  {  0.13f, 0.0f, -0.61f },
-  {  0.16f, 0.0f, -0.54f },
-  {  0.17f, 0.0f, -0.46f },
-  {  0.17f, 0.0f, -0.35f },
-  {  0.16f, 0.0f, -0.25f },
-  {  0.15f, 0.0f, -0.14f },
-  {  0.13f, 0.0f,  0.00f },
-  {  0.00f, 0.0f,  0.00f },
-  { -0.13f, 0.0f,  0.00f },
-  { -0.15f, 0.0f, -0.14f },
-  { -0.16f, 0.0f, -0.25f },
-  { -0.17f, 0.0f, -0.35f },
-  { -0.17f, 0.0f, -0.46f },
-  { -0.16f, 0.0f, -0.54f },
-  { -0.13f, 0.0f, -0.61f },
-  { -0.09f, 0.0f, -0.65f },
-  { -0.04f, 0.0f, -0.69f },
-  { -0.00f, 0.0f, -0.70f } 
+static float sole[8][3] = { 
+	{0.500f, 0.500f, 0.500f},
+	{0.500f, 0.500f, -0.500f},
+	{-0.500f, 0.500f, -0.500f},
+	{-0.500f, 0.500f, 0.500f},
+	{0.500f, -0.500f, 0.500f},
+	{0.500f, -0.500f, -0.500f},
+	{-0.500f, -0.500f, -0.500f},
+	{-0.500f, -0.500f, 0.500f},
 };
-
-static int soleCount = 21;
+static int soleCount = 8;
 
 // Index buffer data for drawing in Dx and Core Profile modes:
 static unsigned short soleWireIndices[] = {
@@ -275,7 +261,7 @@ MBoundingBox rawfootPrint::boundingBox() const {
   corner1 = corner1 * multiplier;
   corner2 = corner2 * multiplier;
 
-  return MBoundingBox( corner1, corner2 );
+  return MBoundingBox(corner1, corner2);
 }
 
 
@@ -349,8 +335,8 @@ public:
   {};
   virtual ~RawFootPrintDrawAgent() {}
 
-  virtual void drawShaded() = 0;
-  virtual void drawBoundingBox() = 0;
+  // virtual void drawShaded() = 0;
+  // virtual void drawBoundingBox() = 0;
   virtual void drawWireframe() = 0;
 
   virtual void setMatrix(const MHWRender::MDrawContext& context, const MHWRender::MSelectionInfo* selectInfo) = 0;
@@ -361,26 +347,11 @@ public:
     const bool debugShader = false;
     MHWRender::MVertexBufferDescriptorList bufferList;
     if (mShaderOverride) {
-      if (debugShader) {
-        mShaderOverride->requiredVertexBuffers(bufferList);
-        for (int i=0; i<bufferList.length(); i++) {
-          MHWRender::MVertexBufferDescriptor desc;
-          bufferList.getDescriptor( i, desc );
-          printf("Buffer[%d][name=%s]\n", i, desc.name().asChar());
-          printf("[semantic = %s\n", desc.semanticName().asChar());
-          printf("[dataType = %d\n", desc.dataType());
-          printf("[dataTyleSize = %d\n", desc.dataTypeSize());
-          printf("[dimension = %d\n", desc.dimension());
-          printf("[offset = %d\n", desc.offset());
-          printf("[stride = %d\n", desc.stride());
-        }
-      }
-      mShaderOverride->bind( *mDrawContext );
-      mShaderOverride->updateParameters( *mDrawContext );
-      mShaderOverride->activatePass( *mDrawContext, 0 );
+      mShaderOverride->bind(*mDrawContext);
+      mShaderOverride->updateParameters(*mDrawContext);
+      mShaderOverride->activatePass(*mDrawContext, 0);
     }
   }
-
   virtual void endDraw() {
     if (mShaderOverride) {
       mShaderOverride->unbind(*mDrawContext);
@@ -388,10 +359,7 @@ public:
     mDrawContext = NULL;
     mShaderOverride = NULL;
   }
-
-  void setColor(const MColor& color) {
-    mColor = color;
-  }
+  void setColor(const MColor& color) {mColor = color;}
 
 protected:
   const MHWRender::MDrawContext* mDrawContext;
@@ -409,8 +377,8 @@ public:
     return obj;
   }
 
-  void drawShaded() override;
-  void drawBoundingBox() override;
+  // void drawShaded() override;
+  // void drawBoundingBox() override;
   void drawWireframe() override;
   void beginDraw(const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) override;
   void endDraw() override;
@@ -493,70 +461,70 @@ void RawFootPrintDrawAgentGL::endDraw() {
 }
 
 
-void RawFootPrintDrawAgentGL::drawShaded() {
-  // set color
-  glColor4fv( &(mColor.r) );
+// void RawFootPrintDrawAgentGL::drawShaded() {
+//   // set color
+//   glColor4fv( &(mColor.r) );
 
-  glBegin(GL_TRIANGLE_FAN);
-  int i;
-  int last = soleCount - 1;
-  for (i = 0; i < last; ++i) {
-    glNormal3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(sole[i][0], sole[i][1], sole[i][2]);
-  }
-  glEnd();
-}
+//   glBegin(GL_TRIANGLE_FAN);
+//   int i;
+//   int last = soleCount - 1;
+//   for (i = 0; i < last; ++i) {
+//     glNormal3f(0.0f, 1.0f, 0.0f);
+//     glVertex3f(sole[i][0], sole[i][1], sole[i][2]);
+//   }
+//   glEnd();
+// }
 
-void RawFootPrintDrawAgentGL::drawBoundingBox() {
-  // set color
-  glColor4fv( &(mColor.r) );
+// void RawFootPrintDrawAgentGL::drawBoundingBox() {
+//   // set color
+//   glColor4fv( &(mColor.r) );
 
-  const float* bottomLeftFront = bbData[0];
-  const float* topLeftFront = bbData[4];
-  const float* bottomRightFront = bbData[1];
-  const float* topRightFront = bbData[5];
-  const float* bottomLeftBack = bbData[3];
-  const float* topLeftBack = bbData[7];
-  const float* bottomRightBack = bbData[2];
-  const float* topRightBack = bbData[6];
+//   const float* bottomLeftFront = bbData[0];
+//   const float* topLeftFront = bbData[4];
+//   const float* bottomRightFront = bbData[1];
+//   const float* topRightFront = bbData[5];
+//   const float* bottomLeftBack = bbData[3];
+//   const float* topLeftBack = bbData[7];
+//   const float* bottomRightBack = bbData[2];
+//   const float* topRightBack = bbData[6];
 
-  glBegin(GL_LINES);
+//   glBegin(GL_LINES);
 
-  // 4 Bottom lines
-  //
-  glVertex3fv(bottomLeftFront);
-  glVertex3fv(bottomRightFront);
-  glVertex3fv(bottomRightFront);
-  glVertex3fv(bottomRightBack);
-  glVertex3fv(bottomRightBack);
-  glVertex3fv(bottomLeftBack);
-  glVertex3fv(bottomLeftBack);
-  glVertex3fv(bottomLeftFront);
+//   // 4 Bottom lines
+//   //
+//   glVertex3fv(bottomLeftFront);
+//   glVertex3fv(bottomRightFront);
+//   glVertex3fv(bottomRightFront);
+//   glVertex3fv(bottomRightBack);
+//   glVertex3fv(bottomRightBack);
+//   glVertex3fv(bottomLeftBack);
+//   glVertex3fv(bottomLeftBack);
+//   glVertex3fv(bottomLeftFront);
 
-  // 4 Top lines
-  //
-  glVertex3fv(topLeftFront);
-  glVertex3fv(topRightFront);
-  glVertex3fv(topRightFront);
-  glVertex3fv(topRightBack);
-  glVertex3fv(topRightBack);
-  glVertex3fv(topLeftBack);
-  glVertex3fv(topLeftBack);
-  glVertex3fv(topLeftFront);
+//   // 4 Top lines
+//   //
+//   glVertex3fv(topLeftFront);
+//   glVertex3fv(topRightFront);
+//   glVertex3fv(topRightFront);
+//   glVertex3fv(topRightBack);
+//   glVertex3fv(topRightBack);
+//   glVertex3fv(topLeftBack);
+//   glVertex3fv(topLeftBack);
+//   glVertex3fv(topLeftFront);
 
-  // 4 Side lines
-  //
-  glVertex3fv(bottomLeftFront);
-  glVertex3fv(topLeftFront);
-  glVertex3fv(bottomRightFront);
-  glVertex3fv(topRightFront);
-  glVertex3fv(bottomRightBack);
-  glVertex3fv(topRightBack);
-  glVertex3fv(bottomLeftBack);
-  glVertex3fv(topLeftBack);
+//   // 4 Side lines
+//   //
+//   glVertex3fv(bottomLeftFront);
+//   glVertex3fv(topLeftFront);
+//   glVertex3fv(bottomRightFront);
+//   glVertex3fv(topRightFront);
+//   glVertex3fv(bottomRightBack);
+//   glVertex3fv(topRightBack);
+//   glVertex3fv(bottomLeftBack);
+//   glVertex3fv(topLeftBack);
 
-  glEnd();
-}
+//   glEnd();
+// }
 
 
 void RawFootPrintDrawAgentGL::drawWireframe() {
@@ -822,8 +790,8 @@ public:
     return obj;
   }
 
-  void drawShaded() override;
-  void drawBoundingBox() override;
+  // void drawShaded() override;
+  // void drawBoundingBox() override;
   void drawWireframe() override;
   void beginDraw( const MHWRender::MDrawContext& context, MHWRender::MShaderInstance* passShaderOverride) override;
   void endDraw() override;
@@ -948,29 +916,29 @@ void RawFootPrintDrawAgentCoreProfile::setupUniforms() {
 }
 
 
-void RawFootPrintDrawAgentCoreProfile::drawShaded() {
-  if (!mValid)
-    return;
+// void RawFootPrintDrawAgentCoreProfile::drawShaded() {
+//   if (!mValid)
+//     return;
 
-  // Set uniforms
-  setupUniforms();
+//   // Set uniforms
+//   setupUniforms();
 
-  GLCP::BindVertexArray(mSoleShadedVAO);
-  glDrawElements(GL_TRIANGLES, 3 * (soleCount-2), GL_UNSIGNED_SHORT, 0);
+//   GLCP::BindVertexArray(mSoleShadedVAO);
+//   glDrawElements(GL_TRIANGLES, 3 * (soleCount-2), GL_UNSIGNED_SHORT, 0);
 
-}
+// }
 
 
-void RawFootPrintDrawAgentCoreProfile::drawBoundingBox() {
-  if (!mValid)
-    return;
+// void RawFootPrintDrawAgentCoreProfile::drawBoundingBox() {
+//   if (!mValid)
+//     return;
 
-  // Set uniforms
-  setupUniforms();
+//   // Set uniforms
+//   setupUniforms();
 
-  GLCP::BindVertexArray(mBBoxVAO);
-  glDrawElements(GL_LINES, 2 * 12, GL_UNSIGNED_SHORT, 0);
-}
+//   GLCP::BindVertexArray(mBBoxVAO);
+//   glDrawElements(GL_LINES, 2 * 12, GL_UNSIGNED_SHORT, 0);
+// }
 
 
 void RawFootPrintDrawAgentCoreProfile::drawWireframe() {
@@ -1011,38 +979,9 @@ void RawFootPrintDrawAgentCoreProfile::drawWireframe() {
 
 
 
-
-
-
-
-
-
-
-
 class RawFootPrintDrawOverride : public MHWRender::MPxDrawOverride {
 
 public:
-  // Constructors
-  // By setting isAlwaysDirty to false in MPxDrawOverride constructor, the
-  // draw override will be updated (via prepareForDraw()) only when the node
-  // is marked dirty via DG evaluation or dirty propagation. Additional
-  // callback is also added to explicitly mark the node as being dirty (via
-  // MRenderer::setGeometryDrawDirty()) for certain circumstances.
-  RawFootPrintDrawOverride(const MObject& obj)
-    : MHWRender::MPxDrawOverride(obj, RawFootPrintDrawOverride::draw, false)
-    // We want to perform custom bounding box drawing
-    // so return true so that the internal rendering code
-    // will not draw it for us.
-    , mCustomBoxDraw(true)
-    , mExcludeFromPostEffects(false)
-    , mTransparencySort(false)
-    , mBlendState(NULL)
-    , mLastFrameStamp(0)
-    , fRawFootPrint(obj)
-    {
-      fModelEditorChangedCbId = MEventMessage::addEventCallback("modelEditorChanged", OnModelEditorChanged, this);
-    };
-
   // Destructor
   ~RawFootPrintDrawOverride() override {
     if (mBlendState) {
@@ -1200,6 +1139,26 @@ protected:
   bool		mTransparencySort;
   MUint64	mLastFrameStamp;
 private:
+  // Constructors
+  // By setting isAlwaysDirty to false in MPxDrawOverride constructor, the
+  // draw override will be updated (via prepareForDraw()) only when the node
+  // is marked dirty via DG evaluation or dirty propagation. Additional
+  // callback is also added to explicitly mark the node as being dirty (via
+  // MRenderer::setGeometryDrawDirty()) for certain circumstances.
+  RawFootPrintDrawOverride(const MObject& obj)
+    : MHWRender::MPxDrawOverride(obj, RawFootPrintDrawOverride::draw, false)
+    // We want to perform custom bounding box drawing
+    // so return true so that the internal rendering code
+    // will not draw it for us.
+    , mCustomBoxDraw(true)
+    , mExcludeFromPostEffects(false)
+    , mTransparencySort(false)
+    , mBlendState(NULL)
+    , mLastFrameStamp(0)
+    , fRawFootPrint(obj)
+    {
+      fModelEditorChangedCbId = MEventMessage::addEventCallback("modelEditorChanged", OnModelEditorChanged, this);
+    };
   // RawFootPrintDrawOverride(const MObject& obj);
 
   float	getMultiplier(const MDagPath& objPath) const;
@@ -1325,18 +1284,15 @@ MUserData* RawFootPrintDrawOverride::prepareForDraw(
   
   // We only care about post effects when in shaded mode
   const unsigned int displayStyle = frameContext.getDisplayStyle();
-  bool shadedMode = (displayStyle & MHWRender::MFrameContext::kGouraudShaded) ||
-            (displayStyle & MHWRender::MFrameContext::kFlatShaded);
-  static bool sExcludedFromPostEffects =
-    (getenv("MAYA_RAWFOOTPRINT_EXCLUDEDFROMPOSTEFFECTS") != NULL);
+  bool shadedMode = (displayStyle & MHWRender::MFrameContext::kGouraudShaded) || (displayStyle & MHWRender::MFrameContext::kFlatShaded);
+  static bool sExcludedFromPostEffects = (getenv("MAYA_RAWFOOTPRINT_EXCLUDEDFROMPOSTEFFECTS") != NULL);
   mExcludeFromPostEffects = !shadedMode || sExcludedFromPostEffects;
 
   mTransparencySort = isTransparentSort(objPath);
 
   // Retrieve data cache (create if does not exist)
   RawFootPrintData* data = dynamic_cast<RawFootPrintData*>(oldData);
-  if (!data)
-  {
+  if (!data) {
     data = new RawFootPrintData();
     data->mLastFrameStamp = 0;
   }
@@ -1371,8 +1327,7 @@ MUserData* RawFootPrintDrawOverride::prepareForDraw(
   data->fDrawOV = objPath.getDrawOverrideInfo();
 
   // Get a blend state override
-  if (!mBlendState)
-  {
+  if (!mBlendState) {
     MHWRender::MBlendStateDesc blendStateDesc;
     for(int i = 0; i < (blendStateDesc.independentBlendEnable ? MHWRender::MBlendState::kMaxTargets : 1); ++i)
     {
@@ -1438,29 +1393,6 @@ void RawFootPrintDrawOverride::drawImpl(
     return;
   }
 
-  // Debug code to trace frame stamp numbering
-  static bool traceFrameStamp = false;
-  if (traceFrameStamp) {
-    const MHWRender::MPassContext & passCtx = context.getPassContext();
-    const MStringArray & passSem = passCtx.passSemantics();
-    MUint64 currentFrameStamp = context.getFrameStamp();
-    if (currentFrameStamp != footData->mLastFrameStamp) {
-      bool updateColorPassFrameStamp = true;
-      if (passSem.length() == 1 && 
-        (passSem[0] == MHWRender::MPassContext::kSelectionPassSemantic ||
-        passSem[0] == MHWRender::MPassContext::kShadowPassSemantic))
-      {
-        updateColorPassFrameStamp = false;
-      }
-      if (updateColorPassFrameStamp)
-      {
-        printf("RawFootPrintDrawOverride: frame stamp change from %ld to %ld\n", 					
-          (long)footData->mLastFrameStamp, (long)currentFrameStamp);
-      }
-      ((RawFootPrintData*)footData)->mLastFrameStamp = currentFrameStamp;
-    }
-  }
-
   // Get DAG object draw override
   const MDAGDrawOverrideInfo& objectOverrideInfo = footData->fDrawOV;
 
@@ -1494,15 +1426,13 @@ void RawFootPrintDrawOverride::drawImpl(
   // Templated, only draw wirefame and it is not selectale
   bool overideTemplated = objectOverrideInfo.fOverrideEnabled &&
     (objectOverrideInfo.fDisplayType == MDAGDrawOverrideInfo::kDisplayTypeTemplate);
-  if (overideTemplated)
-  {
+  if (overideTemplated) {
     drawWireframe = true;
   }
 
   // Override no shaded, only show wireframe
   bool overrideNoShaded = objectOverrideInfo.fOverrideEnabled && !objectOverrideInfo.fEnableShading;
-  if (overideTemplated || overrideNoShaded)
-  {
+  if (overideTemplated || overrideNoShaded) {
     drawShaded = false;
   }
 
@@ -1511,8 +1441,7 @@ void RawFootPrintDrawOverride::drawImpl(
   // since the bounds draw is handled by the renderer and
   // doesn't need to be drawn here.
   //
-  if ( drawAsBoundingbox && !footData->fCustomBoxDraw )
-  {
+  if (drawAsBoundingbox && !footData->fCustomBoxDraw) {
     drawAsBoundingbox = false;
   }
 
@@ -1554,19 +1483,17 @@ void RawFootPrintDrawOverride::drawImpl(
       passShaderOverride->setParameter("mayaNormalMultiplier", -1.0f);
     }
 
-    if (passSem[i] == MHWRender::MPassContext::kCullBackSemantic ||
-      passSem[i] == MHWRender::MPassContext::kCullFrontSemantic)
-    {
+    if (passSem[i] == MHWRender::MPassContext::kCullBackSemantic || passSem[i] == MHWRender::MPassContext::kCullFrontSemantic) {
       inTransparencyPass = true;
     }
   }
 
   // Get cached data
   float color[4] = {
-      footData->fColor[0] * footData->fColor[3],
-      footData->fColor[1] * footData->fColor[3],
-      footData->fColor[2] * footData->fColor[3],
-      footData->fColor[3]
+    footData->fColor[0] * footData->fColor[3],
+    footData->fColor[1] * footData->fColor[3],
+    footData->fColor[2] * footData->fColor[3],
+    footData->fColor[3]
   };
 
   bool requireBlending = false;
@@ -1640,7 +1567,7 @@ void RawFootPrintDrawOverride::drawImpl(
     drawAgentPtr = &drawAgentRef;
   }
 
-  assert( drawAgentPtr );
+  assert(drawAgentPtr);
   if (drawAgentPtr) {
     // Set color
     drawAgentPtr->setColor(MColor(color[0], color[1], color[2], color[3]));
@@ -1649,18 +1576,20 @@ void RawFootPrintDrawOverride::drawImpl(
 
     drawAgentPtr->beginDraw( context, passShaderOverride );
 
-    if (drawAsBoundingbox) {
-      // If it is in bounding bode, draw only bounding box wireframe, nothing else
-      drawAgentPtr->drawBoundingBox();
-    }
-    else {
-      if (drawWireframe || overideTemplated || overrideNoShaded) {
-        drawAgentPtr->drawWireframe();
-      }
-      if (!overideTemplated && !overrideNoShaded  && drawShaded) {
-        drawAgentPtr->drawShaded();
-      }
-    }
+    drawAgentPtr->drawWireframe();
+
+    // if (drawAsBoundingbox) {
+    //   // If it is in bounding bode, draw only bounding box wireframe, nothing else
+    //   drawAgentPtr->drawBoundingBox();
+    // }
+    // else {
+    //   if (drawWireframe || overideTemplated || overrideNoShaded) {
+    //     drawAgentPtr->drawWireframe();
+    //   }
+    //   if (!overideTemplated && !overrideNoShaded  && drawShaded) {
+    //     drawAgentPtr->drawShaded();
+    //   }
+    // }
 
     drawAgentPtr->endDraw();
   }
