@@ -8,7 +8,7 @@ set(NODE_FILES
   CtrlCmd.hpp
   CtrlCmd.cpp
   SpaceSwitchNode.hpp
-  ShapesDefinition.hpp
+  Shapes.hpp
   MetaDataNode.hpp
   MetaDataNode.cpp
   MetaDataCmd.hpp

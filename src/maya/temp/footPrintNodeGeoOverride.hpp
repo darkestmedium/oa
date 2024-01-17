@@ -97,9 +97,8 @@ static constexpr const char   gPluginNodeMessagePrefix[]    = "FootPrintGeometry
 // This node contains one input attribute : "Size"
 // - Changing the "Size" attribute will cause the viewport to regenerate its geometry data (animated vertex buffer)
 // The rendering logic is specified in "class FootPrintGeometryOverride"
-class FootPrintNode : public MPxLocatorNode // Or MPxSurfaceShape
-// class FootPrintNode : public MPxTransform // Or MPxSurfaceShape
-{
+// Or MPxSurfaceShape
+class FootPrintNode : public MPxLocatorNode {
 public:
 	// Node Attributes :
 	// Attribute table 							//	'Alias'		I/O		Data-Type	Function body (in lambda format)
@@ -414,7 +413,7 @@ static GlobalVariables* Globals = nullptr;
 static const /*constexpr*/ MString ColorParameterName = "solidColor";
 static const /*constexpr*/ MString WireframeItemName  = "footPrintLocatorWires";
 static const /*constexpr*/ MString ShadedItemName     = "footPrintLocatorTriangles";
-static const /*constexpr*/ MColor  ErrorColor         = { 1.0F, 0.0F,0.0F,1.0F };
+static const /*constexpr*/ MColor  ErrorColor         = {1.0F, 0.0F, 0.0F, 1.0F};
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -765,55 +764,33 @@ void FootPrintGeometryOverride::populateGeometry(
 namespace {
 	// Foot Data
 //
-	float sole[][3] = { {  0.00f, 0.0f, -0.70f },
-						{  0.04f, 0.0f, -0.69f },
-						{  0.09f, 0.0f, -0.65f },
-						{  0.13f, 0.0f, -0.61f },
-						{  0.16f, 0.0f, -0.54f },
-						{  0.17f, 0.0f, -0.46f },
-						{  0.17f, 0.0f, -0.35f },
-						{  0.16f, 0.0f, -0.25f },
-						{  0.15f, 0.0f, -0.14f },
-						{  0.13f, 0.0f,  0.00f },
-						{  0.00f, 0.0f,  0.00f },
-						{ -0.13f, 0.0f,  0.00f },
-						{ -0.15f, 0.0f, -0.14f },
-						{ -0.16f, 0.0f, -0.25f },
-						{ -0.17f, 0.0f, -0.35f },
-						{ -0.17f, 0.0f, -0.46f },
-						{ -0.16f, 0.0f, -0.54f },
-						{ -0.13f, 0.0f, -0.61f },
-						{ -0.09f, 0.0f, -0.65f },
-						{ -0.04f, 0.0f, -0.69f },
-						{ -0.00f, 0.0f, -0.70f } };
-	float heel[][3] = { {  0.00f, 0.0f,  0.06f },
-						{  0.13f, 0.0f,  0.06f },
-						{  0.14f, 0.0f,  0.15f },
-						{  0.14f, 0.0f,  0.21f },
-						{  0.13f, 0.0f,  0.25f },
-						{  0.11f, 0.0f,  0.28f },
-						{  0.09f, 0.0f,  0.29f },
-						{  0.04f, 0.0f,  0.30f },
-						{  0.00f, 0.0f,  0.30f },
-						{ -0.04f, 0.0f,  0.30f },
-						{ -0.09f, 0.0f,  0.29f },
-						{ -0.11f, 0.0f,  0.28f },
-						{ -0.13f, 0.0f,  0.25f },
-						{ -0.14f, 0.0f,  0.21f },
-						{ -0.14f, 0.0f,  0.15f },
-						{ -0.13f, 0.0f,  0.06f },
-						{ -0.00f, 0.0f,  0.06f } };
+	float heel[][3] = { 
+    {  0.00f, 0.0f,  0.06f },
+    {  0.13f, 0.0f,  0.06f },
+    {  0.14f, 0.0f,  0.15f },
+    {  0.14f, 0.0f,  0.21f },
+    {  0.13f, 0.0f,  0.25f },
+    {  0.11f, 0.0f,  0.28f },
+    {  0.09f, 0.0f,  0.29f },
+    {  0.04f, 0.0f,  0.30f },
+    {  0.00f, 0.0f,  0.30f },
+    { -0.04f, 0.0f,  0.30f },
+    { -0.09f, 0.0f,  0.29f },
+    { -0.11f, 0.0f,  0.28f },
+    { -0.13f, 0.0f,  0.25f },
+    { -0.14f, 0.0f,  0.21f },
+    { -0.14f, 0.0f,  0.15f },
+    { -0.13f, 0.0f,  0.06f },
+    { -0.00f, 0.0f,  0.06f } 
+  };
 }
 
-void FootPrintGeometryOverride::fillFootprintSolidIndices(int numIndex, unsigned int * indices)
-{
+void FootPrintGeometryOverride::fillFootprintSolidIndices(int numIndex, unsigned int * indices) {
 	int primitiveIndex = 0;
 	int startIndex = 0;
 
-	for (int i = 0; i < numIndex; )
-	{
-		if (i < (heelCount - 2) * 3)
-		{
+	for (int i = 0; i < numIndex;)	{
+		if (i < (heelCount - 2) * 3) {
 			startIndex = 0;
 			primitiveIndex = i / 3;
 		}
@@ -828,12 +805,10 @@ void FootPrintGeometryOverride::fillFootprintSolidIndices(int numIndex, unsigned
 	}
 }
 
-void FootPrintGeometryOverride::fillFootprintWireframeIndices(int numIndex, unsigned int * indices)
-{
+void FootPrintGeometryOverride::fillFootprintWireframeIndices(int numIndex, unsigned int * indices) {
 	int primitiveIndex = 0;
 	int startIndex = 0;
-	for (int i = 0; i < numIndex; )
-	{
+	for (int i = 0; i < numIndex;) {
 		if (i < (heelCount - 1) * 2)
 		{
 			startIndex = 0;
@@ -849,30 +824,26 @@ void FootPrintGeometryOverride::fillFootprintWireframeIndices(int numIndex, unsi
 	}
 }
 
-void FootPrintGeometryOverride::fillFootPrintVertices(float * vertices, float outputSize)
-{
+void FootPrintGeometryOverride::fillFootPrintVertices(float * vertices, float outputSize) {
 	int verticesPointerOffset = 0;
 
 	// We concatenate the heel and sole positions into a single vertex buffer.
 	// The index buffers will decide which positions will be selected for each render items.
-	for (int currentVertex = 0; currentVertex < soleCount + heelCount; ++currentVertex)
-	{
-		if (vertices)
-		{
-			if (currentVertex < heelCount)
-			{
+	for (int currentVertex = 0; currentVertex < soleCount + heelCount; ++currentVertex)	{
+		if (vertices)	{
+			if (currentVertex < heelCount) {
 				int heelVtx = currentVertex;
 				vertices[verticesPointerOffset++] = heel[heelVtx][0] * outputSize;
 				vertices[verticesPointerOffset++] = heel[heelVtx][1] * outputSize;
 				vertices[verticesPointerOffset++] = heel[heelVtx][2] * outputSize;
 			}
-			else
-			{
-				int soleVtx = currentVertex - heelCount;
-				vertices[verticesPointerOffset++] = sole[soleVtx][0] * outputSize;
-				vertices[verticesPointerOffset++] = sole[soleVtx][1] * outputSize;
-				vertices[verticesPointerOffset++] = sole[soleVtx][2] * outputSize;
-			}
+			// else
+			// {
+			// 	int soleVtx = currentVertex - heelCount;
+			// 	vertices[verticesPointerOffset++] = sole[soleVtx][0] * outputSize;
+			// 	vertices[verticesPointerOffset++] = sole[soleVtx][1] * outputSize;
+			// 	vertices[verticesPointerOffset++] = sole[soleVtx][2] * outputSize;
+			// }
 		}
 	}
 }
@@ -884,8 +855,7 @@ void FootPrintGeometryOverride::fillFootPrintVertices(float * vertices, float ou
 //---------------------------------------------------------------------------
 
 // Return true if internal tracing is desired.
-bool FootPrintGeometryOverride::traceCallSequence() const
-{
+bool FootPrintGeometryOverride::traceCallSequence() const {
 	/*
 	Tracing will look something like the following when in shaded mode (on selection change):
 
@@ -901,8 +871,7 @@ bool FootPrintGeometryOverride::traceCallSequence() const
 	return false;
 }
 
-inline void FootPrintGeometryOverride::handleTraceMessage(const MString & message) const
-{
+inline void FootPrintGeometryOverride::handleTraceMessage(const MString & message) const{
 	MGlobal::displayInfo(gPluginNodeMessagePrefix + message);
 
 	// Some simple custom message formatting.

@@ -224,24 +224,25 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
 	if (argData.isFlagSet(shapeFlagShort)) {
 		MString strShape = argData.flagArgumentString(shapeFlagShort, 0, &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
+    
 		if (strShape == "cube")	{
 			indxShape = 0;
-		} else if (strShape == "sphere") {
-			indxShape = 1;
-		}	else if (strShape == "cross") {
-			indxShape = 2;
-		} else if (strShape == "diamond") {
-			indxShape = 3;
 		} else if (strShape == "square") {
-			indxShape = 4;
-		}	else if (strShape == "circle") {
-			indxShape = 5;
-		} else if (strShape == "locator") {
-			indxShape = 6;
-		} else if (strShape == "line") {
-			indxShape = 7;
-		} else if (strShape == "none") {
-			indxShape = 8;
+			indxShape = 1;
+		}	else if (strShape == "cylinder") {
+			indxShape = 2;
+		} else if (strShape == "circle") {
+			indxShape = 3;
+		// } else if (strShape == "square") {
+		// 	indxShape = 4;
+		// }	else if (strShape == "circle") {
+		// 	indxShape = 5;
+		// } else if (strShape == "locator") {
+		// 	indxShape = 6;
+		// } else if (strShape == "line") {
+		// 	indxShape = 7;
+		// } else if (strShape == "none") {
+		// 	indxShape = 8;
 		}	else {
 			indxShape = 0;
 		}

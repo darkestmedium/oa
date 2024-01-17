@@ -179,7 +179,7 @@ static unsigned short bbWireIndices[] = {
 
 
 
-class rawfootPrint : public MPxLocatorNode {
+class rawfootPrint : public MPxTransform {
 
 public:
   static MTypeId id;
@@ -192,7 +192,7 @@ public:
 
   // Constructors
   rawfootPrint()
-    : MPxLocatorNode()
+    : MPxTransform()
    {};
 
   // Destructors
@@ -285,7 +285,7 @@ MStatus rawfootPrint::preEvaluation(const MDGContext& context, const MEvaluation
 
 
 void rawfootPrint::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const {
-  MPxLocatorNode::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
+  MPxTransform::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
   assert(!disablingInfo.getCacheDisabled());
   cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
 }
@@ -952,16 +952,6 @@ void RawFootPrintDrawAgentCoreProfile::drawWireframe() {
   glDrawElements(GL_LINES, 2 * (soleCount-1), GL_UNSIGNED_SHORT, 0);
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

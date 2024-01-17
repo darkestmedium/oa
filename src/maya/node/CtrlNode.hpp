@@ -7,11 +7,13 @@
 #pragma once
 
 // System includes
+#include <array>
 #include <math.h>
 #include <cassert>
 #include <memory>
 #include <unordered_map>
 #include <atomic>
+
 
 #include <maya/MUserData.h>
 #include <maya/MMatrix.h>
@@ -55,6 +57,10 @@
 #include "api/Utils.hpp"
 #include "api/LMText.hpp"
 #include "api/LMAttribute.hpp"
+
+
+
+using namespace std;
 
 
 
@@ -215,6 +221,13 @@ public:
   virtual void get_shape(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
   virtual void get_bbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
   virtual void get_text(const MObject& object);
+
+
+  void GetEdgeList(const vector<pair<int,int>>& indecies, MPointArray& vertecies, MPointArray& lines) {
+    for (const auto& indexPair : indecies) {
+      lines.append(vertecies[indexPair.first]); lines.append(vertecies[indexPair.second]);
+    }
+  };
 };
 
 

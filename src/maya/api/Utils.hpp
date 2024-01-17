@@ -134,7 +134,7 @@ inline T psign(T value)
 
 
 template <typename T>
-inline T clamp(T inValue, T minValue, T maxValue)
+inline T clamper(T inValue, T minValue, T maxValue)
 {
 	/* Clamp function. */
 	return std::max(minValue, std::min(inValue, maxValue));

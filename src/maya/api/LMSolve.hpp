@@ -44,85 +44,85 @@
 
 
 namespace LMSolve {
-	/* Solver utilities.
-	*/
+  /* Solver utilities.
+  */
 
 
-	inline double softenIk(double lenAT, double lenAB, double vecBC, double lenABC, double softness) {
-		/* Softness the AT length if required.
-		*/
-		lenAT = std::max(lenAT, lenAB - vecBC);
-		double da = lenABC - softness;
-		double softAT = da + softness * (1.0 - std::exp((da-lenAT)/softness));
-		return (lenAT > da && da > 0.0) ? softAT : lenAT;
-	}
+  inline double softenIk(double lenAT, double lenAB, double vecBC, double lenABC, double softness) {
+    /* Softness the AT length if required.
+    */
+    lenAT = std::max(lenAT, lenAB - vecBC);
+    double da = lenABC - softness;
+    double softAT = da + softness * (1.0 - std::exp((da-lenAT)/softness));
+    return (lenAT > da && da > 0.0) ? softAT : lenAT;
+  }
 
 
-	inline MStatus twoBoneIk(
-		const MVector& vecA, const MVector& vecB, const MVector& vecC, const MVector& vecT, const MVector& vecPv,
-		MAngle& twist, double softness, bool bIsPvConnected,
-		MQuaternion& quatA, MQuaternion& quatB
-		) {
-		/* Calculates the ik for a two bone limb.
-		
-		Reference:
-			https://theorangeduck.com/page/simple-two-joint
-			https://github.com/chadmv/cmt/blob/master/src/ikRigNode.cpp
+  inline MStatus twoBoneIk(
+    const MVector& vecA, const MVector& vecB, const MVector& vecC, const MVector& vecT, const MVector& vecPv,
+    MAngle& twist, double softness, bool bIsPvConnected,
+    MQuaternion& quatA, MQuaternion& quatB
+    ) {
+    /* Calculates the ik for a two bone limb.
+    
+    Reference:
+      https://theorangeduck.com/page/simple-two-joint
+      https://github.com/chadmv/cmt/blob/master/src/ikRigNode.cpp
 
-		*/
-		// MStatus status;
+    */
+    // MStatus status;
 
-		// From to Vectors - reusable
-		MVector vecAB = vecB - vecA;
-		MVector vecAC = vecC - vecA;
-		MVector vecAT = vecT - vecA;
-		MVector vecBC = vecC - vecB;
-		MVector vecAPv = vecPv - vecA;
-	
-		// Direction vector
-		MVector vecD = (vecB - (vecA + (vecAC * (vecAB * vecAC)))).normal();
-	
-		// Lengths
-		double lenAB = vecAB.length();
-		double lenCB = (vecB - vecC).length();
-		double lenABC = lenAB + lenCB;
-		double lenAT = clamp(vecAT.length(), kEpsilon, lenABC - kEpsilon);
+    // From to Vectors - reusable
+    MVector vecAB = vecB - vecA;
+    MVector vecAC = vecC - vecA;
+    MVector vecAT = vecT - vecA;
+    MVector vecBC = vecC - vecB;
+    MVector vecAPv = vecPv - vecA;
+  
+    // Direction vector
+    MVector vecD = (vecB - (vecA + (vecAC * (vecAB * vecAC)))).normal();
+  
+    // Lengths
+    double lenAB = vecAB.length();
+    double lenCB = (vecB - vecC).length();
+    double lenABC = lenAB + lenCB;
+    double lenAT = clamper(vecAT.length(), kEpsilon, lenABC - kEpsilon);
 
-		// Soften the edge if required
-		if (softness > 0.0) {lenAT = softenIk(vecAT.length(), lenAB, vecBC.length(), lenABC, softness);}
+    // Soften the edge if required
+    if (softness > 0.0) {lenAT = softenIk(vecAT.length(), lenAB, vecBC.length(), lenABC, softness);}
 
-		// Get current interior angles of start and mid
-		double ac_ab_0 = acos(clamp((vecAC).normal() * (vecAB).normal(), -1.0, 1.0));
-		double ba_bc_0 = acos(clamp((vecA - vecB).normal() * vecBC.normal(), -1.0, 1.0));
-		double ac_at_0 = acos(clamp((vecAC).normal() * (vecAT).normal(), -1.0, 1.0));
-		// Get desired interior angles
-		double ac_ab_1 = acos(clamp((lenCB * lenCB - lenAB * lenAB - lenAT * lenAT) / (-2 * lenAB * lenAT), -1.0, 1.0));
-		double ba_bc_1 = acos(clamp((lenAT * lenAT - lenAB * lenAB - lenCB * lenCB) / (-2 * lenAB * lenCB), -1.0, 1.0));
+    // Get current interior angles of start and mid
+    double ac_ab_0 = acos(clamper((vecAC).normal() * (vecAB).normal(), -1.0, 1.0));
+    double ba_bc_0 = acos(clamper((vecA - vecB).normal() * vecBC.normal(), -1.0, 1.0));
+    double ac_at_0 = acos(clamper((vecAC).normal() * (vecAT).normal(), -1.0, 1.0));
+    // Get desired interior angles
+    double ac_ab_1 = acos(clamper((lenCB * lenCB - lenAB * lenAB - lenAT * lenAT) / (-2 * lenAB * lenAT), -1.0, 1.0));
+    double ba_bc_1 = acos(clamper((lenAT * lenAT - lenAB * lenAB - lenCB * lenCB) / (-2 * lenAB * lenCB), -1.0, 1.0));
 
-		MVector axis0 = (vecAC ^ vecD).normal();
-		MVector axis1 = (vecAC ^ vecAT).normal();
+    MVector axis0 = (vecAC ^ vecD).normal();
+    MVector axis1 = (vecAC ^ vecAT).normal();
 
-		MQuaternion r0(ac_ab_1 - ac_ab_0, axis0);
-		MQuaternion r1(ba_bc_1 - ba_bc_0, axis0);
-		MQuaternion r2(ac_at_0, axis1);
+    MQuaternion r0(ac_ab_1 - ac_ab_0, axis0);
+    MQuaternion r1(ba_bc_1 - ba_bc_0, axis0);
+    MQuaternion r2(ac_at_0, axis1);
 
-		// Pole vector rotation
-		// Determine the rotation used to rotate the normal of the triangle formed by
-		// a.b.c post r0*r2 rotation to the normal of the triangle formed by triangle a.pv.t
-		MVector n1 = (vecAC ^ vecAB).normal().rotateBy(r0).rotateBy(r2);
-		MVector n2 = (vecAT ^ vecAPv).normal();
-		MQuaternion r3 = n1.rotateTo(n2);
+    // Pole vector rotation
+    // Determine the rotation used to rotate the normal of the triangle formed by
+    // a.b.c post r0*r2 rotation to the normal of the triangle formed by triangle a.pv.t
+    MVector n1 = (vecAC ^ vecAB).normal().rotateBy(r0).rotateBy(r2);
+    MVector n2 = (vecAT ^ vecAPv).normal();
+    MQuaternion r3 = n1.rotateTo(n2);
 
-		// Rotation cross vectors and twist
-		MQuaternion rT(twist.asRadians(), vecAT);
+    // Rotation cross vectors and twist
+    MQuaternion rT(twist.asRadians(), vecAT);
 
-		quatA *= r0 * r2 * r3 * rT;
+    quatA *= r0 * r2 * r3 * rT;
 
-		// local rotation because we output to the skeleton
-		// Since we are calculating in world space, apply the start rotations to the mid
-		quatB *= r1;
-		quatB *= r0 * r2 * r3 * rT;
+    // local rotation because we output to the skeleton
+    // Since we are calculating in world space, apply the start rotations to the mid
+    quatB *= r1;
+    quatB *= r0 * r2 * r3 * rT;
 
-		return MS::kSuccess;
-	}
+    return MS::kSuccess;
+  }
 };

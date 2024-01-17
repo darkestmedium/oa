@@ -6,7 +6,7 @@ set(MAYA_FILES
   node/CtrlCmd.hpp
   node/CtrlCmd.cpp
   node/SpaceSwitchNode.hpp
-  node/ShapesDefinition.hpp
+  node/Shapes.hpp
   node/MetaDataCmd.hpp
   node/MetaDataCmd.cpp
   node/MetaDataNode.hpp
@@ -47,7 +47,7 @@ add_subdirectory(api)
 
 # add_subdirectory(node)
 
-add_subdirectory(temp)
+# add_subdirectory(temp)
 
 
 # target_link_libraries(oam PRIVATE oamayanode)

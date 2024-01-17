@@ -13,7 +13,8 @@
 #include "solve/FootRollSolver.hpp"
 
 // Temp
-#include "temp/rawfootPrintNode.hpp"
+// #include "temp/rawfootPrintNode.hpp"
+#include "temp/footPrintNodeGeoOverride.hpp"
 
 // Function Sets
 #include <maya/MFnPlugin.h>
@@ -181,24 +182,26 @@ MStatus initializePlugin(MObject obj) {
 
 
   // TEMP
-  // status = fn_plugin.registerTransform(
+  Globals = new GlobalVariables();
   status = fn_plugin.registerNode(
-    "rawfootPrint",
-    rawfootPrint::id,
-    &rawfootPrint::creator,
-    &rawfootPrint::initialize,
+    gPluginNodeName,
+    FootPrintNode::id,
+    &FootPrintNode::creator,
+    &FootPrintNode::initialize,
     MPxNode::kLocatorNode,
-    // &MPxTransformationMatrix::creator,
-    // MPxTransformationMatrix::baseTransformationMatrixId,
-    &rawfootPrint::drawDbClassification
+    &FootPrintNode::drawDbClassification
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
-  status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
-    rawfootPrint::drawDbClassification,
-    rawfootPrint::drawRegistrantId,
-    RawFootPrintDrawOverride::Creator
+  status = MHWRender::MDrawRegistry::registerGeometryOverrideCreator(
+    FootPrintNode::drawDbClassification,
+    FootPrintNode::drawRegistrantId,
+    FootPrintGeometryOverride::Creator
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
+  MSelectionMask::registerSelectionType(gPluginSelectionMask, 2);
+  char cmd[256];
+	snprintf(cmd, sizeof(cmd), "selectType -byName \"%s\" 1", gPluginSelectionMask);
+	status = MGlobal::executeCommand(cmd);
 
 
 
@@ -236,14 +239,13 @@ MStatus uninitializePlugin(MObject obj) {
   MMessage::removeCallbacks(callbackIds);
 
 
-
-  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
-    rawfootPrint::drawDbClassification,
-    rawfootPrint::drawRegistrantId
+  delete Globals;
+  MHWRender::MDrawRegistry::deregisterGeometryOverrideCreator(
+    FootPrintNode::drawDbClassification,
+    FootPrintNode::drawRegistrantId
   );
-  fn_plugin.deregisterNode(rawfootPrint::id);
-  RawFootPrintDrawAgentCoreProfile& drawAgentRef = RawFootPrintDrawAgentCoreProfile::getDrawAgent();
-  drawAgentRef.releaseCoreProfileResources();
+  fn_plugin.deregisterNode(FootPrintNode::id);
+
 
 
 
