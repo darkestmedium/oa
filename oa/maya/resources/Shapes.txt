@@ -3,11 +3,25 @@
 
 Shapes
 
-Locator / Null
-Square
-Cube
-Diamond
-Cylinder
+0 Cube
+1 Square
+2 Cylinder
+3 Circle
+4 Sphere
+5 Dome
+
+
+6 Triangle
+
+
 Arrow
+Arrow Two Way
+Arrow Four Way
+
+Locator / Null
+Diamond
 Main
 Triangle
+
+
+Circle Half Thick / Clavicle

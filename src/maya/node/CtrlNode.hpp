@@ -197,6 +197,7 @@ public:
   MPointArray     list_line;
   float           line_width;
   MColor          col_wireframe;
+  MColor          col_grey;
 
   // Fk / Ik state
   MObject objDrawLineTo;
@@ -212,6 +213,7 @@ public:
   // Constructors
   CtrlUserData()
     : MUserData(false)
+    , col_grey(0.5, 0.5, 0.5)
   {};
 
   // Destructor
@@ -223,7 +225,18 @@ public:
   virtual void get_text(const MObject& object);
 
 
-  void GetEdgeList(const vector<pair<int,int>>& indecies, MPointArray& vertecies, MPointArray& lines) {
+  void PopulateVertexBuffer(
+    const vector<array<float,3>>& points,
+    const vector<pair<int,int>>& indecies,
+    MPointArray& vertecies,
+    MPointArray& lines,
+    MMatrix& matrix
+  ) {
+    // Multiply the points by the matrix first
+    for (int i=0; i<points.size(); i++) {
+      vertecies.append(MPoint(points[i][0], points[i][1], points[i][2]) * matrix);
+    }
+    // Fill edges based on vertecies
     for (const auto& indexPair : indecies) {
       lines.append(vertecies[indexPair.first]); lines.append(vertecies[indexPair.second]);
     }

@@ -233,10 +233,10 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
 			indxShape = 2;
 		} else if (strShape == "circle") {
 			indxShape = 3;
-		// } else if (strShape == "square") {
-		// 	indxShape = 4;
-		// }	else if (strShape == "circle") {
-		// 	indxShape = 5;
+		} else if (strShape == "sphere") {
+			indxShape = 4;
+		}	else if (strShape == "dome") {
+			indxShape = 5;
 		// } else if (strShape == "locator") {
 		// 	indxShape = 6;
 		// } else if (strShape == "line") {

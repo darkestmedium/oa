@@ -87,8 +87,8 @@ MStatus CtrlNode::initialize() {
   fn_enum.addField("Square", 1);
   fn_enum.addField("Cylinder", 2);
   fn_enum.addField("Circle", 3);
-  // fn_enum.addField("Square", 4);
-  // fn_enum.addField("Circle", 5);
+  fn_enum.addField("Sphere", 4);
+  fn_enum.addField("Dome", 5);
   // fn_enum.addField("Locator", 6);
   // fn_enum.addField("Line", 7);
   // fn_enum.addField("None", 8);
@@ -342,6 +342,7 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
         MPoint(bboxCube[1][0], bboxCube[1][1], bboxCube[1][2])
       );
       break;
+
     case 1: // Square
       // this->bbox = MBoundingBox(MPoint(sphereBB[0][0], sphereBB[0][1], sphereBB[0][2]),	MPoint(sphereBB[1][0], sphereBB[1][1], sphereBB[1][2]));
       this->bbox = MBoundingBox(
@@ -349,15 +350,34 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
         MPoint(bboxSquare[1][0], bboxSquare[1][1], bboxSquare[1][2])
       );
       break;
+
     case 2: // Cylinder
-      this->bbox = MBoundingBox(MPoint(bboxCylinder[0][0], bboxCylinder[0][1], bboxCylinder[0][2]), MPoint(bboxCylinder[1][0], bboxCylinder[1][1], bboxCylinder[1][2]));
+      this->bbox = MBoundingBox(
+        MPoint(bboxCylinder[0][0], bboxCylinder[0][1], bboxCylinder[0][2]),
+        MPoint(bboxCylinder[1][0], bboxCylinder[1][1], bboxCylinder[1][2])
+      );
       break;
+
     case 3: // Circle
-      this->bbox = MBoundingBox(MPoint(bboxCircle[0][0], bboxCircle[0][1], bboxCircle[0][2]), MPoint(bboxCircle[1][0], bboxCircle[1][1], bboxCircle[1][2]));
+      this->bbox = MBoundingBox(
+        MPoint(bboxCircle[0][0], bboxCircle[0][1], bboxCircle[0][2]),
+        MPoint(bboxCircle[1][0], bboxCircle[1][1], bboxCircle[1][2])
+      );
       break;
-    // case 4: // Square
-    //   this->bbox = MBoundingBox(MPoint(squareBB[0][0], squareBB[0][1], squareBB[0][2]), MPoint(squareBB[1][0], squareBB[1][1], squareBB[1][2]));
-    //   break;
+
+    case 4: // Sphere
+      this->bbox = MBoundingBox(
+        MPoint(bboxSphere[0][0], bboxSphere[0][1], bboxSphere[0][2]),
+        MPoint(bboxSphere[1][0], bboxSphere[1][1], bboxSphere[1][2])
+      );
+      break;
+
+    case 5: // Dome
+      this->bbox = MBoundingBox(
+        MPoint(bboxDome[0][0], bboxDome[0][1], bboxDome[0][2]),
+        MPoint(bboxDome[1][0], bboxDome[1][1], bboxDome[1][2])
+      );
+      break;
     // case 5: // Circle
     //   this->bbox = MBoundingBox(MPoint(circleBB[0][0], circleBB[0][1], circleBB[0][2]), MPoint(circleBB[1][0], circleBB[1][1], circleBB[1][2]));
     //   break;
@@ -391,306 +411,33 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
 
   shape_indx = MPlug(object, CtrlNode::attr_shape_indx).asShort();
 
-
   this->list_vertecies.clear();
   this->list_lines.clear();
   this->list_line.clear();  // for pole vector line only
 
   switch(shape_indx) {
     case 0:  // Cube
-      // Multiply the points first
-      for (int i=0; i<pointsCube.size(); i++) {
-        list_vertecies.append(MPoint(pointsCube[i][0], pointsCube[i][1], pointsCube[i][2]) * matrix);
-      }
-      GetEdgeList(indiciesCube, list_vertecies, list_lines);
+      PopulateVertexBuffer(pointsCube, indiciesCube, list_vertecies, list_lines, matrix);
       break;
     case 1:  // Square
-      // Multiply the points first
-      for (int i=0; i<pointsSquare.size(); i++) {
-        list_vertecies.append(MPoint(pointsSquare[i][0], pointsSquare[i][1], pointsSquare[i][2]) * matrix);
-      }
-      GetEdgeList(indiciesSquare, list_vertecies, list_lines);
+      PopulateVertexBuffer(pointsSquare, indiciesSquare, list_vertecies, list_lines, matrix);
       break;
     case 2:  // Cylinder
-      // Multiply the points first
-      for (int i=0; i<pointsCylinder.size(); i++) {
-        list_vertecies.append(MPoint(pointsCylinder[i][0], pointsCylinder[i][1], pointsCylinder[i][2]) * matrix);
-      }
-      GetEdgeList(indiciesCylinder, list_vertecies, list_lines);
+      PopulateVertexBuffer(pointsCylinder, indiciesCylinder, list_vertecies, list_lines, matrix);
       break;
     case 3:  // Circle
-      // Multiply the points first
-      for (int i=0; i<pointsCircle.size(); i++) {
-        list_vertecies.append(MPoint(pointsCircle[i][0], pointsCircle[i][1], pointsCircle[i][2]) * matrix);
-      }
-      GetEdgeList(indiciesCircle, list_vertecies, list_lines);
+      PopulateVertexBuffer(pointsCircle, indiciesCircle, list_vertecies, list_lines, matrix);
+      break;
+    case 4:  // Sphere
+      PopulateVertexBuffer(pointsSphere, indiciesSphere, list_vertecies, list_lines, matrix);
+      break;
+    case 5:  // Dome
+      PopulateVertexBuffer(pointsDome, indiciesDome, list_vertecies, list_lines, matrix);
       break;
     default:
       break;
   };
 
-
-
-  // if (shape_indx == 0) {  // Cube
-  //   for (int i=0; i<pointsCube.size(); i++) {
-  //     list_vertecies.append(MPoint(pointsCube[i][0], pointsCube[i][1], pointsCube[i][2]) * matrix);
-  //   }
-  //   // Fill the outline based on indecies
-  //   for (int i=0; i<cubeIndices.size(); i+=2) {
-  //     list_lines.append(list_vertecies[cubeIndices[i]]);
-  //     list_lines.append(list_vertecies[cubeIndices[i+1]]);
-  //   }
-
-  // } else if (shape_indx == 1) {	  // Sphere
-  //   for (int i=0; i<sphereCount; i++) {
-  //     list_vertecies.append(
-  //       MPoint(listPointsSphere[i][0], listPointsSphere[i][1], listPointsSphere[i][2]) * matrix
-  //     );
-  //   }
-  //   // Top square
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[0]);
-  //   // Top lines
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[6]);
-
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[8]);
-
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[8]);
-  //   list_lines.append(list_vertecies[8]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[10]);
-
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[10]);
-  //   list_lines.append(list_vertecies[10]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[4]);
-  //   // Side Lines
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[12]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[14]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[8]);
-  //   list_lines.append(list_vertecies[16]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[10]);
-  //   list_lines.append(list_vertecies[18]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[19]);
-  //   // Bottom lines
-  //   list_lines.append(list_vertecies[20]);
-  //   list_lines.append(list_vertecies[12]);
-  //   list_lines.append(list_vertecies[12]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[20]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[14]);
-
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[14]);
-  //   list_lines.append(list_vertecies[14]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[16]);
-
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[16]);
-  //   list_lines.append(list_vertecies[16]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[18]);
-
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[18]);
-  //   list_lines.append(list_vertecies[18]);
-  //   list_lines.append(list_vertecies[19]);
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[19]);
-  //   list_lines.append(list_vertecies[19]);
-  //   list_lines.append(list_vertecies[12]);
-
-  //   // Bottom square
-  //   list_lines.append(list_vertecies[20]);
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[20]);
-
-  // } else if (shape_indx == 2) {  	// Cross
-  //   for (int i=0; i<crossCount; i++) {
-  //     list_vertecies.append(
-  //       MPoint(listPointsCross[i][0], listPointsCross[i][1], listPointsCross[i][2]) * matrix
-  //     );
-  //   }
-  //   // Base upper square
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[0]);
-  //   // Base side lines
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[7]);
-  //   // Base bottom square
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[4]);
-  //   // Top pillar
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[8]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[10]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[8]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[9]);
-  //   list_lines.append(list_vertecies[10]);
-  //   list_lines.append(list_vertecies[10]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[11]);
-  //   list_lines.append(list_vertecies[8]);
-  //   // Right pillar
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[12]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[14]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[12]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[13]);
-  //   list_lines.append(list_vertecies[14]);
-  //   list_lines.append(list_vertecies[14]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[15]);
-  //   list_lines.append(list_vertecies[12]);
-  //   // Back pillar
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[16]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[18]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[19]);
-  //   list_lines.append(list_vertecies[16]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[17]);
-  //   list_lines.append(list_vertecies[18]);
-  //   list_lines.append(list_vertecies[18]);
-  //   list_lines.append(list_vertecies[19]);
-  //   list_lines.append(list_vertecies[19]);
-  //   list_lines.append(list_vertecies[16]);
-  //   // Left pillar
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[20]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[20]);
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[21]);
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[22]);
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[23]);
-  //   list_lines.append(list_vertecies[20]);
-  //   // Front pillar
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[24]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[25]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[26]);
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[27]);
-  //   list_lines.append(list_vertecies[24]);
-  //   list_lines.append(list_vertecies[25]);
-  //   list_lines.append(list_vertecies[25]);
-  //   list_lines.append(list_vertecies[26]);
-  //   list_lines.append(list_vertecies[26]);
-  //   list_lines.append(list_vertecies[27]);
-  //   list_lines.append(list_vertecies[27]);
-  //   list_lines.append(list_vertecies[24]);
-  //   // Bottom pillar
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[28]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[29]);
-  //   list_lines.append(list_vertecies[6]);
-  //   list_lines.append(list_vertecies[30]);
-  //   list_lines.append(list_vertecies[7]);
-  //   list_lines.append(list_vertecies[31]);
-  //   list_lines.append(list_vertecies[28]);
-  //   list_lines.append(list_vertecies[29]);
-  //   list_lines.append(list_vertecies[29]);
-  //   list_lines.append(list_vertecies[30]);
-  //   list_lines.append(list_vertecies[30]);
-  //   list_lines.append(list_vertecies[31]);
-  //   list_lines.append(list_vertecies[31]);
-  //   list_lines.append(list_vertecies[28]);
   
   // } else if (shape_indx == 3) {  	// Diamond
   //   for (int i=0; i<diamondCount; i++) {
@@ -726,25 +473,6 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
   //   list_lines.append(list_vertecies[5]);
   //   list_lines.append(list_vertecies[4]);
 
-  // } else if (shape_indx == 4) {   // Square
-  //   for (int i=0; i<squareCount; i++) {
-  //     list_vertecies.append(MPoint(listPointsSquare[i][0], listPointsSquare[i][1], listPointsSquare[i][2]) * matrix);
-
-  //     int nextIndex = (i + 1) % squareCount;  // Ensure we connect the last point with the first
-  //     list_lines.append(list_vertecies[i]);
-  //     list_lines.append(list_vertecies[nextIndex]);
-  //   }
-
-  // } else if (shape_indx == 5) {   // Circle
-  //   for (int i=0; i<circleCount; i++) {
-  //     list_vertecies.append(
-  //       MPoint(listPointsCircle[i][0], listPointsCircle[i][1], listPointsCircle[i][2]) * matrix
-  //     );
-  //   }
-  //   for (int i=1; i<=circleCount-2; i++) {
-  //     list_lines.append(list_vertecies[i]);
-  //     list_lines.append(list_vertecies[i+1]);
-  //   }
 
   // } else if (shape_indx == 6) {  	// Locator
   //   for (int i=0; i<nullCount; i++) {
@@ -929,17 +657,17 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
   drawManager.setLineWidth(pTransformData->line_width);
 
   drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->list_lines);
-  // if (pTransformData->bDrawline) {drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->list_lines);}
-  if (pTransformData->bDrawline) {
-    drawManager.setLineStyle(MHWRender::MUIDrawManager::kDashed);
-    drawManager.line(pTransformData->list_line[0], pTransformData->list_line[1]);
-    // drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->list_lines);
-  }
 
   // Fk Ik State
   if (pTransformData->draw_solver_mode) {
     drawManager.setFontSize(pTransformData->solver_mode_size);
     drawManager.text(pTransformData->pos_solver_mode, pTransformData->str_solver_mode, drawManager.kCenter);
+  }
+
+  if (pTransformData->bDrawline) {
+    drawManager.setColor(pTransformData->col_grey);
+    drawManager.setLineStyle(MHWRender::MUIDrawManager::kDashed);
+    drawManager.line(pTransformData->list_line[0], pTransformData->list_line[1]);
   }
 
   // End drawable
