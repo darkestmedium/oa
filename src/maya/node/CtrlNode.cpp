@@ -89,9 +89,12 @@ MStatus CtrlNode::initialize() {
   fn_enum.addField("Circle", 3);
   fn_enum.addField("Sphere", 4);
   fn_enum.addField("Dome", 5);
-  // fn_enum.addField("Locator", 6);
-  // fn_enum.addField("Line", 7);
-  // fn_enum.addField("None", 8);
+  fn_enum.addField("Diamond", 6);
+  fn_enum.addField("Pyramid", 7);
+  fn_enum.addField("Triangle", 8);
+  fn_enum.addField("Locator", 9);
+  fn_enum.addField("Frame", 10);
+  fn_enum.addField("Arrow", 11);
   fn_enum.setKeyable(false);
   fn_enum.setStorable(true);
   fn_enum.setChannelBox(true);
@@ -337,59 +340,42 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
   shape_indx = MPlug(object, CtrlNode::attr_shape_indx).asShort();
   switch(shape_indx) {
     case 0: // Cube
-      this->bbox = MBoundingBox(
-        MPoint(bboxCube[0][0], bboxCube[0][1], bboxCube[0][2]),
-        MPoint(bboxCube[1][0], bboxCube[1][1], bboxCube[1][2])
-      );
+      this->bbox = PopulateBoundingBox(bboxCube);
       break;
-
     case 1: // Square
-      // this->bbox = MBoundingBox(MPoint(sphereBB[0][0], sphereBB[0][1], sphereBB[0][2]),	MPoint(sphereBB[1][0], sphereBB[1][1], sphereBB[1][2]));
-      this->bbox = MBoundingBox(
-        MPoint(bboxSquare[0][0], bboxSquare[0][1], bboxSquare[0][2]),
-        MPoint(bboxSquare[1][0], bboxSquare[1][1], bboxSquare[1][2])
-      );
+      this->bbox = PopulateBoundingBox(bboxSquare);
       break;
-
     case 2: // Cylinder
-      this->bbox = MBoundingBox(
-        MPoint(bboxCylinder[0][0], bboxCylinder[0][1], bboxCylinder[0][2]),
-        MPoint(bboxCylinder[1][0], bboxCylinder[1][1], bboxCylinder[1][2])
-      );
+      this->bbox = PopulateBoundingBox(bboxCylinder);
       break;
-
     case 3: // Circle
-      this->bbox = MBoundingBox(
-        MPoint(bboxCircle[0][0], bboxCircle[0][1], bboxCircle[0][2]),
-        MPoint(bboxCircle[1][0], bboxCircle[1][1], bboxCircle[1][2])
-      );
+      this->bbox = PopulateBoundingBox(bboxCircle);
       break;
-
     case 4: // Sphere
-      this->bbox = MBoundingBox(
-        MPoint(bboxSphere[0][0], bboxSphere[0][1], bboxSphere[0][2]),
-        MPoint(bboxSphere[1][0], bboxSphere[1][1], bboxSphere[1][2])
-      );
+      this->bbox = PopulateBoundingBox(bboxSphere);
+      break;
+    case 5: // Dome
+      this->bbox = PopulateBoundingBox(bboxCircle);
+      break;
+    case 6: // Diamond
+      this->bbox = PopulateBoundingBox(bboxDiamond);
+      break;
+    case 7: // Pyramid
+      this->bbox = PopulateBoundingBox(bboxPyramid);
+      break;
+    case 8: // Triangle
+      this->bbox = PopulateBoundingBox(bboxTriangle);
+      break;
+    case 9: // Locator
+      this->bbox = PopulateBoundingBox(bboxLocator);
+      break;
+    case 10: // Frame
+      this->bbox = PopulateBoundingBox(bboxFrame);
+      break;
+    case 11: // Arrow
+      this->bbox = PopulateBoundingBox(bboxArrow);
       break;
 
-    case 5: // Dome
-      this->bbox = MBoundingBox(
-        MPoint(bboxDome[0][0], bboxDome[0][1], bboxDome[0][2]),
-        MPoint(bboxDome[1][0], bboxDome[1][1], bboxDome[1][2])
-      );
-      break;
-    // case 5: // Circle
-    //   this->bbox = MBoundingBox(MPoint(circleBB[0][0], circleBB[0][1], circleBB[0][2]), MPoint(circleBB[1][0], circleBB[1][1], circleBB[1][2]));
-    //   break;
-    // case 6: // Locator
-    //   this->bbox = MBoundingBox(MPoint(nullBB[0][0], nullBB[0][1], nullBB[0][2]), MPoint(nullBB[1][0], nullBB[1][1], nullBB[1][2]));
-    //   break;
-    // case 7: // Line
-    //   this->bbox = MBoundingBox(MPoint(lineBB[0][0], lineBB[0][1], lineBB[0][2]), MPoint(lineBB[1][0], lineBB[1][1], lineBB[1][2]));
-    //   break;
-    // case 8: // Cross
-    //   this->bbox = MBoundingBox(MPoint(0.0, 0.0, 0.0), MPoint(0.0, 0.0, 0.0));
-    //   break;
   }
 
   this->bbox.transformUsing(matrix);
@@ -434,62 +420,28 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
     case 5:  // Dome
       PopulateVertexBuffer(pointsDome, indiciesDome, list_vertecies, list_lines, matrix);
       break;
+    case 6:  // Diamond
+      PopulateVertexBuffer(pointsDiamond, indiciesDiamond, list_vertecies, list_lines, matrix);
+      break;
+    case 7:  // Pyramid
+      PopulateVertexBuffer(pointsPyramid, indiciesPyramid, list_vertecies, list_lines, matrix);
+      break;
+    case 8:  // Triangle
+      PopulateVertexBuffer(pointsTriangle, indiciesTriangle, list_vertecies, list_lines, matrix);
+      break;
+    case 9:  // Locator
+      PopulateVertexBuffer(pointsLocator, indiciesLocator, list_vertecies, list_lines, matrix);
+      break;
+    case 10:  // Frame
+      PopulateVertexBuffer(pointsFrame, indiciesFrame, list_vertecies, list_lines, matrix);
+      break;
+    case 11:  // Arrow
+      PopulateVertexBuffer(pointsArrow, indiciesArrow, list_vertecies, list_lines, matrix);
+      break;
     default:
       break;
   };
 
-  
-  // } else if (shape_indx == 3) {  	// Diamond
-  //   for (int i=0; i<diamondCount; i++) {
-  //     list_vertecies.append(
-  //       MPoint(listPointsDiamond[i][0], listPointsDiamond[i][1], listPointsDiamond[i][2]) * matrix
-  //     );
-  //   }
-  //   // Top lines 
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[0]);
-  //   list_lines.append(list_vertecies[4]);
-  //   // Planar lines
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[4]);
-  //   list_lines.append(list_vertecies[1]);
-  //   // Bottom lines
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[1]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[2]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[3]);
-  //   list_lines.append(list_vertecies[5]);
-  //   list_lines.append(list_vertecies[4]);
-
-
-  // } else if (shape_indx == 6) {  	// Locator
-  //   for (int i=0; i<nullCount; i++) {
-  //     list_lines.append(MPoint(listPointsNull[i][0], listPointsNull[i][1], listPointsNull[i][2]) * matrix);
-  //   }
-  // } else if (shape_indx == 7) {  	// Line
-  //   list_lines.append(MPoint(listPointsLine[0][0], listPointsLine[0][1], listPointsLine[0][2]) * matrix);
-  //   list_lines.append(MPoint(listPointsLine[1][0], listPointsLine[1][1], listPointsLine[1][2]) * matrix);
-  // }
-
-  // if (showOrientation) {
-  // 	currentInd++;
-  // 	MPointArray& linesPointsCenterOrientation = this->list_lines[currentInd];
-  // 	linesPointsCenterOrientation.clear();
-  // 	for (int i = 0; i < lookAtCount; i++)
-  // 		linesPointsCenterOrientation.append(MPoint(listLinesLookat[i][0] * centerScale, listLinesLookat[i][1] * centerScale, listLinesLookat[i][2] * centerScale));
-  // }
 
   // Draw line for pole vectors
   if (bDrawline) { 

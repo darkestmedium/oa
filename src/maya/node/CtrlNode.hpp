@@ -225,6 +225,10 @@ public:
   virtual void get_text(const MObject& object);
 
 
+  MBoundingBox PopulateBoundingBox(const array<array<float,3>,2>& bbox) {
+    return MBoundingBox(MPoint(bbox[0][0], bbox[0][1], bbox[0][2]), MPoint(bbox[1][0], bbox[1][1], bbox[1][2]));
+  }
+
   void PopulateVertexBuffer(
     const vector<array<float,3>>& points,
     const vector<pair<int,int>>& indecies,
@@ -241,6 +245,7 @@ public:
       lines.append(vertecies[indexPair.first]); lines.append(vertecies[indexPair.second]);
     }
   };
+
 };
 
 

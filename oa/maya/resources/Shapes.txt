@@ -9,19 +9,21 @@ Shapes
 3 Circle
 4 Sphere
 5 Dome
+6 Diamond
+7 Pyramid
+8 Triangle
+9 Locator
+10 Frame
+11 Arrow
 
 
-6 Triangle
-
-
-Arrow
 Arrow Two Way
 Arrow Four Way
 
-Locator / Null
-Diamond
+
 Main
-Triangle
 
 
 Circle Half Thick / Clavicle
+Circle  for Hips / Chest
+Feet / foot
