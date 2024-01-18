@@ -247,6 +247,10 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
       indxShape = 9;
     } else if (strShape == "frame") {
       indxShape = 10;
+    } else if (strShape == "arrow") {
+      indxShape = 11;
+    } else if (strShape == "base") {
+      indxShape = 12;
     }	else {
       indxShape = 0;
     }

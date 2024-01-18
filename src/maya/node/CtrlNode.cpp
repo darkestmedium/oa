@@ -95,6 +95,7 @@ MStatus CtrlNode::initialize() {
   fn_enum.addField("Locator", 9);
   fn_enum.addField("Frame", 10);
   fn_enum.addField("Arrow", 11);
+  fn_enum.addField("Base", 12);
   fn_enum.setKeyable(false);
   fn_enum.setStorable(true);
   fn_enum.setChannelBox(true);
@@ -375,7 +376,9 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
     case 11: // Arrow
       this->bbox = PopulateBoundingBox(bboxArrow);
       break;
-
+    case 12: // Base
+      this->bbox = PopulateBoundingBox(bboxBase);
+      break;
   }
 
   this->bbox.transformUsing(matrix);
@@ -437,6 +440,9 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
       break;
     case 11:  // Arrow
       PopulateVertexBuffer(pointsArrow, indiciesArrow, list_vertecies, list_lines, matrix);
+      break;
+    case 12:  // Base
+      PopulateVertexBuffer(pointsBase, indiciesBase, list_vertecies, list_lines, matrix);
       break;
     default:
       break;
@@ -593,12 +599,13 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
   CtrlUserData* pTransformData = (CtrlUserData*)data;
   if (!pTransformData) {return;}
 
-  // Define selectability
-  if (pTransformData->shape_indx == 8) {
-    drawManager.beginDrawable(MHWRender::MUIDrawManager::kNonSelectable);
-  } else {
-    drawManager.beginDrawable();
-  }
+  // // Define selectability
+  // if (pTransformData->shape_indx == 8) {
+  //   drawManager.beginDrawable(MHWRender::MUIDrawManager::kNonSelectable);
+  // } else {
+  //   drawManager.beginDrawable();
+  // }
+  drawManager.beginDrawable();
 
   drawManager.setDepthPriority(pTransformData->prio_depth);
 

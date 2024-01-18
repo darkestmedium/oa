@@ -688,27 +688,21 @@ void FootPrintGeometryOverride::populateGeometry(
 	const int numberOfVertexRequirments = vertexBufferDescriptorList.length();
 
 	MVertexBufferDescriptor vertexBufferDescriptor;
-	for (int requirmentNumber = 0; requirmentNumber < numberOfVertexRequirments; ++requirmentNumber)
-	{
-		if (!vertexBufferDescriptorList.getDescriptor(requirmentNumber, vertexBufferDescriptor))
-		{
+	for (int requirmentNumber = 0; requirmentNumber < numberOfVertexRequirments; ++requirmentNumber) {
+		if (!vertexBufferDescriptorList.getDescriptor(requirmentNumber, vertexBufferDescriptor)) {
 			continue;
 		}
 
-		switch (vertexBufferDescriptor.semantic())
-		{
-		case MGeometry::kPosition:
-			{
-				if (!verticesBuffer)
-				{
-					verticesBuffer = data.createVertexBuffer(vertexBufferDescriptor);
-					if (verticesBuffer)
-					{
-						vertices = (float*)verticesBuffer->acquire(soleCount+heelCount, false);
-					}
-				}
-			}
-			break;
+		switch (vertexBufferDescriptor.semantic()) {
+      case MGeometry::kPosition: 
+        if (!verticesBuffer) {
+          verticesBuffer = data.createVertexBuffer(vertexBufferDescriptor);
+          if (verticesBuffer)
+          {
+            vertices = (float*)verticesBuffer->acquire(soleCount+heelCount, false);
+          }
+        }
+        break;
 		default:
 			// do nothing for stuff we don't understand
 			break;
