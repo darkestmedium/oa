@@ -676,7 +676,8 @@ namespace
 void FootPrintGeometryOverride::populateGeometry(
 		const MGeometryRequirements& requirements,
 		const MRenderItemList& renderItems,
-		MGeometry& data) {
+		MGeometry& data
+  ) {
 	// This call will ensure the post-condition that requiresGeometryUpdate() is false
 	FootPrintNode::GeometryParameters footprintParam = mFootPrintNode->updatingGeometry();
 
@@ -703,9 +704,8 @@ void FootPrintGeometryOverride::populateGeometry(
           }
         }
         break;
-		default:
-			// do nothing for stuff we don't understand
-			break;
+      default:  // do nothing for stuff we don't understand
+        break;
 		}
 	}
 

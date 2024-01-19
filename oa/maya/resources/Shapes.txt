@@ -12,16 +12,16 @@ Shapes
 9 Locator
 10 Frame
 11 Arrow
+12 Base
+13 Hip
+13 Rounded Double Circle
+14 Pin Round
 
-Main
-Pin
-Hip
 
 Arrow Two Way
 Arrow Four Way
 
 Circle Half Thick / Clavicle
-Circle  for Hips / Chest
 Feet / foot
 
 

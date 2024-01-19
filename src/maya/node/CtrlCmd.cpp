@@ -251,6 +251,12 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
       indxShape = 11;
     } else if (strShape == "base") {
       indxShape = 12;
+    } else if (strShape == "hip") {
+      indxShape = 13;
+    } else if (strShape == "circlehalfdouble") {
+      indxShape = 14;
+    } else if (strShape == "pinround") {
+      indxShape = 15;
     }	else {
       indxShape = 0;
     }

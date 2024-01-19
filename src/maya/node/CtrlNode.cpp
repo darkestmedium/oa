@@ -96,6 +96,9 @@ MStatus CtrlNode::initialize() {
   fn_enum.addField("Frame", 10);
   fn_enum.addField("Arrow", 11);
   fn_enum.addField("Base", 12);
+  fn_enum.addField("Hip", 13);
+  fn_enum.addField("CircleHalfDouble", 14);
+  fn_enum.addField("PinRound", 15);
   fn_enum.setKeyable(false);
   fn_enum.setStorable(true);
   fn_enum.setChannelBox(true);
@@ -379,6 +382,15 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
     case 12: // Base
       this->bbox = PopulateBoundingBox(bboxBase);
       break;
+    case 13: // Hip
+      this->bbox = PopulateBoundingBox(bboxHip);
+      break;
+    case 14: // CircleHalfDouble
+      this->bbox = PopulateBoundingBox(bboxCircleHalfDouble);
+      break;
+    case 15: // PinRound
+      this->bbox = PopulateBoundingBox(bboxPinRound);
+      break;
   }
 
   this->bbox.transformUsing(matrix);
@@ -443,6 +455,15 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
       break;
     case 12:  // Base
       PopulateVertexBuffer(pointsBase, indiciesBase, list_vertecies, list_lines, matrix);
+      break;
+    case 13:  // Hip
+      PopulateVertexBuffer(pointsHip, indiciesHip, list_vertecies, list_lines, matrix);
+      break;
+    case 14:  // CircleHalfDouble
+      PopulateVertexBuffer(pointsCircleHalfDouble, indiciesCircleHalfDouble, list_vertecies, list_lines, matrix);
+      break;
+    case 15:  // PinRound
+      PopulateVertexBuffer(pointsPinRound, indiciesPinRound, list_vertecies, list_lines, matrix);
       break;
     default:
       break;
