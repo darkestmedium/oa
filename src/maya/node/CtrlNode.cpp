@@ -99,6 +99,7 @@ MStatus CtrlNode::initialize() {
   fn_enum.addField("Hip", 13);
   fn_enum.addField("CircleHalfDouble", 14);
   fn_enum.addField("PinRound", 15);
+  fn_enum.addField("Clavicle", 16);
   fn_enum.setKeyable(false);
   fn_enum.setStorable(true);
   fn_enum.setChannelBox(true);
@@ -390,6 +391,8 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
       break;
     case 15: // PinRound
       this->bbox = PopulateBoundingBox(bboxPinRound);
+    case 16: // Clavicle
+      this->bbox = PopulateBoundingBox(bboxClavicle);
       break;
   }
 
@@ -464,6 +467,9 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
       break;
     case 15:  // PinRound
       PopulateVertexBuffer(pointsPinRound, indiciesPinRound, list_vertecies, list_lines, matrix);
+      break;
+    case 16:  // Clavicle
+      PopulateVertexBuffer(pointsClavicle, indiciesClavicle, list_vertecies, list_lines, matrix);
       break;
     default:
       break;
