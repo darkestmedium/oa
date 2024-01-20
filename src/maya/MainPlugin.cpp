@@ -1,10 +1,11 @@
 // Nodes
 #include "node/ComponentNode.hpp"
-#include "node/CtrlNode.hpp"
+#include "node/Ctrl.hpp"
 #include "node/CtrlCmd.hpp"
 #include "node/SpaceSwitchNode.hpp"
 #include "node/MetaDataNode.hpp"
 #include "node/MetaDataCmd.hpp"
+#include "node/ShapeNode.hpp"
 
 // Solvers
 #include "solve/Ik2bSolver.hpp"
@@ -14,7 +15,6 @@
 
 // Temp
 // #include "temp/rawfootPrintNode.hpp"
-#include "temp/footPrintNodeGeoOverride.hpp"
 
 // Function Sets
 #include <maya/MFnPlugin.h>
@@ -84,21 +84,15 @@ MStatus initializePlugin(MObject obj) {
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
   status = fn_plugin.registerTransform(
-    CtrlNode::type_name,
-    CtrlNode::type_id, 
-    &CtrlNode::creator, 
-    &CtrlNode::initialize,
+    Ctrl::typeName,
+    Ctrl::typeId, 
+    &Ctrl::creator, 
+    &Ctrl::initialize,
     &MPxTransformationMatrix::creator,
     MPxTransformationMatrix::baseTransformationMatrixId,
-    &CtrlNode::type_drawdb
+    &Ctrl::typeDrawDb
   );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
-    CtrlNode::type_drawdb,
-    CtrlNode::type_drawid,
-    CtrlDrawOverride::creator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+
 
   // Register Controller command
   status = fn_plugin.registerCommand(
@@ -182,6 +176,7 @@ MStatus initializePlugin(MObject obj) {
 
 
   // TEMP
+
   Globals = new GlobalVariables();
   status = fn_plugin.registerNode(
     gPluginNodeName,
@@ -279,12 +274,8 @@ MStatus uninitializePlugin(MObject obj) {
   fn_plugin.deregisterNode(Ik2bSolver::typeId);
 
   // Deregister Controller draw override
-  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
-    CtrlNode::type_drawdb,
-    CtrlNode::type_drawid
-  );
   fn_plugin.deregisterCommand(CtrlCommand::commandName);
-  fn_plugin.deregisterNode(CtrlNode::type_id);
+  fn_plugin.deregisterNode(Ctrl::typeId);
 
   fn_plugin.deregisterCommand(ComponentCmd::command_name);
   fn_plugin.deregisterNode(ComponentNode::type_id);

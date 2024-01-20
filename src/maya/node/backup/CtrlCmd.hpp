@@ -29,7 +29,7 @@
 
 
 // Lunar
-#include "Ctrl.hpp"
+#include "CtrlNode.hpp"
 #include "api/Utils.hpp"
 #include "api/LMAttribute.hpp"
 #include "api/LMObject.hpp"
@@ -70,8 +70,8 @@ public:
 	static const char* shapeFlagShort;
 	static const char* shapeFlagLong;
 
-	static const char* createShapeNodeFlagShort;
-	static const char* createShapeNodeFlagLong;
+	// static const char* fillShapeFlagShort;
+	// static const char* fillShapeFlagLong;
 
 	static const char* drawLineFlagShort;
 	static const char* drawLineFlagLong;
@@ -113,7 +113,6 @@ public:
 	MString strColor;
 	MColor colorOverride;
 
-  bool bCreateShapeNode;
 	short indxShape;
 	bool draw_solver_mode;
 	bool bDrawLine;
@@ -124,14 +123,13 @@ public:
 	// Constructors
 	CtrlCommand()
  		: MPxCommand()
-		, name(Ctrl::typeName)
+		, name(CtrlNode::type_name)
 		, bTranslateTo(false)
 		, bRotateTo(false)
  		, localPosition(0.0, 0.0, 0.0)
  		, localRotate(0.0, 0.0, 0.0)
  		, localScale(1.0, 1.0, 1.0)
  		, solverModePosition(0.0, 0.0, 0.0)
-    , bCreateShapeNode(true)
  		, indxShape(0)
  		, bDrawLine(false)
  		, draw_solver_mode(false)
@@ -158,8 +156,6 @@ private:
 	// Private Data
 	MObject objThisTransform;
 	MDagPath dpThisTransform;
-
-	MObject objThisShape;
 
 	MDagPath dpTargetTranslation;
 	MDagPath dpTargetRotation;

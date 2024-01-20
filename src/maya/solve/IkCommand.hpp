@@ -1,6 +1,6 @@
 #pragma once
 
-#include "node/CtrlNode.hpp"
+#include "node/Ctrl.hpp"
 // #include "Utils.hpp"
 
 // System Includes
@@ -101,7 +101,7 @@ public:
 	IkCommand()
  	: MPxCommand()
  	, command(kCommandCreate)
-	, name(CtrlNode::type_name)
+	, name(Ctrl::typeName)
 	, mode(0.0)
 	, bIsPoleVectorSet(false)
 	{}

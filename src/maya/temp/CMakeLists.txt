@@ -3,7 +3,7 @@ project(oamayatest LANGUAGES CXX)
 
 set(NODE_FILES
   # DisplayNode.hpp
-  footPrintNodeGeoOverride.hpp
+  # footPrintNodeGeoOverride.hpp
   # rawfootPrintNode.hpp
 )
 

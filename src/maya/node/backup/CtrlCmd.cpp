@@ -1,6 +1,5 @@
-#include "Ctrl.hpp"
+#include "CtrlNode.hpp"
 #include "CtrlCmd.hpp"
-// #include "ShapeNode.hpp"
 
 
 
@@ -33,8 +32,8 @@ const char* CtrlCommand::localScaleFlagLong = "-localScale";
 const char* CtrlCommand::shapeFlagShort = "-sh";
 const char* CtrlCommand::shapeFlagLong = "-shape";
 
-const char* CtrlCommand::createShapeNodeFlagShort = "-csn";
-const char* CtrlCommand::createShapeNodeFlagLong = "-createShapeNode";
+// const char* CtrlCommand::fillShapeFlagShort = "-fs";
+// const char* CtrlCommand::fillShapeFlagLong = "-fillShape";
 
 const char* CtrlCommand::drawLineFlagShort = "-dl";
 const char* CtrlCommand::drawLineFlagLong = "-drawLine";
@@ -91,7 +90,6 @@ MSyntax CtrlCommand::syntaxCreator() {
   sytnax.addFlag(localScaleFlagShort, localScaleFlagLong, MSyntax::kDouble, MSyntax::kDouble, MSyntax::kDouble);
 
   // Visual flags
-  sytnax.addFlag(createShapeNodeFlagShort, createShapeNodeFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(shapeFlagShort, shapeFlagLong, MSyntax::kString);
   sytnax.addFlag(drawLineFlagShort, drawLineFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(lineWidthFlagShort, lineWidthFlagLong, MSyntax::kDouble);
@@ -142,7 +140,6 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     strHelp += "   -lp    -localPosition        Double3    Local Position of the controller.\n";
     strHelp += "   -lr    -localRotate          Double3    Local Rotate of the controller.\n";
     strHelp += "   -ls    -localScale           Double3    Local Scale of the controller.\n";
-    strHelp += "   -csn   -createShapeNode      Bool       Whether or not to create the shape node.\n";
     strHelp += "   -sh    -shape                String     Shape to be drawn: 'cube' 'sphere' cross' 'diamond' 'square' 'circle' 'locator' 'none'.\n";
     strHelp += "   -dl    -drawLine             Bool       Whether or not you want to display a line from the object center to a target.\n";
     strHelp += "   -dsm   -drawSolverMode       Bool       Whether or not you want to display te fk / ik mode.\n";
@@ -223,15 +220,11 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     localScale.z = argData.flagArgumentDouble(localScaleFlagShort, 2, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
-  // Create Shape Node Flag
-  if (argData.isFlagSet(createShapeNodeFlagShort)) {
-    bCreateShapeNode = argData.flagArgumentBool(createShapeNodeFlagShort, 0, &status);
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-  }
   // Shape Flag
   if (argData.isFlagSet(shapeFlagShort)) {
     MString strShape = argData.flagArgumentString(shapeFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
+
     if (strShape == "cube")	{
       indxShape = 0;
     } else if (strShape == "square") {
@@ -370,13 +363,10 @@ MStatus CtrlCommand::doIt(const MArgList& argList) {
 
   // Command create mode
   if (command == kCommandCreate) {
-    objThisTransform = modDag.createNode(Ctrl::typeName, MObject::kNullObj);
-    if (bCreateShapeNode) {
-      objThisShape = modDag.createNode("ctrlShape", objThisTransform);
-    }
+    objThisTransform = modDag.createNode(CtrlNode::type_name, MObject::kNullObj);
     // If __name equals to "rigController" rename only the transform node as the shape node will be
     // renamed in the rigController.RigController::postConstructor method.
-    if (name != Ctrl::typeName) {modDag.renameNode(objThisTransform, name);}
+    if (name != CtrlNode::type_name) {modDag.renameNode(objThisTransform, name);}
 
     // Parent under the transform node if the selection is not empty and / or parent was specified
     int numItems = listSelection.length();

@@ -1,10 +1,10 @@
 set(MAYA_FILES
 # Nodes
   node/ComponentNode.hpp
-  node/CtrlNode.hpp
-  node/CtrlNode.cpp
+  node/Ctrl.hpp
   node/CtrlCmd.hpp
   node/CtrlCmd.cpp
+  node/ShapeNode.hpp
   node/SpaceSwitchNode.hpp
   node/Shapes.hpp
   node/MetaDataCmd.hpp
@@ -44,9 +44,7 @@ MAYA_PLUGIN(oam)
 
 # # Add the subdirectory for the nested project
 add_subdirectory(api)
-
 # add_subdirectory(node)
-
 # add_subdirectory(temp)
 
 
