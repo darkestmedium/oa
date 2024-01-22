@@ -5,7 +5,7 @@
 #include "node/SpaceSwitchNode.hpp"
 #include "node/MetaDataNode.hpp"
 #include "node/MetaDataCmd.hpp"
-#include "node/ShapeNode.hpp"
+// #include "node/ShapeNode.hpp"
 
 // Solvers
 #include "solve/Ik2bSolver.hpp"
@@ -92,6 +92,13 @@ MStatus initializePlugin(MObject obj) {
     MPxTransformationMatrix::baseTransformationMatrixId,
     &Ctrl::typeDrawDb
   );
+  CHECK_MSTATUS_AND_RETURN_IT(status);
+  status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+    Ctrl::typeDrawDb,
+    Ctrl::typeDrawId,
+    CtrlDrawOverride::creator
+  );
+  CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
   // Register Controller command
@@ -176,27 +183,26 @@ MStatus initializePlugin(MObject obj) {
 
 
   // TEMP
-
-  Globals = new GlobalVariables();
-  status = fn_plugin.registerNode(
-    gPluginNodeName,
-    FootPrintNode::id,
-    &FootPrintNode::creator,
-    &FootPrintNode::initialize,
-    MPxNode::kLocatorNode,
-    &FootPrintNode::drawDbClassification
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  status = MHWRender::MDrawRegistry::registerGeometryOverrideCreator(
-    FootPrintNode::drawDbClassification,
-    FootPrintNode::drawRegistrantId,
-    FootPrintGeometryOverride::Creator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  MSelectionMask::registerSelectionType(gPluginSelectionMask, 2);
-  char cmd[256];
-	snprintf(cmd, sizeof(cmd), "selectType -byName \"%s\" 1", gPluginSelectionMask);
-	status = MGlobal::executeCommand(cmd);
+  // Globals = new GlobalVariables();
+  // status = fn_plugin.registerNode(
+  //   gPluginNodeName,
+  //   FootPrintNode::id,
+  //   &FootPrintNode::creator,
+  //   &FootPrintNode::initialize,
+  //   MPxNode::kLocatorNode,
+  //   &FootPrintNode::drawDbClassification
+  // );
+  // CHECK_MSTATUS_AND_RETURN_IT(status);
+  // status = MHWRender::MDrawRegistry::registerGeometryOverrideCreator(
+  //   FootPrintNode::drawDbClassification,
+  //   FootPrintNode::drawRegistrantId,
+  //   FootPrintGeometryOverride::Creator
+  // );
+  // CHECK_MSTATUS_AND_RETURN_IT(status);
+  // MSelectionMask::registerSelectionType(gPluginSelectionMask, 2);
+  // char cmd[256];
+	// snprintf(cmd, sizeof(cmd), "selectType -byName \"%s\" 1", gPluginSelectionMask);
+	// status = MGlobal::executeCommand(cmd);
 
 
 
@@ -234,12 +240,12 @@ MStatus uninitializePlugin(MObject obj) {
   MMessage::removeCallbacks(callbackIds);
 
 
-  delete Globals;
-  MHWRender::MDrawRegistry::deregisterGeometryOverrideCreator(
-    FootPrintNode::drawDbClassification,
-    FootPrintNode::drawRegistrantId
-  );
-  fn_plugin.deregisterNode(FootPrintNode::id);
+  // delete Globals;
+  // MHWRender::MDrawRegistry::deregisterGeometryOverrideCreator(
+  //   FootPrintNode::drawDbClassification,
+  //   FootPrintNode::drawRegistrantId
+  // );
+  // fn_plugin.deregisterNode(FootPrintNode::id);
 
 
 
@@ -276,6 +282,10 @@ MStatus uninitializePlugin(MObject obj) {
   // Deregister Controller draw override
   fn_plugin.deregisterCommand(CtrlCommand::commandName);
   fn_plugin.deregisterNode(Ctrl::typeId);
+  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+    Ctrl::typeDrawDb,
+    Ctrl::typeDrawId
+  );
 
   fn_plugin.deregisterCommand(ComponentCmd::command_name);
   fn_plugin.deregisterNode(ComponentNode::type_id);

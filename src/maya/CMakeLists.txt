@@ -2,6 +2,7 @@ set(MAYA_FILES
 # Nodes
   node/ComponentNode.hpp
   node/Ctrl.hpp
+  node/Ctrl.cpp
   node/CtrlCmd.hpp
   node/CtrlCmd.cpp
   node/ShapeNode.hpp

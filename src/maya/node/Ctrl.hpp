@@ -35,7 +35,6 @@
 #include <maya/MEventMessage.h>
 #include <maya/MEvaluationManager.h>
 #include <maya/MEvaluationNode.h>
-#include <maya/MDagModifier.h>
 
 // Function sets
 #include <maya/MFnEnumAttribute.h>
@@ -55,7 +54,6 @@
 #include <maya/MPxDrawOverride.h>
 
 // Open APi
-
 #include "api/Utils.hpp"
 #include "api/LMText.hpp"
 #include "api/LMAttribute.hpp"
@@ -77,6 +75,52 @@ class Ctrl : public MPxTransform {
   /* Clean transform instance with a custom type_name. */
 
 public:
+  // Controls the size of the footprint geometry
+  static Attribute    attr_in_line_matrix;
+  static Attribute    attr_out_line_matrix;
+  // static  MObject  inputSize;  // 'sz'   Input   Distance
+  // static  MObject  outputSize; // 'osz'  Output  Distance: outputSize = [](inputSize) -> {return inputSize;}
+
+  // Add your renderer-required-attributes here
+  // static MObject inputXX;
+  // static MObject outputXX;
+
+  // Utility attribute for viewport
+  // [[maya::storable(false)]] [[maya::connectable(false)]] [[maya::hidden]]
+  static	MObject      geometryChanging;  // 'gcg' Output	Bool: geometryChanging = [](inputSize) -> {return true;} [*] check notes
+
+  // Attribute dependencies:
+  //      inputSize -> outputSize
+  //      inputSize -> geometryChanging 
+  //
+  //      * inputXX -> outputXX
+  //      * inputXX -> geometryChanging (if XX affect the geometry)
+  //
+  // "Logical" dependencies (Technique 1):
+  //      outputSize, geometryChanging -> [renderer]
+  //      * outputXX -> [renderer]
+  //
+  // Additional note:
+  //
+  // Q :  Why is there outputSize ? (Technique 1)
+  // A :  Input attributes, like inputSize cannot be cached by Evaluation Cache
+  //      Check FootPrintNode::setDependentsDirty() for more details about this work-around
+  //
+  // Q :  'outputXX' is not updating in EM mode? (Technique 1)
+  // A :  The virtual connections to [renderer] are not understand by EM.
+  //      Add this connection to FootPrintNode::setDependentsDirty().
+  //
+  // Q :  "geometryChanging" always returns 'true' ? (Technique 1.1)
+  // A :  "geometryChanging" is a "dirty flag attribute" tracking if the node needs geometry-update
+  //      If anything affecting it is changed, it will re-evaluate and return 'true' 
+  //      This will notify the viewport that the geometry is changing, 
+  //      Then, it will be reset to 'false' when geometry is updated (populateGeometry() is called)
+  //      This allows us to track the dirty status without override setDependentsDirty() or postEvaluation()
+  //      * Note, viewport will not reset its value in background evaluation (VP2 caching)
+  //      Check requiresGeometryUpdate(), populateGeometry() for detail
+
+
+public:
   // Class attributes
   static const MString typeName;
   static const MTypeId typeId;
@@ -84,12 +128,28 @@ public:
   static const MString typeDrawId;
 
   // Node attributes
+  // static MObject size;
+  static MObject localPosition, localPositionX, localPositionY, localPositionZ;
+  static MObject localRotate, localRotateX, localRotateY, localRotateZ;
+  static MObject localScale, localScaleX, localScaleY, localScaleZ;
 
-  MDagModifier modDag;
-  MObject selfObject;
-  MDagPath selfPath;
+  static MObject attr_line_width;
+  static MObject attr_shape_indx;
+  static MObject attr_in_draw_line;
 
-  MObject selfShape;
+  static MObject attr_draw_solver_mode;
+  static MObject attr_solver_mode_size;
+  static MObject attr_solver_mode_positionX, attr_solver_mode_positionY, attr_solver_mode_positionZ, attr_solver_mode_position;
+  static MObject attrInText;
+
+  static MObject attrInFkIk;
+  static MObject attr_component;
+
+  // Use only on dynamic ctrl like fk/ik blending or pole vectors
+  bool draw_line;
+
+  MObject self_object;
+  MDagPath self_path;
 
   // Constructors
   Ctrl()
@@ -99,61 +159,146 @@ public:
   virtual ~Ctrl() override {};
 
   // Class Methods
-  static void *   creator() {return new Ctrl();}
-  static MStatus  initialize() {return MS::kSuccess;}
+  static void *   creator() {return new Ctrl();};
+  static MStatus  initialize();
   virtual void    postConstructor() override;
 
-  void getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
-  SchedulingType schedulingType() const override {return SchedulingType::kParallel;}
+  MStatus         setDependentsDirty(const MPlug& plugBeingDirtied, MPlugArray& affectedPlugs) override;
+  MStatus         compute(const MPlug& plug, MDataBlock& dataBlock) override;
+  MStatus         postEvaluation(const  MDGContext& context, const MEvaluationNode& evaluationNode, PostEvaluationType evalType) override; 
+
+  void            getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
+  SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
+
+  bool            isBounded() const override {return true;};
+  virtual MBoundingBox boundingBox() const override;
 };
 
 
 
 
-// Class attributes
-inline const MString Ctrl::typeName   = "ctrl";
-inline const MTypeId Ctrl::typeId     = 0x6606002;
-inline const MString Ctrl::typeDrawDb = "drawdb/geometry/animation/ctrl";
-inline const MString Ctrl::typeDrawId = "ctrlPlugin";
+//-------------------------------------------------------------------------------------------------
+//
+// Ctrl Draw Override definition
+//
+//-------------------------------------------------------------------------------------------------
+
+class CtrlUserData : public MUserData {
+public:
+  MMatrix         mat_local;
+  MBoundingBox    bbox;
+  MMatrix         mat_pv;
+  MPoint          pos_draw_pv_to;
+
+  short           shape_indx;
+  unsigned int    prio_depth;
+  MPointArray     list_vertecies;
+  MPointArray     list_lines;
+  MPointArray     list_line;
+  float           line_width;
+  MColor          col_wireframe;
+  MColor          col_grey;
+
+  // Fk / Ik state
+  MObject objDrawLineTo;
+  MMatrix matTo;
+  double fkIk;
+  bool bDrawline;
+
+  bool draw_solver_mode;
+  unsigned int solver_mode_size;
+  MPoint pos_solver_mode;
+  MString str_solver_mode;
+
+  // Constructors
+  CtrlUserData()
+    : MUserData(false)
+    , col_grey(0.5, 0.5, 0.5)
+  {};
+
+  // Destructor
+  virtual ~CtrlUserData() override {};
+
+  virtual void get_plugs(const MObject& object);
+  virtual void get_shape(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
+  virtual void get_bbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
+  virtual void get_text(const MObject& object);
+
+
+  MBoundingBox PopulateBoundingBox(const array<array<float,3>,2>& bbox) {
+    return MBoundingBox(MPoint(bbox[0][0], bbox[0][1], bbox[0][2]), MPoint(bbox[1][0], bbox[1][1], bbox[1][2]));
+  }
+
+  void PopulateVertexBuffer(
+    const vector<array<float,3>>& points,
+    const vector<pair<int,int>>& indecies,
+    MPointArray& vertecies,
+    MPointArray& lines,
+    MMatrix& matrix
+  ) {
+    // Multiply the points by the matrix first
+    for (int i=0; i<points.size(); i++) {
+      vertecies.append(MPoint(points[i][0], points[i][1], points[i][2]) * matrix);
+    }
+    // Fill edges based on vertecies
+    for (const auto& indexPair : indecies) {
+      lines.append(vertecies[indexPair.first]); lines.append(vertecies[indexPair.second]);
+    }
+  };
+
+};
 
 
 
 
-inline void Ctrl::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const {
-	/* Disables Cached Playback support by default.
+class CtrlDrawOverride : public MHWRender::MPxDrawOverride {
+private:
 
-	Built-in locators all enable Cached Playback by default, but plug-ins have to
-	explicitly enable it by overriding this method.
-	This method should be overridden to enable Cached Playback by default for custom locators.
+public:
+  // Destructor
+  virtual ~CtrlDrawOverride() override {
+    ptrCtrl = NULL; 
+    if (fModelEditorChangedCbId != 0) {
+      MMessage::removeCallback(fModelEditorChangedCbId);
+      fModelEditorChangedCbId = 0;
+    }
+  };
+  // Public Methods
+  static MHWRender::MPxDrawOverride* creator(const MObject& obj) {return new CtrlDrawOverride(obj);}
+  virtual MHWRender::DrawAPI supportedDrawAPIs() const override {return MHWRender::kAllDevices;}
 
-	Args:
-		evalNode (MEvaluationNode&): This node's evaluation node, contains animated plug information
-		disablingInfo (MNodeCacheDisablingInfo&): Information about why the node disables caching to be reported to the user
-		cacheSetup (MNodeCacheSetupInfo&): Preferences and requirements this node has for caching
-		monitoredAttribures (MObjectArray&): Attributes impacting the behavior of this method that will be monitored for change
+  virtual bool isBounded(const MDagPath& objPath, const MDagPath& cameraPath) const override {return true;}
+  virtual MBoundingBox boundingBox(
+    const MDagPath& objPath,
+    const MDagPath& cameraPath
+  ) const override;
+  virtual bool hasUIDrawables() const override {return true;}
+  virtual MUserData* prepareForDraw(
+    const MDagPath& objPath,
+    const MDagPath& cameraPath,
+    const MHWRender::MFrameContext& frameContext,
+    MUserData* oldData
+  ) override;
+  virtual void addUIDrawables(
+    const MDagPath& objPath,
+    MHWRender::MUIDrawManager& drawManager,
+    const MHWRender::MFrameContext& frameContext,
+    const MUserData* data
+  ) override;
 
-	*/
-	MPxTransform::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
-	assert(!disablingInfo.getCacheDisabled());
-	cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
-}
+private:
+  // Constructors
+  CtrlDrawOverride(const MObject& obj)
+    : MHWRender::MPxDrawOverride(obj, nullptr, false)
+    , ptrCtrl(nullptr)
+  {
+    fModelEditorChangedCbId = MEventMessage::addEventCallback("modelEditorChanged", OnModelEditorChanged, this);
+    MStatus status;
+    MFnDependencyNode fn_node(obj, &status);
+    ptrCtrl = status ? dynamic_cast<Ctrl*>(fn_node.userNode()) : NULL;
+  };
 
-
-inline void Ctrl::postConstructor() {
-
-  selfObject=thisMObject();
-  MDagPath::getAPathTo(selfObject, selfPath);
-  MFnDependencyNode selfFn(selfObject);
-
-  selfFn.findPlug("shear", false).setLocked(1);
-  selfFn.findPlug("rotateAxis", false).setLocked(1);
-
-  // // Check if ctrl command already created a shape node, if it didn't create one (node editor case)
-  // unsigned int numShapes;
-  // selfPath.numberOfShapesDirectlyBelow(numShapes);
-  // if (numShapes == 0) {
-  //   selfShape = modDag.createNode("ctrlShape", selfObject);
-  //   modDag.doIt();
-  // }
-
-}
+  Ctrl*   ptrCtrl;    // The node we are rendering
+  MCallbackId fModelEditorChangedCbId;
+  static void OnModelEditorChanged(void *clientData);
+};

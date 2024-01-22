@@ -45,62 +45,82 @@
 
 
 namespace LMAttribute {
-	/* LMAttrUtilis
-	 * Wrapper namespace for attribute utilities.
-	 */
+  /* LMAttrUtilis
+   * Wrapper namespace for attribute utilities.
+   */
 
 
-	inline MStatus lockAndHideAttr(MPlug& plug) {
-		/* Locks and hides the given plug from the channelbox.
+  inline MStatus lockAndHideAttr(MPlug& plug) {
+    /* Locks and hides the given plug from the channelbox.
 
-		Returns:
-			status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-				during the command.
+    Returns:
+      status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+        during the command.
 
-		*/
-		MStatus status;
-		plug.setLocked(true);
-		plug.setKeyable(false);
-		plug.setChannelBox(false);
+    */
+    MStatus status;
+    plug.setLocked(true);
+    plug.setKeyable(false);
+    plug.setChannelBox(false);
 
-		return MS::kSuccess;
-	};
+    return MS::kSuccess;
+  };
 
-	inline MStatus lockAndHideAttr(MObject& node, MObject& attribute) {
-		/* Locks and hides the given plug from the channelbox.
+  inline MStatus lockAndHideAttr(MObject& node, MObject& attribute) {
+    /* Locks and hides the given plug from the channelbox.
 
-		Returns:
-			status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-				during the command.
+    Returns:
+      status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+        during the command.
 
-		*/
-		MStatus status;
-		MPlug plug(node, attribute);
-		plug.setLocked(true);
-		plug.setKeyable(false);
-		plug.setChannelBox(false);
+    */
+    MStatus status;
+    MPlug plug(node, attribute);
+    plug.setLocked(true);
+    plug.setKeyable(false);
+    plug.setChannelBox(false);
 
-		return MS::kSuccess;
-	};
+    return MS::kSuccess;
+  };
 
 
-	inline MObject getSourceObjFromPlug(const MObject& object, const MObject& plug) {
-		/* Gets the object from the given plug if it is connected.
+  inline MObject getSourceObjFromPlug(const MObject& object, const MObject& plug) {
+    /* Gets the object from the given plug if it is connected.
 
-		Args:
-			Plug (MObject&): Object for the given plug.
-		
-		Returns:
-			MObject: If the plug is a valid connection it will return the obj, otherwise a null object will
-				be returned instead.
+    Args:
+      Plug (MObject&): Object for the given plug.
+    
+    Returns:
+      MObject: If the plug is a valid connection it will return the obj, otherwise a null object will
+        be returned instead.
 
-		*/
-		MPlug plugDestination(object, plug);
-		if (plugDestination.isConnected()) {
-			return plugDestination.source().node();
-		}
+    */
+    MPlug plugDestination(object, plug);
+    if (plugDestination.isConnected()) {
+      return plugDestination.source().node();
+    }
 
-		return MObject::kNullObj;
-	};
+    return MObject::kNullObj;
+  };
+
+
+  inline MPlugArray getDestinationObjFromPlug(const MObject& object, const MObject& plug) {
+    /* Gets the object from the given plug if it is connected.
+
+    Args:
+      Plug (MObject&): Object for the given plug.
+    
+    Returns:
+      MObject: If the plug is a valid connection it will return the obj, otherwise a null object will
+        be returned instead.
+
+    */
+    MPlug plugDestination(object, plug);
+    MPlugArray plugDestinations;
+    if (plugDestination.isConnected()) {
+      plugDestination.destinations(plugDestinations);
+    }
+    return plugDestinations;
+  };
 
 }

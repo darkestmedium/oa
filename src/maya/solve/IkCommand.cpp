@@ -46,408 +46,396 @@ const char* IkCommand::helpFlagLong = "-help";
 
 
 MSyntax IkCommand::syntaxCreator() {
-	/* Creates the command's syntax object and returns it.
+  /* Creates the command's syntax object and returns it.
 
-	Returns:
-		syntax (MSyntax): Command's syntax object
+  Returns:
+    syntax (MSyntax): Command's syntax object
 
-	*/
-	MSyntax sytnax;
+  */
+  MSyntax sytnax;
 
-	// Main flags
-	sytnax.addFlag(nameFlagShort, nameFlagLong, MSyntax::kString);
+  // Main flags
+  sytnax.addFlag(nameFlagShort, nameFlagLong, MSyntax::kString);
 
-	// Fk Flags
-	sytnax.addFlag(fkStartFlagShort, fkStartFlagLong, MSyntax::kString);
-	sytnax.addFlag(fkMidFlagShort, fkMidFlagLong, MSyntax::kString);
-	sytnax.addFlag(fkEndFlagShort, fkEndFlagLong, MSyntax::kString);
-	// Ik Flags
-	sytnax.addFlag(ikStartFlagShort, ikStartFlagLong, MSyntax::kString);
-	sytnax.addFlag(ikMidFlagShort, ikMidFlagLong, MSyntax::kString);
-	sytnax.addFlag(ikEndFlagShort, ikEndFlagLong, MSyntax::kString);
-	sytnax.addFlag(ikHandleFlagShort, ikHandleFlagLong, MSyntax::kString);
-	sytnax.addFlag(poleVectorFlagShort, poleVectorFlagLong, MSyntax::kString);
-	// Out Flags
-	sytnax.addFlag(outStartFlagShort, outStartFlagLong, MSyntax::kString);
-	sytnax.addFlag(outMidFlagShort, outMidFlagLong, MSyntax::kString);
-	sytnax.addFlag(outEndFlagShort, outEndFlagLong, MSyntax::kString);
+  // Fk Flags
+  sytnax.addFlag(fkStartFlagShort, fkStartFlagLong, MSyntax::kString);
+  sytnax.addFlag(fkMidFlagShort, fkMidFlagLong, MSyntax::kString);
+  sytnax.addFlag(fkEndFlagShort, fkEndFlagLong, MSyntax::kString);
+  // Ik Flags
+  sytnax.addFlag(ikStartFlagShort, ikStartFlagLong, MSyntax::kString);
+  sytnax.addFlag(ikMidFlagShort, ikMidFlagLong, MSyntax::kString);
+  sytnax.addFlag(ikEndFlagShort, ikEndFlagLong, MSyntax::kString);
+  sytnax.addFlag(ikHandleFlagShort, ikHandleFlagLong, MSyntax::kString);
+  sytnax.addFlag(poleVectorFlagShort, poleVectorFlagLong, MSyntax::kString);
+  // Out Flags
+  sytnax.addFlag(outStartFlagShort, outStartFlagLong, MSyntax::kString);
+  sytnax.addFlag(outMidFlagShort, outMidFlagLong, MSyntax::kString);
+  sytnax.addFlag(outEndFlagShort, outEndFlagLong, MSyntax::kString);
 
-	sytnax.addFlag(modeFlagShort, modeFlagLong, MSyntax::kString);
+  sytnax.addFlag(modeFlagShort, modeFlagLong, MSyntax::kString);
 
-	// Help Flags	
-	sytnax.addFlag(helpFlagShort, helpFlagLong, MSyntax::kBoolean);
+  // Help Flags	
+  sytnax.addFlag(helpFlagShort, helpFlagLong, MSyntax::kBoolean);
 
-	sytnax.useSelectionAsDefault(false);
+  sytnax.useSelectionAsDefault(false);
 
-	return sytnax;
+  return sytnax;
 }
 
 
 MStatus IkCommand::parseArguments(const MArgList& argList) {
-	/* Parses the commands's flag arguments.
+  /* Parses the commands's flag arguments.
 
-	Args:
-		argList (MArglist): List of arguments passed to the command.
+  Args:
+    argList (MArglist): List of arguments passed to the command.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	MStatus status;
+  */
+  MStatus status;
 
-	MArgDatabase argData(syntax(), argList);
+  MArgDatabase argData(syntax(), argList);
 
-	// Display Help
-	if (argData.isFlagSet(helpFlagShort))	{
-		command = kCommandHelp;
-		MString helpStr;
-		helpStr += "Flags:\n";
-		helpStr += "   -n     -name                 String     Name of the ik solver node to be created.\n";
-		helpStr += "   -fks   -fkStart              String     Name of the fk start transform input.\n";
-		helpStr += "   -fkm   -fkMid                String     Name of the fk mid transform input.\n";
-		helpStr += "   -fke   -fkEnd                String     Name of the fk end transform input.\n";
-		helpStr += "   -iks   -ikStart              String     Name of the ik start transform input.\n";
-		helpStr += "   -ikm   -ikMid                String     Name of the ik mid transform input.\n";
-		helpStr += "   -ike   -ikEnd                String     Name of the ik end transform input.\n";
-		helpStr += "   -ikh   -ikHandle             String     Name of the ik handle transform input.\n";
-		helpStr += "   -pv    -poleVector           String     Name of the pole vector transform input (optional).\n";
-		helpStr += "   -os    -outStart             String     Name of the start joint input.\n";
-		helpStr += "   -om    -outMid               String     Name of the mid joint input.\n";
-		helpStr += "   -oe    -outEnd               String     Name of the end joint input.\n";
-		helpStr += "   -mod   -mode                 String     Solver mode 'fk' or 'ik'.\n";
-		helpStr += "   -h     -help                 N/A        Display this text.\n";
-		MGlobal::displayInfo(helpStr);
-		return MS::kSuccess;
-	}
+  // Display Help
+  if (argData.isFlagSet(helpFlagShort))	{
+    command = kCommandHelp;
+    MString helpStr;
+    helpStr += "Flags:\n";
+    helpStr += "   -n     -name                 String     Name of the ik solver node to be created.\n";
+    helpStr += "   -fks   -fkStart              String     Name of the fk start transform input.\n";
+    helpStr += "   -fkm   -fkMid                String     Name of the fk mid transform input.\n";
+    helpStr += "   -fke   -fkEnd                String     Name of the fk end transform input.\n";
+    helpStr += "   -iks   -ikStart              String     Name of the ik start transform input.\n";
+    helpStr += "   -ikm   -ikMid                String     Name of the ik mid transform input.\n";
+    helpStr += "   -ike   -ikEnd                String     Name of the ik end transform input.\n";
+    helpStr += "   -ikh   -ikHandle             String     Name of the ik handle transform input.\n";
+    helpStr += "   -pv    -poleVector           String     Name of the pole vector transform input (optional).\n";
+    helpStr += "   -os    -outStart             String     Name of the start joint input.\n";
+    helpStr += "   -om    -outMid               String     Name of the mid joint input.\n";
+    helpStr += "   -oe    -outEnd               String     Name of the end joint input.\n";
+    helpStr += "   -mod   -mode                 String     Solver mode 'fk' or 'ik'.\n";
+    helpStr += "   -h     -help                 N/A        Display this text.\n";
+    MGlobal::displayInfo(helpStr);
+    return MS::kSuccess;
+  }
 
-	// Name Flag
-	if (argData.isFlagSet(nameFlagShort))	{
-		name = argData.flagArgumentString(nameFlagShort, 0, &status);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-	}
+  // Name Flag
+  if (argData.isFlagSet(nameFlagShort))	{
+    name = argData.flagArgumentString(nameFlagShort, 0, &status);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
 
-	// Fk Start Flag
-	if (argData.isFlagSet(fkStartFlagShort)) {
-		MDagPath dpFkStart;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(fkStartFlagShort, 0, &status), dpFkStart);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnFkStart.setObject(dpFkStart);
-	} else {
-		MGlobal::displayError("fkStart flag is required.");
-		return MS::kFailure;
-	}
+  // Fk Start Flag
+  if (argData.isFlagSet(fkStartFlagShort)) {
+    MDagPath dpFkStart;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(fkStartFlagShort, 0, &status), dpFkStart);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnFkStart.setObject(dpFkStart);
+  } else {
+    MGlobal::displayError("fkStart flag is required.");
+    return MS::kFailure;
+  }
 
-	// Fk Mid Flag
-	if (argData.isFlagSet(fkMidFlagShort)) {
-		MDagPath dpFkMid;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(fkMidFlagShort, 0, &status), dpFkMid);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnFkMid.setObject(dpFkMid);
-	} else {
-		MGlobal::displayError("fkMid flag is required.");
-		return MS::kFailure;
-	}
+  // Fk Mid Flag
+  if (argData.isFlagSet(fkMidFlagShort)) {
+    MDagPath dpFkMid;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(fkMidFlagShort, 0, &status), dpFkMid);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnFkMid.setObject(dpFkMid);
+  } else {
+    MGlobal::displayError("fkMid flag is required.");
+    return MS::kFailure;
+  }
 
-	// Fk End Flag
-	if (argData.isFlagSet(fkEndFlagShort)) {
-		MDagPath dpFkEnd;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(fkEndFlagShort, 0, &status), dpFkEnd);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnFkEnd.setObject(dpFkEnd);
-	} else {
-		MGlobal::displayError("fkEnd flag is required.");
-		return MS::kFailure;
-	}
+  // Fk End Flag
+  if (argData.isFlagSet(fkEndFlagShort)) {
+    MDagPath dpFkEnd;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(fkEndFlagShort, 0, &status), dpFkEnd);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnFkEnd.setObject(dpFkEnd);
+  } else {
+    MGlobal::displayError("fkEnd flag is required.");
+    return MS::kFailure;
+  }
 
-	// Ik Start Flag
-	if (argData.isFlagSet(ikStartFlagShort)) {
-		MDagPath dpIkStart;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(ikStartFlagShort, 0, &status), dpIkStart);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnIkStart.setObject(dpIkStart);
-	} else {
-		MGlobal::displayError("ikStart flag is required.");
-		return MS::kFailure;
-	}
+  // Ik Start Flag
+  if (argData.isFlagSet(ikStartFlagShort)) {
+    MDagPath dpIkStart;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(ikStartFlagShort, 0, &status), dpIkStart);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnIkStart.setObject(dpIkStart);
+  } else {
+    MGlobal::displayError("ikStart flag is required.");
+    return MS::kFailure;
+  }
 
-	// Ik Mid Flag
-	if (argData.isFlagSet(ikMidFlagShort)) {
-		MDagPath dpIkMid;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(ikMidFlagShort, 0, &status), dpIkMid);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnIkMid.setObject(dpIkMid);
-	} else {
-		MGlobal::displayError("ikkMid flag is required.");
-		return MS::kFailure;
-	}
+  // Ik Mid Flag
+  if (argData.isFlagSet(ikMidFlagShort)) {
+    MDagPath dpIkMid;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(ikMidFlagShort, 0, &status), dpIkMid);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnIkMid.setObject(dpIkMid);
+  } else {
+    MGlobal::displayError("ikkMid flag is required.");
+    return MS::kFailure;
+  }
 
-	// Ik End Flag
-	if (argData.isFlagSet(ikEndFlagShort)) {
-		MDagPath dpIkEnd;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(ikEndFlagShort, 0, &status), dpIkEnd);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnIkEnd.setObject(dpIkEnd);
-	} else {
-		MGlobal::displayError("ikEnd flag is required.");
-		return MS::kFailure;
-	}
+  // Ik End Flag
+  if (argData.isFlagSet(ikEndFlagShort)) {
+    MDagPath dpIkEnd;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(ikEndFlagShort, 0, &status), dpIkEnd);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnIkEnd.setObject(dpIkEnd);
+  } else {
+    MGlobal::displayError("ikEnd flag is required.");
+    return MS::kFailure;
+  }
 
-	// Ik Handle Flag
-	if (argData.isFlagSet(ikHandleFlagShort)) {
-		MDagPath dpIkHandle;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(ikHandleFlagShort, 0, &status), dpIkHandle);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnIkHandle.setObject(dpIkHandle);
-	} else {
-		MGlobal::displayError("ikHandle flag is required.");
-		return MS::kFailure;
-	}
+  // Ik Handle Flag
+  if (argData.isFlagSet(ikHandleFlagShort)) {
+    MDagPath dpIkHandle;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(ikHandleFlagShort, 0, &status), dpIkHandle);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnIkHandle.setObject(dpIkHandle);
+  } else {
+    MGlobal::displayError("ikHandle flag is required.");
+    return MS::kFailure;
+  }
 
-	// PoleVector Flag
-	if (argData.isFlagSet(poleVectorFlagShort)) {
-		MString strPoleVector = argData.flagArgumentString(poleVectorFlagShort, 0, &status);
-		if (strPoleVector != "") {
-			status = LMObject::getDagPathFromString(strPoleVector, dpPoleVector);
-			CHECK_MSTATUS_AND_RETURN_IT(status);
-			fnPoleVector.setObject(dpPoleVector);
-			bIsPoleVectorSet = true;
-		}
-	} else {
-		fnPoleVector.setObject(MObject::kNullObj);
-		bIsPoleVectorSet = false;
-	}
+  // PoleVector Flag
+  if (argData.isFlagSet(poleVectorFlagShort)) {
+    MString strPoleVector = argData.flagArgumentString(poleVectorFlagShort, 0, &status);
+    if (strPoleVector != "") {
+      status = LMObject::getDagPathFromString(strPoleVector, dpPoleVector);
+      CHECK_MSTATUS_AND_RETURN_IT(status);
+      fnPoleVector.setObject(dpPoleVector);
+      bIsPoleVectorSet = true;
+    }
+  } else {
+    fnPoleVector.setObject(MObject::kNullObj);
+    bIsPoleVectorSet = false;
+  }
 
-	// Joint Start Flag
-	if (argData.isFlagSet(outStartFlagShort)) {
-		MDagPath dpJntStart;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(outStartFlagShort, 0, &status), dpJntStart);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnJntStart.setObject(dpJntStart);
-	} else {
-		MGlobal::displayError("outStart flag is required.");
-		return MS::kFailure;
-	}
+  // Joint Start Flag
+  if (argData.isFlagSet(outStartFlagShort)) {
+    MDagPath dpOutStart;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(outStartFlagShort, 0, &status), dpOutStart);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnOutStart.setObject(dpOutStart);
+  } else {
+    MGlobal::displayError("outStart flag is required.");
+    return MS::kFailure;
+  }
 
-	// Joint Mid Flag
-	if (argData.isFlagSet(outMidFlagShort)) {
-		MDagPath dpJntMid;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(outMidFlagShort, 0, &status), dpJntMid);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnJntMid.setObject(dpJntMid);
-	} else {
-		MGlobal::displayError("outMid flag is required.");
-		return MS::kFailure;
-	}
+  // Joint Mid Flag
+  if (argData.isFlagSet(outMidFlagShort)) {
+    MDagPath dpOutMid;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(outMidFlagShort, 0, &status), dpOutMid);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnOutMid.setObject(dpOutMid);
+  } else {
+    MGlobal::displayError("outMid flag is required.");
+    return MS::kFailure;
+  }
 
-	// Joint End Flag
-	if (argData.isFlagSet(outEndFlagShort)) {
-		MDagPath dpJntEnd;
-		status = LMObject::getDagPathFromString(argData.flagArgumentString(outEndFlagShort, 0, &status), dpJntEnd);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		fnJntEnd.setObject(dpJntEnd);
-	} else {
-		MGlobal::displayError("outEnd flag is required.");
-		return MS::kFailure;
-	}
+  // Joint End Flag
+  if (argData.isFlagSet(outEndFlagShort)) {
+    MDagPath dpOutEnd;
+    status = LMObject::getDagPathFromString(argData.flagArgumentString(outEndFlagShort, 0, &status), dpOutEnd);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    fnOutEnd.setObject(dpOutEnd);
+  } else {
+    MGlobal::displayError("outEnd flag is required.");
+    return MS::kFailure;
+  }
 
-	// Mode Flag
-	if (argData.isFlagSet(modeFlagShort)) {
-		MString strMode = argData.flagArgumentString(modeFlagShort, 0, &status);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		if (strMode == "fk") {
-			mode = 0.0;
-		}
-		if (strMode == "ik") {
-			mode = 100.0;
-		}
-	}
+  // Mode Flag
+  if (argData.isFlagSet(modeFlagShort)) {
+    MString strMode = argData.flagArgumentString(modeFlagShort, 0, &status);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    if (strMode == "fk") {
+      mode = 0.0;
+    }
+    if (strMode == "ik") {
+      mode = 100.0;
+    }
+  }
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 
 
 MStatus IkCommand::doIt(const MArgList& argList) {
-	/* Command's doIt method.
+  /* Command's doIt method.
 
-	This method should perform a command by setting up internal class data and then	calling the
-	redoIt method.
+  This method should perform a command by setting up internal class data and then	calling the
+  redoIt method.
 
-	The actual action performed by the command should be done in the redoIt method.	This is a pure
-	virtual method, and must be overridden in derived classes.
+  The actual action performed by the command should be done in the redoIt method.	This is a pure
+  virtual method, and must be overridden in derived classes.
 
-	Args:
-		argList (MArgList): List of arguments passed to the command.
+  Args:
+    argList (MArgList): List of arguments passed to the command.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	MStatus status;
+  */
+  MStatus status;
 
-	status = parseArguments(argList);
-	CHECK_MSTATUS_AND_RETURN_IT(status);
+  status = parseArguments(argList);
+  CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	// Command create mode
-	if (command == kCommandCreate) {
-		// Solver node creation
-		objIk2bSolver = modDg.createNode(Ik2bSolver::typeName);
-		if (name == Ik2bSolver::typeName)	{
-			modDg.renameNode(objIk2bSolver, name);
-		}	else {
-			modDg.renameNode(objIk2bSolver, name + Ik2bSolver::typeName);
-		}
-		// Get function sets
-		fnIk2bSolver.setObject(objIk2bSolver);
+  // Command create mode
+  if (command == kCommandCreate) {
+    // Solver node creation
+    objIk2bSolver = modDg.createNode(Ik2bSolver::typeName);
+    if (name == Ik2bSolver::typeName)	{
+      modDg.renameNode(objIk2bSolver, name);
+    }	else {
+      modDg.renameNode(objIk2bSolver, name + Ik2bSolver::typeName);
+    }
+    // Get function sets
+    fnIk2bSolver.setObject(objIk2bSolver);
 
-		// Get Fk input plugs
-		MPlug plugOutFkStartWorldMatrix0 = fnFkStart.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutFkMidWorldMatrix0 = fnFkMid.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutFkEndWorldMatrix0 = fnFkEnd.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    // Get Fk input plugs
+    MPlug plugOutFkStartWorldMatrix0 = fnFkStart.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutFkMidWorldMatrix0 = fnFkMid.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutFkEndWorldMatrix0 = fnFkEnd.findPlug("worldMatrix", false).elementByLogicalIndex(0);
 
-		// Get Ik input plugs
-		MPlug plugOutIkStartWorldMatrix0 = fnIkStart.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutIkMidWorldMatrix0 = fnIkMid.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutIkEndWorldMatrix0 = fnIkEnd.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutIkHandleWorldMatrix0 = fnIkHandle.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    // Get Ik input plugs
+    MPlug plugOutIkStartWorldMatrix0 = fnIkStart.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutIkMidWorldMatrix0 = fnIkMid.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutIkEndWorldMatrix0 = fnIkEnd.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutIkHandleWorldMatrix0 = fnIkHandle.findPlug("worldMatrix", false).elementByLogicalIndex(0);
 
-		// Get Out input plugs
-		MPlug plugOutJntStartWorldMatrix0 = fnJntStart.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutJntMidWorldMatrix0 = fnJntMid.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		MPlug plugOutJntEndWorldMatrix0 = fnJntEnd.findPlug("worldMatrix", false).elementByLogicalIndex(0);
-		
-		// Get solver input plugs
-		MPlug plugInFkStart = fnIk2bSolver.findPlug("fkStart", false);
-		MPlug plugInFkMid = fnIk2bSolver.findPlug("fkMid", false);
-		MPlug plugInFkEnd = fnIk2bSolver.findPlug("fkEnd", false);
-	
-		MPlug plugInIkStart = fnIk2bSolver.findPlug("ikStart", false);
-		MPlug plugInIkMid = fnIk2bSolver.findPlug("ikMid", false);
-		MPlug plugInIkEnd = fnIk2bSolver.findPlug("ikEnd", false);
-	
-		MPlug plugInIkHandle = fnIk2bSolver.findPlug("ikHandle", false);
-		MPlug plugInPoleVector = fnIk2bSolver.findPlug("poleVector", false);
+    // Get Out input plugs
+    MPlug plugOutOutStartWorldMatrix0 = fnOutStart.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutOutMidWorldMatrix0 = fnOutMid.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    MPlug plugOutOutEndWorldMatrix0 = fnOutEnd.findPlug("worldMatrix", false).elementByLogicalIndex(0);
+    
+    // Get solver input plugs
+    MPlug plugInFkStart = fnIk2bSolver.findPlug("fkStart", false);
+    MPlug plugInFkMid = fnIk2bSolver.findPlug("fkMid", false);
+    MPlug plugInFkEnd = fnIk2bSolver.findPlug("fkEnd", false);
+  
+    MPlug plugInIkStart = fnIk2bSolver.findPlug("ikStart", false);
+    MPlug plugInIkMid = fnIk2bSolver.findPlug("ikMid", false);
+    MPlug plugInIkEnd = fnIk2bSolver.findPlug("ikEnd", false);
+  
+    MPlug plugInIkHandle = fnIk2bSolver.findPlug("ikHandle", false);
+    MPlug plugInPoleVector = fnIk2bSolver.findPlug("poleVector", false);
+  
+    // Connect matrix plugs
+    modDg.connect(plugOutFkStartWorldMatrix0, plugInFkStart);
+    modDg.connect(plugOutFkMidWorldMatrix0, plugInFkMid);
+    modDg.connect(plugOutFkEndWorldMatrix0, plugInFkEnd);
+  
+    modDg.connect(plugOutIkStartWorldMatrix0, plugInIkStart);
+    modDg.connect(plugOutIkMidWorldMatrix0, plugInIkMid);
+    modDg.connect(plugOutIkEndWorldMatrix0, plugInIkEnd);
+    modDg.connect(plugOutIkHandleWorldMatrix0, plugInIkHandle);
 
-		MPlug plugInOutStart = fnIk2bSolver.findPlug("outStart", false);
-		MPlug plugInOutMid = fnIk2bSolver.findPlug("outMid", false);
-		MPlug plugInOutEnd = fnIk2bSolver.findPlug("outEnd", false);
-	
-		// Connect matrix plugs
-		modDg.connect(plugOutFkStartWorldMatrix0, plugInFkStart);
-		modDg.connect(plugOutFkMidWorldMatrix0, plugInFkMid);
-		modDg.connect(plugOutFkEndWorldMatrix0, plugInFkEnd);
-	
-		modDg.connect(plugOutIkStartWorldMatrix0, plugInIkStart);
-		modDg.connect(plugOutIkMidWorldMatrix0, plugInIkMid);
-		modDg.connect(plugOutIkEndWorldMatrix0, plugInIkEnd);
-		modDg.connect(plugOutIkHandleWorldMatrix0, plugInIkHandle);
+    // Get rotation output plugs
+    MPlug plugOutRotStart = fnIk2bSolver.findPlug("rotateStart", false);
+    MPlug plugOutRotMid = fnIk2bSolver.findPlug("rotateMid", false);
+    MPlug plugOutRotEnd = fnIk2bSolver.findPlug("rotateEnd", false);
 
-		modDg.connect(plugOutJntStartWorldMatrix0, plugInOutStart);
-		modDg.connect(plugOutJntMidWorldMatrix0, plugInOutMid);
-		modDg.connect(plugOutJntEndWorldMatrix0, plugInOutEnd);
+    // Get joints rotation plugs
+    MPlug plugRotStart = fnOutStart.findPlug("rotate", false);
+    MPlug plugRotMid = fnOutMid.findPlug("rotate", false);
+    MPlug plugRotEnd = fnOutEnd.findPlug("rotate", false);
 
-		// Get rotation output plugs
-		MPlug plugOutRotStart = fnIk2bSolver.findPlug("rotateStart", false);
-		MPlug plugOutRotMid = fnIk2bSolver.findPlug("rotateMid", false);
-		MPlug plugOutRotEnd = fnIk2bSolver.findPlug("rotateEnd", false);
+    modDg.connect(plugOutRotStart, plugRotStart);
+    modDg.connect(plugOutRotMid, plugRotMid);
+    modDg.connect(plugOutRotEnd, plugRotEnd);
+  
+    MPlug plugOutUpdate = fnIk2bSolver.findPlug("update", false);
+    MPlug plugRotPivotOutX = fnOutStart.findPlug("rotatePivotX", false);
+    MPlug plugRotPivotIkX = fnIkStart.findPlug("rotatePivotX", false);
+    modDg.connect(plugOutUpdate, plugRotPivotOutX);
 
-		// Get joints rotation plugs
-		MPlug plugRotStart = fnJntStart.findPlug("rotate", false);
-		MPlug plugRotMid = fnJntMid.findPlug("rotate", false);
-		MPlug plugRotEnd = fnJntEnd.findPlug("rotate", false);
+    // Pole vector plugs
+    if (bIsPoleVectorSet) {
+      MPlug plugPoleVectorTranslate = fnPoleVector.findPlug("translate", false);
+      // Get poleVectorShape
+      dpPoleVector.extendToShape();
+      MFnDependencyNode fnPoleVectorShape = dpPoleVector.node();
+      MPlug plugPoleVectorDrawLineTo = fnPoleVectorShape.findPlug("drawLineTo", false);
 
-		modDg.connect(plugOutRotStart, plugRotStart);
-		modDg.connect(plugOutRotMid, plugRotMid);
-		modDg.connect(plugOutRotEnd, plugRotEnd);
-	
-		MPlug plugOutUpdate = fnIk2bSolver.findPlug("update", false);
-		MPlug plugRotPivotOutX = fnJntStart.findPlug("rotatePivotX", false);
-		MPlug plugRotPivotIkX = fnIkStart.findPlug("rotatePivotX", false);
-		modDg.connect(plugOutUpdate, plugRotPivotOutX);
-		// modDg.connect(plugOutUpdate, plugRotPivotIkX);
+      modDg.connect(plugPoleVectorTranslate, plugInPoleVector);
+    }
 
-		// Pole vector plugs
-		if (bIsPoleVectorSet) {
-			MPlug plugPoleVectorTranslate = fnPoleVector.findPlug("translate", false);
+    MPlug plugMode = fnIk2bSolver.findPlug("fkIk", false);
+    plugMode.setValue(mode);
 
-			// Get poleVectorShape
-			dpPoleVector.extendToShape();
-			MFnDependencyNode fnPoleVectorShape = dpPoleVector.node();
-			MPlug plugPoleVectorDrawLineTo = fnPoleVectorShape.findPlug("drawLineTo", false);
-			
-			modDg.connect(plugPoleVectorTranslate, plugInPoleVector);
-			// modDg.connect(plugOutUpdate, plugPoleVectorRotPivot);
-			// modDg.connect(plugOutFkMidWorldMatrix0, plugPoleVectorDrawLineTo);
-		}
+  }
 
-		MPlug plugMode = fnIk2bSolver.findPlug("fkIk", false);
-		plugMode.setValue(mode);
-
-	}
-
-	return redoIt();
+  return redoIt();
 }
 
 
 MStatus IkCommand::redoIt() {
-	/* Command's redoIt method.
+  /* Command's redoIt method.
 
-	This method should do the actual work of the command based on the internal class data only.	Internal class data should be set in the doIt method.
+  This method should do the actual work of the command based on the internal class data only.	Internal class data should be set in the doIt method.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
+  */
 
-	// Command create mode
-	if (command == kCommandCreate) {
-		MStatus status;
+  // Command create mode
+  if (command == kCommandCreate) {
+    MStatus status;
 
-		status = modDg.doIt();
-		CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = modDg.doIt();
+    CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		if (!bIsPoleVectorSet) {
-			MPlug plugInPoleVectorX = fnIk2bSolver.findPlug("poleVectorX", false);
-			MPlug plugInPoleVectorY = fnIk2bSolver.findPlug("poleVectorY", false);
-			MPlug plugInPoleVectorZ = fnIk2bSolver.findPlug("poleVectorZ", false);
+    if (!bIsPoleVectorSet) {
+      MPlug plugInPoleVectorX = fnIk2bSolver.findPlug("poleVectorX", false);
+      MPlug plugInPoleVectorY = fnIk2bSolver.findPlug("poleVectorY", false);
+      MPlug plugInPoleVectorZ = fnIk2bSolver.findPlug("poleVectorZ", false);
 
-			MVector posFkStart = fnFkStart.rotatePivot(MSpace::kWorld);
-			MVector posFkMid = fnFkMid.rotatePivot(MSpace::kWorld);
-			MVector posFkEnd = fnFkEnd.rotatePivot(MSpace::kWorld);
-			MVector posPoleVector = LMRigUtils::getPvPosition(posFkStart, posFkMid, posFkEnd, "local");
+      MVector posFkStart = fnFkStart.rotatePivot(MSpace::kWorld);
+      MVector posFkMid = fnFkMid.rotatePivot(MSpace::kWorld);
+      MVector posFkEnd = fnFkEnd.rotatePivot(MSpace::kWorld);
+      MVector posPoleVector = LMRigUtils::getPvPosition(posFkStart, posFkMid, posFkEnd, "local");
 
-			plugInPoleVectorX.setValue(posPoleVector.x);
-			plugInPoleVectorY.setValue(posPoleVector.y);
-			plugInPoleVectorZ.setValue(posPoleVector.z);
-		}
+      plugInPoleVectorX.setValue(posPoleVector.x);
+      plugInPoleVectorY.setValue(posPoleVector.y);
+      plugInPoleVectorZ.setValue(posPoleVector.z);
+    }
 
-		// Sets command's output result in mel / python
-		clearResult();
-		appendToResult(fnIk2bSolver.name());
-	}
+    // Sets command's output result in mel / python
+    clearResult();
+    appendToResult(fnIk2bSolver.name());
+  }
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 
 
 MStatus IkCommand::undoIt() {
-	/* Command's undoIt method.
+  /* Command's undoIt method.
 
-	This method should undo the work done by the redoIt method based on the internal class data only.
+  This method should undo the work done by the redoIt method based on the internal class data only.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	MStatus status;
+  */
+  MStatus status;
 
-	// Restore the initial state
-	status = modDg.undoIt();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
+  // Restore the initial state
+  status = modDg.undoIt();
+  CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 

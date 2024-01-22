@@ -6,12 +6,13 @@ For plug-ins that will forever be internal to your site use the numeric range 0 
 ComponentMatrix::type_id(0x9000000);
 ComponentNode::type_id(0x9000001);
 
-Ctrl::type_id(0x6606002);
+Ctrl::typeId = 0x6606002;
+
 CtrlShape::type_id(0x6606003);
 MetaDataNode::type_id(0x9000010);
 
 
-Ik2bSolver::type_id(0x9000020);
+Ik2bSolver::typeId = 0x6606020;
 
 SpaceSwitchNode::type_id(0x9000030);
 

@@ -45,43 +45,65 @@
 
 
 namespace LMPlugin {
-	/* LMPlugin
-	 * Lunar Maya Plugin Utilities
-	 */
+  /* LMPlugin
+   * Lunar Maya Plugin Utilities
+   */
 
 
-	inline MStatus parseTransformInput(MDataBlock& dataBlock, const MObject& obj, MFnTransform& fnObj, const MObject& objAttribute) {
-		/* Gets the dag path from the given input and attaches to a function set.
-		*/
-		MStatus status;
-		MDagPath dpObj;
-		status = MDagPath::getAPathTo(
-			LMAttribute::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
-			dpObj
-		);
-		if (status == MS::kSuccess) {
-			fnObj.setObject(dpObj);
-		} else {
-			return MS::kFailure;
-		}
-		return MS::kSuccess;
-	}
+  inline MStatus parseTransformInput(MDataBlock& dataBlock, const MObject& obj, MFnTransform& fnObj, const MObject& objAttribute) {
+    /* Gets the dag path from the given input and attaches to a function set.
+    */
+    MStatus status;
+    MDagPath dpObj;
+    status = MDagPath::getAPathTo(
+      LMAttribute::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
+      dpObj
+    );
+    if (status == MS::kSuccess) {
+      fnObj.setObject(dpObj);
+    } else {
+      return MS::kFailure;
+    }
+    return MS::kSuccess;
+  }
 
-	inline MStatus parseTransformInput(MDataBlock& dataBlock, const MObject& obj, MFnTransform& fnObj, Attribute& objAttribute) {
-		/* Gets the dag path from the given input and attaches to a function set.
-		*/
-		MStatus status;
-		MDagPath dpObj;
-		status = MDagPath::getAPathTo(
-			LMAttribute::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
-			dpObj
-		);
-		if (status == MS::kSuccess) {
-			fnObj.setObject(dpObj);
-		} else {
-			return MS::kFailure;
-		}
-		return MS::kSuccess;
-	}
+
+  inline MStatus parseTransformInput(MDataBlock& dataBlock, const MObject& obj, MFnTransform& fnObj, Attribute& objAttribute) {
+    /* Gets the dag path from the given input and attaches to a function set.
+    */
+    MStatus status;
+    MDagPath dpObj;
+    status = MDagPath::getAPathTo(
+      LMAttribute::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
+      dpObj
+    );
+    if (status == MS::kSuccess) {
+      fnObj.setObject(dpObj);
+    } else {
+      return MS::kFailure;
+    }
+    return MS::kSuccess;
+  }
+
+
+  inline MStatus parseTransformOutput(MDataBlock& dataBlock, const MObject& obj, MFnTransform& fnObj, MObject& objAttribute) {
+    /* Gets the dag path from the given input and attaches to a function set.
+    */
+    MStatus status;
+    MDagPath dpObj;
+    MPlugArray destinations = LMAttribute::getDestinationObjFromPlug(obj, dataBlock.outputValue(objAttribute).attribute());
+    if (destinations.length() > 0) {
+      status = MDagPath::getAPathTo(
+        destinations[0].node(),
+        dpObj
+      );
+      if (status == MS::kSuccess) {
+        fnObj.setObject(dpObj);
+        return MS::kSuccess;
+      }
+    }
+    return MS::kFailure;
+  }
+
 };
 

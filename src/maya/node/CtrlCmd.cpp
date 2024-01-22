@@ -371,9 +371,11 @@ MStatus CtrlCommand::doIt(const MArgList& argList) {
   // Command create mode
   if (command == kCommandCreate) {
     objThisTransform = modDag.createNode(Ctrl::typeName, MObject::kNullObj);
-    if (bCreateShapeNode) {
-      objThisShape = modDag.createNode("ctrlShape", objThisTransform);
-    }
+
+    // if (bCreateShapeNode) {  // Experimental
+    //   objThisShape = modDag.createNode("ctrlShape", objThisTransform);
+    // }
+
     // If __name equals to "rigController" rename only the transform node as the shape node will be
     // renamed in the rigController.RigController::postConstructor method.
     if (name != Ctrl::typeName) {modDag.renameNode(objThisTransform, name);}

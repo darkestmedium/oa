@@ -4,7 +4,7 @@ project(oamayanode LANGUAGES CXX)
 set(NODE_FILES
   ComponentNode.hpp
   Ctrl.hpp
-  # CtrlNode.cpp
+  Ctrl.cpp
   CtrlCmd.hpp
   CtrlCmd.cpp
   SpaceSwitchNode.hpp

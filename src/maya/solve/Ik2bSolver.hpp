@@ -65,7 +65,6 @@ public:
 	static MObject attrInPvX, attrInPvY, attrInPvZ, attrInPv;
 	static Attribute attrInTwist;
 	static MObject attrInSoftness;
-	static Attribute attrInOutStart, attrInOutMid, attrInOutEnd;
 
 	// Nodes's Output Attributes
 	static MObject attrOutStartX, attrOutStartY, attrOutStartZ, attrOutStart;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "node/Ctrl.hpp"
-// #include "Utils.hpp"
+// #include "Utils.h"
 
 // System Includes
 #include <string>
@@ -90,9 +90,9 @@ public:
 	MFnTransform fnIkHandle;
 	MFnTransform fnPoleVector;
 
-	MFnTransform fnJntStart;
-	MFnTransform fnJntMid;
-	MFnTransform fnJntEnd;
+	MFnTransform fnOutStart;
+	MFnTransform fnOutMid;
+	MFnTransform fnOutEnd;
 	MFnDependencyNode fnIk2bSolver;
 
 	MDGModifier modDg;
