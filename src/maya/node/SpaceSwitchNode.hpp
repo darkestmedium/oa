@@ -67,8 +67,8 @@ class SpaceSwitchNode : public MPxNode {
 	/* Component Node - transform instance with a custom type_name. */
 public:
 	// Class attributes
-	static const MString type_name;
-	static const MTypeId type_id;
+	static const MString typeName;
+	static const MTypeId typeId;
 	static const MString type_drawdb;
 	static const MString type_drawid;
 
@@ -106,8 +106,8 @@ public:
 
 
 // Class attributes
-const MString SpaceSwitchNode::type_name 	= "spaceSwitch";
-const MTypeId SpaceSwitchNode::type_id 		= 0x9000030;
+const MString SpaceSwitchNode::typeName 	= "spaceSwitch";
+const MTypeId SpaceSwitchNode::typeId 		= 0x6660030;
 
 // MObject SpaceSwitchNode::attr_enable_spaces;
 MObject SpaceSwitchNode::attr_space_indx;
@@ -300,7 +300,7 @@ public:
 	// Constructors
 	SpaceSwitchCmd()
  		: MPxCommand()
-		, name(SpaceSwitchNode::type_name)
+		, name(SpaceSwitchNode::typeName)
 		, lock_attributes(false)
 		, command(kCommandCreate)
 	{};
@@ -426,8 +426,8 @@ MStatus SpaceSwitchCmd::doIt(const MArgList& argList) {
 
 	// Command create mode
 	if (command == kCommandCreate) {
-		obj_spaceswitch = mod_dg.createNode(SpaceSwitchNode::type_name);
-		if (name != SpaceSwitchNode::type_name) {mod_dg.renameNode(obj_spaceswitch, name);}
+		obj_spaceswitch = mod_dg.createNode(SpaceSwitchNode::typeName);
+		if (name != SpaceSwitchNode::typeName) {mod_dg.renameNode(obj_spaceswitch, name);}
 
 		list_sel.getDependNode(-1, obj_driven);
 

@@ -252,8 +252,6 @@ public:
 
 
 class CtrlDrawOverride : public MHWRender::MPxDrawOverride {
-private:
-
 public:
   // Destructor
   virtual ~CtrlDrawOverride() override {

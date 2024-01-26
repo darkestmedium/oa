@@ -23,7 +23,7 @@ import oa.maya.Core as omc
 class Attribute():
   """Wrapper class for attribute utilities.
   """
-  log = logging.getLogger("MAttrUtils")
+  log = logging.getLogger("Attribute")
   dgMod = om.MDGModifier()
 
 

@@ -28,9 +28,9 @@ colors = {
 
 templates = {
 
-  "main": {
-    "shape": "circle",
-    "localPosition": (0.0,	0.0, 0.0), "localRotate": (0.0, 0.0, 0.0), "localScale": (100.0, 100.0, 100.0),
+  "base": {
+    "shape": "base",
+    "localPosition": (0.0,	0.0, 0.0), "localRotate": (0.0, 45.0, 0.0), "localScale": (100.0, 100.0, 100.0),
     "drawSolverMode": False, "solverModePosition": (0.0, 0.0, 0.0),
     "drawLine": False,
     "lineWidth": defaultLineWidth,
@@ -40,8 +40,8 @@ templates = {
   },
 
   "root": {
-    "shape": "square",
-    "localPosition": (0.0,	0.0, 0.0), "localRotate": (0.0, 45.0, 0.0),	"localScale": (15.0, 15.0, 15.0),
+    "shape": "arrow",
+    "localPosition": (0.0,	0.0, 0.0), "localRotate": (0.0, 0.0, 0.0),	"localScale": (15.0, 15.0, 15.0),
     "drawSolverMode": False, "solverModePosition": (0.0, 0.0, 0.0),
     "drawLine": False,
     "lineWidth": defaultLineWidth,

@@ -17,7 +17,6 @@ from PySide2 import QtCore as qtc
 
 
 
-
 class TimeEditor():
   """Wrapper class for the time editor.
 

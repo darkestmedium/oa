@@ -12,7 +12,7 @@ import maya.api.OpenMaya as om
 
 from PySide2 import QtCore as qtc
 
-# Open APi imports
+# OpenAPi imports
 
 
 
@@ -45,7 +45,7 @@ class Namespace(om.MNamespace):
 
 
   @classmethod
-  def GetNameWIthNamespace(cls, name:str, namespace:str, *args) -> str:
+  def GetNameWithNamespace(cls, name:str, namespace:str, *args) -> str:
     """Returns name with the give namespace, this method doesn't create the namespace in the scene.
 
     Args:

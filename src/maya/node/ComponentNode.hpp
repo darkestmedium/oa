@@ -61,8 +61,8 @@
 
 class DegreeRadianConverter {
 public:
-	double degreesToRadians(double degrees) {return degrees * ( M_PI/ 180.0 );};
-	double radiansToDegrees(double radians) {return radians * (180.0/M_PI);};
+  double degreesToRadians(double degrees) {return degrees * ( M_PI/ 180.0 );};
+  double radiansToDegrees(double radians) {return radians * (180.0/M_PI);};
 };
 
 
@@ -74,142 +74,142 @@ public:
 
 class SpaceSwitchMatrix : public MPxTransformationMatrix {
 public:
-	// A really simple implementation of MPxTransformationMatrix.
-	// - The virtual asMatrix() method which passes the matrix 
-	// back to Maya when the command "xform -q -ws -m" is invoked
-	static const MTypeId	type_id;
+  // A really simple implementation of MPxTransformationMatrix.
+  // - The virtual asMatrix() method which passes the matrix 
+  // back to Maya when the command "xform -q -ws -m" is invoked
+  static const MTypeId	typeId;
 
-	double rockXValue;
+  double rockXValue;
 
-	// Constructors
-	SpaceSwitchMatrix()
-		: MPxTransformationMatrix()
-		, rockXValue(0.0)
-	{};
-	static MPxTransformationMatrix *creator() {return new SpaceSwitchMatrix();};
-	
-	MMatrix asMatrix() const override {return ParentClass::asMatrix();};
-	MMatrix	asMatrix(double percent) const override;
-	MMatrix	asRotateMatrix() const override;
-	MStatus setRotatePivot(const MPoint&, MSpace::Space=MSpace::kTransform, bool balance=true) override;
-	MQuaternion	preRotation() const override;
+  // Constructors
+  SpaceSwitchMatrix()
+    : MPxTransformationMatrix()
+    , rockXValue(0.0)
+  {};
+  static MPxTransformationMatrix *creator() {return new SpaceSwitchMatrix();};
+  
+  MMatrix asMatrix() const override {return ParentClass::asMatrix();};
+  MMatrix	asMatrix(double percent) const override;
+  MMatrix	asRotateMatrix() const override;
+  MStatus setRotatePivot(const MPoint&, MSpace::Space=MSpace::kTransform, bool balance=true) override;
+  MQuaternion	preRotation() const override;
 
-	// Degrees
-	// double  getRockInX() const {return rockXValue;};
-	// void    setRockInX(double rock) {rockXValue = rock;};
+  // Degrees
+  // double  getRockInX() const {return rockXValue;};
+  // void    setRockInX(double rock) {rockXValue = rock;};
 
 protected:	
-	typedef MPxTransformationMatrix ParentClass;
-	// Degree
+  typedef MPxTransformationMatrix ParentClass;
+  // Degree
 };
 
 // Class attributes
-const MTypeId SpaceSwitchMatrix::type_id = 0x9000000;
+const MTypeId SpaceSwitchMatrix::typeId = 0x9000000;
 
 
 MMatrix SpaceSwitchMatrix::asMatrix(double percent) const {
 
-	MPxTransformationMatrix m(*this);
+  MPxTransformationMatrix m(*this);
 
-	//	Apply the percentage to the matrix components
-	MVector trans = m.translation();
-	trans *= percent;
-	m.translateTo( trans );
-	MPoint rotatePivotTrans = m.rotatePivot();
-	rotatePivotTrans = rotatePivotTrans * percent;
-	m.setRotatePivot(rotatePivotTrans);
-	MPoint scalePivotTrans = m.scalePivotTranslation();
-	scalePivotTrans = scalePivotTrans * percent;
-	m.setScalePivotTranslation(scalePivotTrans);
+  //	Apply the percentage to the matrix components
+  MVector trans = m.translation();
+  trans *= percent;
+  m.translateTo( trans );
+  MPoint rotatePivotTrans = m.rotatePivot();
+  rotatePivotTrans = rotatePivotTrans * percent;
+  m.setRotatePivot(rotatePivotTrans);
+  MPoint scalePivotTrans = m.scalePivotTranslation();
+  scalePivotTrans = scalePivotTrans * percent;
+  m.setScalePivotTranslation(scalePivotTrans);
 
-	//	Apply the percentage to the rotate value.  Same
-	// as above + the percentage gets applied
-	MQuaternion quat = rotation();
-	DegreeRadianConverter conv;
-	double newTheta = conv.degreesToRadians(rockXValue);
-	quat.setToXAxis(newTheta);
-	m.rotateBy(quat);
-	MEulerRotation eulRotate = m.eulerRotation();
-	m.rotateTo(eulRotate * percent, MSpace::kTransform);
+  //	Apply the percentage to the rotate value.  Same
+  // as above + the percentage gets applied
+  MQuaternion quat = rotation();
+  DegreeRadianConverter conv;
+  double newTheta = conv.degreesToRadians(rockXValue);
+  quat.setToXAxis(newTheta);
+  m.rotateBy(quat);
+  MEulerRotation eulRotate = m.eulerRotation();
+  m.rotateTo(eulRotate * percent, MSpace::kTransform);
 
-	//	Apply the percentage to the scale
-	MVector s(scale(MSpace::kTransform));
-	s.x = 1.0 + (s.x - 1.0)*percent;
-	s.y = 1.0 + (s.y - 1.0)*percent;
-	s.z = 1.0 + (s.z - 1.0)*percent;
-	m.scaleTo(s, MSpace::kTransform);
+  //	Apply the percentage to the scale
+  MVector s(scale(MSpace::kTransform));
+  s.x = 1.0 + (s.x - 1.0)*percent;
+  s.y = 1.0 + (s.y - 1.0)*percent;
+  s.z = 1.0 + (s.z - 1.0)*percent;
+  m.scaleTo(s, MSpace::kTransform);
 
-	return m.asMatrix();
+  return m.asMatrix();
 }
 
 
 MMatrix	SpaceSwitchMatrix::asRotateMatrix() const {
-	MMatrix Ro = rotateOrientationValue.asMatrix();
-	MMatrix R  = rotationValue.asMatrix();
-	MMatrix Rr = preRotation().asMatrix();
+  MMatrix Ro = rotateOrientationValue.asMatrix();
+  MMatrix R  = rotationValue.asMatrix();
+  MMatrix Rr = preRotation().asMatrix();
 
-	MMatrix Rt;
-	Rt[3][0] = rotatePivotTranslationValue.x;
-	Rt[3][1] = rotatePivotTranslationValue.y;
-	Rt[3][2] = rotatePivotTranslationValue.z;
+  MMatrix Rt;
+  Rt[3][0] = rotatePivotTranslationValue.x;
+  Rt[3][1] = rotatePivotTranslationValue.y;
+  Rt[3][2] = rotatePivotTranslationValue.z;
 
-	MMatrix Rp;
-	Rp[3][0] = rotatePivotValue.x;
-	Rp[3][1] = rotatePivotValue.y;
-	Rp[3][2] = rotatePivotValue.z;
+  MMatrix Rp;
+  Rp[3][0] = rotatePivotValue.x;
+  Rp[3][1] = rotatePivotValue.y;
+  Rp[3][2] = rotatePivotValue.z;
 
-	MMatrix RpInv;
-	RpInv[3][0] = -rotatePivotValue.x;
-	RpInv[3][1] = -rotatePivotValue.y;
-	RpInv[3][2] = -rotatePivotValue.z;
+  MMatrix RpInv;
+  RpInv[3][0] = -rotatePivotValue.x;
+  RpInv[3][1] = -rotatePivotValue.y;
+  RpInv[3][2] = -rotatePivotValue.z;
 
-	return (RpInv * Ro * R * Rr * Rp * Rt);
+  return (RpInv * Ro * R * Rr * Rp * Rt);
 }
 
 
 MStatus SpaceSwitchMatrix::setRotatePivot(const MPoint &rotatePivot, MSpace::Space space, bool balance) {
-	MPoint newPivot(rotatePivot);
-	if (space != MSpace::kTransform) {
-		if (space == MSpace::kPostTransform) {
-			newPivot *= asMatrixInverse();
-		}
-		newPivot *= asScaleMatrix();
-	}
+  MPoint newPivot(rotatePivot);
+  if (space != MSpace::kTransform) {
+    if (space == MSpace::kPostTransform) {
+      newPivot *= asMatrixInverse();
+    }
+    newPivot *= asScaleMatrix();
+  }
 
-	if (balance) {
-		MMatrix Ro = rotateOrientationValue.asMatrix();
-		MMatrix R = rotationValue.asMatrix();
-		MMatrix Rr = preRotation().asMatrix();
+  if (balance) {
+    MMatrix Ro = rotateOrientationValue.asMatrix();
+    MMatrix R = rotationValue.asMatrix();
+    MMatrix Rr = preRotation().asMatrix();
 
-		MMatrix Rp;
-		Rp[3][0] = newPivot.x;
-		Rp[3][1] = newPivot.y;
-		Rp[3][2] = newPivot.z;
+    MMatrix Rp;
+    Rp[3][0] = newPivot.x;
+    Rp[3][1] = newPivot.y;
+    Rp[3][2] = newPivot.z;
 
-		MMatrix RpInv;
-		RpInv[3][0] = -newPivot.x;
-		RpInv[3][1] = -newPivot.y;
-		RpInv[3][2] = -newPivot.z;
+    MMatrix RpInv;
+    RpInv[3][0] = -newPivot.x;
+    RpInv[3][1] = -newPivot.y;
+    RpInv[3][2] = -newPivot.z;
 
-		MMatrix leftMat = RpInv * Ro * R * Rr * Rp;
+    MMatrix leftMat = RpInv * Ro * R * Rr * Rp;
 
-		MMatrix mat = leftMat.inverse() * asRotateMatrix();
+    MMatrix mat = leftMat.inverse() * asRotateMatrix();
 
-		rotatePivotTranslationValue[0] = mat[3][0];
-		rotatePivotTranslationValue[1] = mat[3][1];
-		rotatePivotTranslationValue[2] = mat[3][2];
-	}
+    rotatePivotTranslationValue[0] = mat[3][0];
+    rotatePivotTranslationValue[1] = mat[3][1];
+    rotatePivotTranslationValue[2] = mat[3][2];
+  }
 
-	rotatePivotValue = newPivot;
-	return MS::kSuccess;
+  rotatePivotValue = newPivot;
+  return MS::kSuccess;
 }
 
 // This method returns the local rotation used by rotate manipulator
 MQuaternion SpaceSwitchMatrix::preRotation() const {
-	DegreeRadianConverter conv;
-	double newTheta = conv.degreesToRadians(rockXValue);
-	MQuaternion quat; quat.setToXAxis(newTheta);
-	return quat;
+  DegreeRadianConverter conv;
+  double newTheta = conv.degreesToRadians(rockXValue);
+  MQuaternion quat; quat.setToXAxis(newTheta);
+  return quat;
 }
 
 
@@ -218,54 +218,54 @@ MQuaternion SpaceSwitchMatrix::preRotation() const {
 
 
 class ComponentNode : public MPxTransform {
-	/* Component Node - transform instance with a custom type_name. */
+  /* Component Node - transform instance with a custom typeName. */
 public:
-	// Class attributes
-	static const MString type_name;
-	static const MTypeId type_id;
-	static const MString type_drawdb;
-	static const MString type_drawid;
+  // Class attributes
+  static const MString typeName;
+  static const MTypeId typeId;
+  static const MString typeDrawDb;
+  static const MString typeDrawId;
 
-	// Space switch attributes
-	// static MObject attr_enable_spaces;
-	// static MObject attr_space_indx;
-	// static MObject attr_offset_mat;
-	// static MObject attr_driver_mat;
-	// static MObject attr_driverinv_mat;
-	static MObject attr_ctrls;
-	static MObject attr_fk;
-	static MObject attr_ik;
+  // Space switch attributes
+  // static MObject attr_enable_spaces;
+  // static MObject attr_space_indx;
+  // static MObject attr_offset_mat;
+  // static MObject attr_driver_mat;
+  // static MObject attr_driverinv_mat;
+  static MObject attr_ctrls;
+  static MObject attr_fk;
+  static MObject attr_ik;
 
-	MObject self_object;
+  MObject self_object;
 
-	// Constructors
-	ComponentNode()
-		: MPxTransform()
-	{};
-	// Destructors
-	virtual ~ComponentNode() override {};
+  // Constructors
+  ComponentNode()
+    : MPxTransform()
+  {};
+  // Destructors
+  virtual ~ComponentNode() override {};
 
-	// Class Methods
-	static void* 		creator() {return new ComponentNode();};
-	static MStatus	initialize();
-	virtual void 		postConstructor() override;
-	// virtual MStatus compute(const MPlug& plug, MDataBlock& dataBlock) override;
+  // Class Methods
+  static void* 		creator() {return new ComponentNode();};
+  static MStatus	initialize();
+  virtual void 		postConstructor() override;
+  // virtual MStatus compute(const MPlug& plug, MDataBlock& dataBlock) override;
 
-	void 					  getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
-	SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
+  void 					  getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
+  SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
 
-	// void  	resetTransformation (MPxTransformationMatrix* matrix) override {MPxTransform::resetTransformation(matrix);};
-	// void  	resetTransformation (const MMatrix& resetMatrix) override {MPxTransform::resetTransformation(resetMatrix);};
-	// MStatus validateAndSetValue(const MPlug&, const MDataHandle&) override;
+  // void  	resetTransformation (MPxTransformationMatrix* matrix) override {MPxTransform::resetTransformation(matrix);};
+  // void  	resetTransformation (const MMatrix& resetMatrix) override {MPxTransform::resetTransformation(resetMatrix);};
+  // MStatus validateAndSetValue(const MPlug&, const MDataHandle&) override;
 
 };
 
 
 // Class attributes
-const MString ComponentNode::type_name 		= "component";
-const MTypeId ComponentNode::type_id 			= 0x9000001;
-const MString ComponentNode::type_drawdb	= "drawdb/geometry/animation/component";
-const MString ComponentNode::type_drawid	= "componentPlugin";
+const MString ComponentNode::typeName    = "component";
+const MTypeId ComponentNode::typeId      = 0x66600001;
+const MString ComponentNode::typeDrawDb  = "drawdb/geometry/animation/component";
+const MString ComponentNode::typeDrawId  = "componentPlugin";
 
 MObject ComponentNode::attr_ctrls;
 MObject ComponentNode::attr_fk;
@@ -356,74 +356,74 @@ MObject ComponentNode::attr_ik;
 // }
 
 MStatus ComponentNode::initialize() {
-	/* Node Initializer.
+  /* Node Initializer.
 
-	This method initializes the node, and should be overridden in user-defined nodes.
-	
-	Returns:
-		status code (MStatus): kSuccess if the operation was successful, kFailure if an	error occured
-			during the operation.
+  This method initializes the node, and should be overridden in user-defined nodes.
+  
+  Returns:
+    status code (MStatus): kSuccess if the operation was successful, kFailure if an	error occured
+      during the operation.
 
-	*/
-	MFnUnitAttribute fn_unit;
-	MFnNumericAttribute fn_num;
-	MFnEnumAttribute fn_enum;
-	MFnMessageAttribute fn_mess;
-	MFnCompoundAttribute fn_comp;
-	MStatus status;
+  */
+  MFnUnitAttribute fn_unit;
+  MFnNumericAttribute fn_num;
+  MFnEnumAttribute fn_enum;
+  MFnMessageAttribute fn_mess;
+  MFnCompoundAttribute fn_comp;
+  MStatus status;
 
-	attr_fk = fn_mess.create("fk", "fk");
-	fn_mess.setWritable(true);
-	fn_mess.setReadable(false);
-	fn_mess.setArray(true);
+  attr_fk = fn_mess.create("fk", "fk");
+  fn_mess.setWritable(true);
+  fn_mess.setReadable(false);
+  fn_mess.setArray(true);
 
-	attr_ik = fn_mess.create("ik", "ik");
-	fn_mess.setWritable(true);
-	fn_mess.setReadable(false);
-	fn_mess.setArray(true);
+  attr_ik = fn_mess.create("ik", "ik");
+  fn_mess.setWritable(true);
+  fn_mess.setReadable(false);
+  fn_mess.setArray(true);
 
-	attr_ctrls = fn_comp.create("ctrls", "ctrls");
-	fn_comp.addChild(attr_fk);
-	fn_comp.addChild(attr_ik);
-	// fn_comp.setArray(false);
-	fn_mess.setWritable(true);
-	fn_comp.setReadable(false);
-	// fn_comp.setAffectsWorldSpace(true);
+  attr_ctrls = fn_comp.create("ctrls", "ctrls");
+  fn_comp.addChild(attr_fk);
+  fn_comp.addChild(attr_ik);
+  // fn_comp.setArray(false);
+  fn_mess.setWritable(true);
+  fn_comp.setReadable(false);
+  // fn_comp.setAffectsWorldSpace(true);
 
-	addAttributes(attr_ctrls);
+  addAttributes(attr_ctrls);
 
   return MS::kSuccess;
 }
 
 void ComponentNode::postConstructor() {
-	self_object=thisMObject();
-	MFnDependencyNode fn_this(self_object);
-	fn_this.findPlug("shear", false).setLocked(true);
+  self_object=thisMObject();
+  MFnDependencyNode fn_this(self_object);
+  fn_this.findPlug("shear", false).setLocked(true);
 }
 
 
 void ComponentNode::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const {
-	/* Disables Cached Playback support by default.
+  /* Disables Cached Playback support by default.
 
-	Built-in locators all enable Cached Playback by default, but plug-ins have to
-	explicitly enable it by overriding this method.
-	This method should be overridden to enable Cached Playback by default for custom locators.
+  Built-in locators all enable Cached Playback by default, but plug-ins have to
+  explicitly enable it by overriding this method.
+  This method should be overridden to enable Cached Playback by default for custom locators.
 
-	Args:
-		evalNode (MEvaluationNode&): This node's evaluation node, contains animated plug information
-		disablingInfo (MNodeCacheDisablingInfo&): Information about why the node disables caching to be reported to the user
-		cacheSetup (MNodeCacheSetupInfo&): Preferences and requirements this node has for caching
-		monitoredAttribures (MObjectArray&): Attributes impacting the behavior of this method that will be monitored for change
+  Args:
+    evalNode (MEvaluationNode&): This node's evaluation node, contains animated plug information
+    disablingInfo (MNodeCacheDisablingInfo&): Information about why the node disables caching to be reported to the user
+    cacheSetup (MNodeCacheSetupInfo&): Preferences and requirements this node has for caching
+    monitoredAttribures (MObjectArray&): Attributes impacting the behavior of this method that will be monitored for change
 
-	*/
-	MPxTransform::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
-	assert(!disablingInfo.getCacheDisabled());
-	cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
+  */
+  MPxTransform::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
+  assert(!disablingInfo.getCacheDisabled());
+  cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
 }
 
 
 // MStatus ComponentNode::validateAndSetValue(const MPlug& plug, const MDataHandle& handle) {
-	
+  
 // 	if (plug.isNull()) {return MS::kFailure;}
 
 // 	if ( plug == attr_enable_spaces
@@ -528,51 +528,51 @@ void ComponentNode::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDis
 
 class ComponentCmd : public MPxCommand {
 public:
-	enum CommandMode {kCommandCreate, kCommandHelp};
-	CommandMode command;
+  enum CommandMode {kCommandCreate, kCommandHelp};
+  CommandMode command;
 
-	// Public Data
-	static const char* command_name;
+  // Public Data
+  static const char* command_name;
 
-	// Command's Flags
-	static const char* fs_name;
-	static const char* fl_name;
-	static const char* fs_parent;
-	static const char* fl_parent;
-	static const char* fs_lock_attributes;
-	static const char* fl_lock_attributes;
-	static const char* fs_help;
-	static const char* fl_help;
+  // Command's Flags
+  static const char* fs_name;
+  static const char* fl_name;
+  static const char* fs_parent;
+  static const char* fl_parent;
+  static const char* fs_lock_attributes;
+  static const char* fl_lock_attributes;
+  static const char* fs_help;
+  static const char* fl_help;
 
-	MString name;
-	MString parent;
-	bool lock_attributes;
+  MString name;
+  MString parent;
+  bool lock_attributes;
 
-	// Constructors
-	ComponentCmd()
- 		: MPxCommand()
-		, name(ComponentNode::type_name)
-		, lock_attributes(false)
-		, command(kCommandCreate)
-	{};
+  // Constructors
+  ComponentCmd()
+     : MPxCommand()
+    , name(ComponentNode::typeName)
+    , lock_attributes(false)
+    , command(kCommandCreate)
+  {};
 
-	// Inherited Public Methods
-	static void* creator() {return new ComponentCmd();}
-	virtual bool isUndoable() const override {return command == kCommandCreate;}
-	static MSyntax syntaxCreator();
+  // Inherited Public Methods
+  static void* creator() {return new ComponentCmd();}
+  virtual bool isUndoable() const override {return command == kCommandCreate;}
+  static MSyntax syntaxCreator();
 
-	virtual MStatus doIt(const MArgList& argList) override;
-	virtual MStatus redoIt() override;
-	virtual MStatus undoIt() override;
+  virtual MStatus doIt(const MArgList& argList) override;
+  virtual MStatus redoIt() override;
+  virtual MStatus undoIt() override;
 
-	MStatus parseArguments(const MArgList& argList);
+  MStatus parseArguments(const MArgList& argList);
 
 private:
-	MObject self_object;
-	MDagPath self_dp;
+  MObject self_object;
+  MDagPath self_dp;
 
-	MSelectionList list_sel;
-	MDagModifier mod_dag;
+  MSelectionList list_sel;
+  MDagModifier mod_dag;
 };
 
 
@@ -591,190 +591,190 @@ const char* ComponentCmd::fl_help = "-help";
 
 
 MSyntax ComponentCmd::syntaxCreator() {
-	/* Creates the command's syntax object and returns it.
+  /* Creates the command's syntax object and returns it.
 
-	Returns:
-		syntax (MSyntax): Command's syntax object
+  Returns:
+    syntax (MSyntax): Command's syntax object
 
-	*/
-	MSyntax sytnax;
+  */
+  MSyntax sytnax;
 
-	// Main flags
-	sytnax.addFlag(fs_name, fl_name, MSyntax::kString);
-	sytnax.addFlag(fs_parent, fl_parent, MSyntax::kString);
-	sytnax.addFlag(fs_lock_attributes, fl_lock_attributes, MSyntax::kBoolean);
-	sytnax.addFlag(fs_help, fl_help, MSyntax::kBoolean);
+  // Main flags
+  sytnax.addFlag(fs_name, fl_name, MSyntax::kString);
+  sytnax.addFlag(fs_parent, fl_parent, MSyntax::kString);
+  sytnax.addFlag(fs_lock_attributes, fl_lock_attributes, MSyntax::kBoolean);
+  sytnax.addFlag(fs_help, fl_help, MSyntax::kBoolean);
 
-	sytnax.setObjectType(MSyntax::kSelectionList, 0, 1);
-	sytnax.useSelectionAsDefault(true);
+  sytnax.setObjectType(MSyntax::kSelectionList, 0, 1);
+  sytnax.useSelectionAsDefault(true);
 
-	return sytnax;
+  return sytnax;
 }
 
 
 MStatus ComponentCmd::parseArguments(const MArgList &argList) {
-	/* Parses the commands's flag arguments.
+  /* Parses the commands's flag arguments.
 
-	Args:
-		argList (MArglist): List of arguments passed to the command.
+  Args:
+    argList (MArglist): List of arguments passed to the command.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	MStatus status;
+  */
+  MStatus status;
 
-	MArgDatabase argData(syntax(), argList);
-	argData.getObjects(list_sel);
+  MArgDatabase argData(syntax(), argList);
+  argData.getObjects(list_sel);
 
-	// Display Help
-	if (argData.isFlagSet(fs_help))	{
-		command = kCommandHelp;
-		MString strHelp;
-		strHelp += "Flags:\n";
-		strHelp += "   -n     -name                 String     Name of the rig controller to create.\n";
-		strHelp += "   -p     -parent               String     Name of the object that will be the parent.\n";
-		strHelp += "   -la    -lockAttributes       String     Whether or not to lock the transform attributes.\n";
-		strHelp += "   -h     -help                 N/A        Display this text.\n";
-		MGlobal::displayInfo(strHelp);
-		return MS::kSuccess;
-	}
-	// Name Flag
-	if (argData.isFlagSet(fs_name))	{
-		name = argData.flagArgumentString(fs_name, 0, &status);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-	}
-	// Parent Flag
-	if (argData.isFlagSet(fs_parent)) {
-		list_sel.add(argData.flagArgumentString(fs_parent, 0, &status));
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-	}
-	// Lock shape attributes
-	if (argData.isFlagSet(fs_lock_attributes)) {
-		lock_attributes = argData.flagArgumentBool(fs_lock_attributes, 0, &status);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-	}
+  // Display Help
+  if (argData.isFlagSet(fs_help))	{
+    command = kCommandHelp;
+    MString strHelp;
+    strHelp += "Flags:\n";
+    strHelp += "   -n     -name                 String     Name of the rig controller to create.\n";
+    strHelp += "   -p     -parent               String     Name of the object that will be the parent.\n";
+    strHelp += "   -la    -lockAttributes       String     Whether or not to lock the transform attributes.\n";
+    strHelp += "   -h     -help                 N/A        Display this text.\n";
+    MGlobal::displayInfo(strHelp);
+    return MS::kSuccess;
+  }
+  // Name Flag
+  if (argData.isFlagSet(fs_name))	{
+    name = argData.flagArgumentString(fs_name, 0, &status);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
+  // Parent Flag
+  if (argData.isFlagSet(fs_parent)) {
+    list_sel.add(argData.flagArgumentString(fs_parent, 0, &status));
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
+  // Lock shape attributes
+  if (argData.isFlagSet(fs_lock_attributes)) {
+    lock_attributes = argData.flagArgumentBool(fs_lock_attributes, 0, &status);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 
 
 MStatus ComponentCmd::doIt(const MArgList& argList) {
-	/* Command's doIt method.
+  /* Command's doIt method.
 
-	This method should perform a command by setting up internal class data and then	calling the
-	redoIt method.
+  This method should perform a command by setting up internal class data and then	calling the
+  redoIt method.
 
-	The actual action performed by the command should be done in the redoIt method.	This is a pure
-	virtual method, and must be overridden in derived classes.
+  The actual action performed by the command should be done in the redoIt method.	This is a pure
+  virtual method, and must be overridden in derived classes.
 
-	Args:
-		argList (MArgList): List of arguments passed to the command.
+  Args:
+    argList (MArgList): List of arguments passed to the command.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	MStatus status;
+  */
+  MStatus status;
 
-	status = parseArguments(argList);
-	CHECK_MSTATUS_AND_RETURN_IT(status);
+  status = parseArguments(argList);
+  CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	// Command create mode
-	if (command == kCommandCreate) {
-		self_object = mod_dag.createNode(ComponentNode::type_name, MObject::kNullObj);
-		if (name != ComponentNode::type_name) {mod_dag.renameNode(self_object, name);}
-		// Parent under the transform node if the selection is not empty and / or parent was specified
-		int numItems = list_sel.length();
-		if (numItems == 1) {
-			MObject parent_object;
-			list_sel.getDependNode(0, parent_object);
-			mod_dag.reparentNode(self_object, parent_object);
-		}	else if (numItems == 2)	{
-			MObject parent_object;
-			list_sel.getDependNode(1, parent_object);
-			mod_dag.reparentNode(self_object, parent_object);
-		}
-	}
+  // Command create mode
+  if (command == kCommandCreate) {
+    self_object = mod_dag.createNode(ComponentNode::typeName, MObject::kNullObj);
+    if (name != ComponentNode::typeName) {mod_dag.renameNode(self_object, name);}
+    // Parent under the transform node if the selection is not empty and / or parent was specified
+    int numItems = list_sel.length();
+    if (numItems == 1) {
+      MObject parent_object;
+      list_sel.getDependNode(0, parent_object);
+      mod_dag.reparentNode(self_object, parent_object);
+    }	else if (numItems == 2)	{
+      MObject parent_object;
+      list_sel.getDependNode(1, parent_object);
+      mod_dag.reparentNode(self_object, parent_object);
+    }
+  }
 
-	return redoIt();
+  return redoIt();
 }
 
 
 MStatus ComponentCmd::redoIt() {
-	/* Command's redoIt method.
+  /* Command's redoIt method.
 
-	This method should do the actual work of the command based on the internal class data only.	Internal class data should be set in the doIt method.
+  This method should do the actual work of the command based on the internal class data only.	Internal class data should be set in the doIt method.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	// Command create mode
-	if (command == kCommandCreate) {
-		MStatus status;
-		// We need to init the MFnTransform with a dag path, mobjects do not work with transformations
-		// even if the object has a MFn::kTransform
-		MDagPath::getAPathTo(self_object, self_dp);
-		MFnTransform fn_transform(self_dp);
+  */
+  // Command create mode
+  if (command == kCommandCreate) {
+    MStatus status;
+    // We need to init the MFnTransform with a dag path, mobjects do not work with transformations
+    // even if the object has a MFn::kTransform
+    MDagPath::getAPathTo(self_object, self_dp);
+    MFnTransform fn_transform(self_dp);
 
-		status = mod_dag.doIt();
-		CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = mod_dag.doIt();
+    CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		// TRANSFORM NODE
-		// if (bTranslateTo == true) {fn_transform.setTranslation(posTarget, MSpace::kWorld);}
-		// if (bRotateTo == true) {fn_transform.setRotation(rotTarget, MSpace::kWorld);}
-	
-		// MPlug plug_has_dynamic_attributes = fn_transform.findPlug("hasDynamicAttributes", false);
-		// plug_has_dynamic_attributes.setValue(has_dynamic_attributes);
+    // TRANSFORM NODE
+    // if (bTranslateTo == true) {fn_transform.setTranslation(posTarget, MSpace::kWorld);}
+    // if (bRotateTo == true) {fn_transform.setRotation(rotTarget, MSpace::kWorld);}
+  
+    // MPlug plug_has_dynamic_attributes = fn_transform.findPlug("hasDynamicAttributes", false);
+    // plug_has_dynamic_attributes.setValue(has_dynamic_attributes);
 
-		// Lock shape attributes
-		if (lock_attributes == true) {	
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::translate);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotate);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::scale);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::shear);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateAxis);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateOrder);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::inheritsTransform);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::offsetParentMatrix);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateQuaternion);
-			LMAttribute::lockAndHideAttr(self_object, ComponentNode::visibility);
-		}
+    // Lock shape attributes
+    if (lock_attributes == true) {	
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::translate);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotate);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::scale);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::shear);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateAxis);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateOrder);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::inheritsTransform);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::offsetParentMatrix);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateQuaternion);
+      LMAttribute::lockAndHideAttr(self_object, ComponentNode::visibility);
+    }
 
-		// Set hide on playback
-		// fn_transform.findPlug("hideOnPlayback", false).setValue(bHideOnPlayback);
+    // Set hide on playback
+    // fn_transform.findPlug("hideOnPlayback", false).setValue(bHideOnPlayback);
 
-		// Sets command's output result in mel / python
+    // Sets command's output result in mel / python
     
-		clearResult();
-		setResult(fn_transform.name());
-		// appendToResult(fn_transform.name());
-	}
+    clearResult();
+    setResult(fn_transform.name());
+    // appendToResult(fn_transform.name());
+  }
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 
 
 MStatus ComponentCmd::undoIt() {
-	/* Command's undoIt method.
+  /* Command's undoIt method.
 
-	This method should undo the work done by the redoIt method based on the internal class data only.
+  This method should undo the work done by the redoIt method based on the internal class data only.
 
-	Returns:
-		status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
-			during the command.
+  Returns:
+    status code (MStatus): kSuccess if the command was successful, kFailure if an error occured
+      during the command.
 
-	*/
-	MStatus status;
+  */
+  MStatus status;
 
-	// Restore the initial state
-	status = mod_dag.undoIt();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
+  // Restore the initial state
+  status = mod_dag.undoIt();
+  CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 

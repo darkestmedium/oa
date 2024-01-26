@@ -47,43 +47,50 @@ static void onSceneSaved(void* clientData) {
 
 MStatus initializePlugin(MObject obj) {
   // Plugin variables
-  const char* author = "Lunatics";
-  const char* version = "0.4.5";
+  const char* author = "Lukasz Biernat";
+  const char* version = "0.0.1";
   const char* requiredApiVersion = "Any";
 
   MStatus status;
-  MFnPlugin fn_plugin(obj, author, version, requiredApiVersion);
+  MFnPlugin fnPlugin(obj, author, version, requiredApiVersion);
 
 
   // Register SpaceSwitchNode
-  status = fn_plugin.registerNode(
-    SpaceSwitchNode::type_name,
-    SpaceSwitchNode::type_id,
+  status = fnPlugin.registerNode(
+    SpaceSwitchNode::typeName,
+    SpaceSwitchNode::typeId,
     SpaceSwitchNode::creator,
     SpaceSwitchNode::initialize,
     MPxNode::kDependNode
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
+  // Register SpaceSwitch command
+  status = fnPlugin.registerCommand(
+    SpaceSwitchCmd::command_name,
+    SpaceSwitchCmd::creator,
+    SpaceSwitchCmd::syntaxCreator
+  );
+  CHECK_MSTATUS_AND_RETURN_IT(status);
 
   // Register Controller node
-  status = fn_plugin.registerTransform(
-    ComponentNode::type_name,
-    ComponentNode::type_id, 
+  status = fnPlugin.registerTransform(
+    ComponentNode::typeName,
+    ComponentNode::typeId, 
     &ComponentNode::creator, 
     &ComponentNode::initialize,
     &MPxTransformationMatrix::creator,
     MPxTransformationMatrix::baseTransformationMatrixId,
-    &ComponentNode::type_drawdb
+    &ComponentNode::typeDrawDb
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
-  status = fn_plugin.registerCommand(
+  status = fnPlugin.registerCommand(
     ComponentCmd::command_name,
     ComponentCmd::creator,
     ComponentCmd::syntaxCreator
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
-  status = fn_plugin.registerTransform(
+  status = fnPlugin.registerTransform(
     Ctrl::typeName,
     Ctrl::typeId, 
     &Ctrl::creator, 
@@ -102,23 +109,15 @@ MStatus initializePlugin(MObject obj) {
 
 
   // Register Controller command
-  status = fn_plugin.registerCommand(
+  status = fnPlugin.registerCommand(
     CtrlCommand::commandName,
     CtrlCommand::creator,
     CtrlCommand::syntaxCreator
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
-  // Register Space switch command
-  status = fn_plugin.registerCommand(
-    SpaceSwitchCmd::command_name,
-    SpaceSwitchCmd::creator,
-    SpaceSwitchCmd::syntaxCreator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-
   // Register Ik2bSolver node
-  status = fn_plugin.registerNode(
+  status = fnPlugin.registerNode(
     Ik2bSolver::typeName,
     Ik2bSolver::typeId,
     Ik2bSolver::creator,
@@ -127,7 +126,7 @@ MStatus initializePlugin(MObject obj) {
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
   // Register ik command
-  status = fn_plugin.registerCommand(
+  status = fnPlugin.registerCommand(
     IkCommand::commandName,
     IkCommand::creator,
     IkCommand::syntaxCreator
@@ -135,7 +134,7 @@ MStatus initializePlugin(MObject obj) {
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
   // Register MetaData node
-  status = fn_plugin.registerTransform(
+  status = fnPlugin.registerTransform(
     MetaDataNode::type_name,
     MetaDataNode::type_id, 
     &MetaDataNode::creator, 
@@ -153,7 +152,7 @@ MStatus initializePlugin(MObject obj) {
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
   // Register MetaData command
-  status = fn_plugin.registerCommand(
+  status = fnPlugin.registerCommand(
     MetaDataCmd::commandName,
     MetaDataCmd::creator,
     MetaDataCmd::syntaxCreator
@@ -161,7 +160,7 @@ MStatus initializePlugin(MObject obj) {
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
   // Register TwistSolver node
-  status = fn_plugin.registerNode(
+  status = fnPlugin.registerNode(
     TwistSolver::typeName,
     TwistSolver::typeId,
     TwistSolver::creator,
@@ -171,7 +170,7 @@ MStatus initializePlugin(MObject obj) {
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
   // // Register FootRoll node
-  // status = fn_plugin.registerNode(
+  // status = fnPlugin.registerNode(
   // 	FootRollSolver::typeName,
   // 	FootRollSolver::typeId,
   // 	FootRollSolver::creator,
@@ -184,7 +183,7 @@ MStatus initializePlugin(MObject obj) {
 
   // TEMP
   // Globals = new GlobalVariables();
-  // status = fn_plugin.registerNode(
+  // status = fnPlugin.registerNode(
   //   gPluginNodeName,
   //   FootPrintNode::id,
   //   &FootPrintNode::creator,
@@ -235,7 +234,7 @@ MStatus initializePlugin(MObject obj) {
 
 MStatus uninitializePlugin(MObject obj) {
   MStatus status;
-  MFnPlugin fn_plugin(obj);
+  MFnPlugin fnPlugin(obj);
 
   MMessage::removeCallbacks(callbackIds);
 
@@ -245,7 +244,7 @@ MStatus uninitializePlugin(MObject obj) {
   //   FootPrintNode::drawDbClassification,
   //   FootPrintNode::drawRegistrantId
   // );
-  // fn_plugin.deregisterNode(FootPrintNode::id);
+  // fnPlugin.deregisterNode(FootPrintNode::id);
 
 
 
@@ -254,15 +253,14 @@ MStatus uninitializePlugin(MObject obj) {
 
 
   // Deregister TwistSolver
-  status = fn_plugin.deregisterNode(TwistSolver::typeId);
+  status = fnPlugin.deregisterNode(TwistSolver::typeId);
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
   // Deregister Footroll Node
-  // fn_plugin.deregisterNode(FootRollSolver::typeId);
-  fn_plugin.deregisterCommand(SpaceSwitchCmd::command_name);
+  // fnPlugin.deregisterNode(FootRollSolver::typeId);
 
   // Deregister MetaData command
-  fn_plugin.deregisterCommand(IkCommand::commandName);
+  fnPlugin.deregisterCommand(IkCommand::commandName);
 
   // Deregister MetaData draw override
   MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
@@ -271,26 +269,27 @@ MStatus uninitializePlugin(MObject obj) {
   );
 
   // Deregister MetaDataNode
-  fn_plugin.deregisterNode(MetaDataNode::type_id);
+  fnPlugin.deregisterNode(MetaDataNode::type_id);
 
   // Deregister IkCommand
-  fn_plugin.deregisterCommand(IkCommand::commandName);
+  fnPlugin.deregisterCommand(IkCommand::commandName);
 
   // Deregister Ik2bSolver
-  fn_plugin.deregisterNode(Ik2bSolver::typeId);
+  fnPlugin.deregisterNode(Ik2bSolver::typeId);
 
   // Deregister Controller draw override
-  fn_plugin.deregisterCommand(CtrlCommand::commandName);
-  fn_plugin.deregisterNode(Ctrl::typeId);
+  fnPlugin.deregisterCommand(CtrlCommand::commandName);
+  fnPlugin.deregisterNode(Ctrl::typeId);
   MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
     Ctrl::typeDrawDb,
     Ctrl::typeDrawId
   );
 
-  fn_plugin.deregisterCommand(ComponentCmd::command_name);
-  fn_plugin.deregisterNode(ComponentNode::type_id);
+  fnPlugin.deregisterCommand(ComponentCmd::command_name);
+  fnPlugin.deregisterNode(ComponentNode::typeId);
 
-  fn_plugin.deregisterNode(SpaceSwitchNode::type_id);
+  fnPlugin.deregisterCommand(SpaceSwitchCmd::command_name);
+  fnPlugin.deregisterNode(SpaceSwitchNode::typeId);
 
   // // Deletes the maya main menu items
   // if (MGlobal::mayaState() == MGlobal::kInteractive)
