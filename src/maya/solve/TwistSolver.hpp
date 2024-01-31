@@ -87,12 +87,11 @@
 #include <maya/MPxNode.h>
 
 // Lunar
-#include "api/LMAttribute.hpp"
-#include "api/LMGlobal.hpp"
-#include "api/LMAnimControl.hpp"
-#include "api/LMSolve.hpp"
-#include "api/LMRigUtils.hpp"
-#include "api/LMPlugin.hpp"
+#include "api/Attribute.hpp"
+#include "api/Global.hpp"
+#include "api/Solve.hpp"
+#include "api/RigUtils.hpp"
+#include "api/Plugin.hpp"
 #include "api/Utils.hpp"
 #include "api/MathUtility.hpp"
 

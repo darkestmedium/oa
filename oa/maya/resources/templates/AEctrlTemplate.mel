@@ -1,0 +1,61 @@
+/*  AEctrlTemplate.mel
+		The Attribute Editor template for the ctrl node.
+		
+		source "AEctrlTemplate.mel"; refreshEditorTemplates;
+*/
+
+
+
+global proc AEctrlTemplate(string $nodeName) {
+	// Main Layout
+	editorTemplate -beginScrollLayout;
+
+		// Override AEtransformMain $nodeName;
+		editorTemplate -beginLayout "Transform Attributes" -collapse false;
+			editorTemplate -addControl "translate";
+			editorTemplate -addControl "rotate";
+			editorTemplate -addControl "scale";
+			editorTemplate -addControl "rotateOrder";
+			editorTemplate -addControl "inheritsTransform";
+			editorTemplate -suppress "offsetParentMatrix";
+			editorTemplate -suppress "shear";
+			editorTemplate -suppress "rotateAxis";
+			editorTemplate -suppress rotateQuaternion;
+			// editorTemplate -suppress rotationInterpolation;
+			editorTemplate -endLayout;
+
+
+		editorTemplate -beginLayout "Ctrl" -collapse false;
+			editorTemplate -addControl "shape";
+			editorTemplate -addControl "fillShape";
+			editorTemplate -addControl "fillShapeOpacity";
+			editorTemplate -addControl "localPosition";
+			editorTemplate -addControl "localRotate";
+			editorTemplate -addControl "localScale";
+
+			editorTemplate -beginLayout "Ctrl Labeling" -collapse false;
+				editorTemplate -addControl "drawSolverMode";
+				editorTemplate -addControl "drawLine";
+				editorTemplate -addControl "hasDynamicAttributes";
+				editorTemplate -addControl "solverModePosition";
+				editorTemplate -addControl "lineWidth";
+				editorTemplate -addControl "solverModeSize";
+				editorTemplate -endLayout;
+				// editorTemplate -endLayout;
+
+			editorTemplate -suppress "drawLineTo";
+			editorTemplate -suppress "fkIk";
+
+			editorTemplate -endLayout;
+
+		AEtransformNoScroll $nodeName;
+
+		editorTemplate -addExtraControls;
+
+		// // hide extra attributess
+		// editorTemplate -beginNoOptimize;
+		// editorTemplate -endNoOptimize;
+
+	// End Main Layout
+	editorTemplate -endScrollLayout;
+};

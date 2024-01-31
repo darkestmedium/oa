@@ -10,4 +10,6 @@ import oa.maya.Core as omc
 
 
 
+class MannequinUe5():
 
+  Spine = ['pelvis', 'spine_01', 'spine_02', 'spine_03', 'spine_04', 'spine_05']

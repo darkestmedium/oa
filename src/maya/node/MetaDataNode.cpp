@@ -146,9 +146,9 @@ void MetaDataNode::postConstructor() {
 	MPlug plugRotate(self_object, MetaDataNode::rotate);
 	MPlug plugScale(self_object, MetaDataNode::scale);
 
-	LMAttribute::lockAndHideAttr(plugTranslate);
-	LMAttribute::lockAndHideAttr(plugRotate);
-	LMAttribute::lockAndHideAttr(plugScale);
+	Attr::lockAndHideAttr(plugTranslate);
+	Attr::lockAndHideAttr(plugRotate);
+	Attr::lockAndHideAttr(plugScale);
 }
 
 

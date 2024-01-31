@@ -38,7 +38,7 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "LMObject.hpp"
+#include "Object.hpp"
 
 
 

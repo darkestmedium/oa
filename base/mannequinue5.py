@@ -1,6 +1,4 @@
-"""
-template rig build script
-
+""" template rig build script
 """
 
 # Built-in imports
@@ -16,6 +14,7 @@ import maya.OpenMaya as om
 import oa.maya.Core as omc
 import oa.maya.Rig as omr
 import oa.maya.Retarget as omrtg
+import oa.maya.api.template as omat
 
 # External
 # sys.path.append("~/Dropbox/code/legacy/3d/Maya/codeReference/cmt-master/scripts")
@@ -27,9 +26,23 @@ import oa.maya.Retarget as omrtg
 
 
 
+class BuildMannequinUe5(omr.Build):
 
-def build(rigName="MannequinUe5"):
-  rig = omr.CompBase(rigName)
+
+  # Constructor
+  def __init__(self, filePath:str, name:str, template, upAxis:str="Y") -> None:
+    self.name = name
+    self.filePath = filePath
+    self.template = template
+  
+
+  def build(): ...
+
+
+
+
+
+
 
 
 
@@ -55,7 +68,10 @@ if __name__ == "__main__":
 
   cmds.file(new=True, force=True)
 
-  mannequinue5.build()
+  rig = BuildMannequinUe5(
+    filePath="/home/darkest/Bambaa/Content/Sinners/Characters/Manny/Meshes/SKM_Manny_Simple.FBX",
+    name="Manny",
+    template=omat.MannequinUe5,
+  )
 
   cmds.viewFit(all=True)
-  # cmds.modelEditor("modelPanel4", edit=True, jointXray=True)

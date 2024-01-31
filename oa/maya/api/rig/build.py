@@ -12,8 +12,11 @@ import oa.maya.Core as omc
 
 
 class Build():
-  """Base class for building control rigs.
+  """Base template class for building control rigs.
   """
+
+  def __init__(self, name:str, filePath:str, template:dict): ...
+
 
   def build(): ...
 

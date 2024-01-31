@@ -31,141 +31,151 @@
 // Lunar
 #include "Ctrl.hpp"
 #include "api/Utils.hpp"
-#include "api/LMAttribute.hpp"
-#include "api/LMObject.hpp"
+#include "api/Attribute.hpp"
+#include "api/Object.hpp"
 
 
 
 class CtrlCommand : public MPxCommand {
 public:
-	enum CommandMode {kCommandCreate, kCommandHelp};
-	CommandMode command;
+  enum CommandMode {kCommandCreate, kCommandHelp};
+  CommandMode command;
 
-	// Public Data
-	static const char* commandName;
+  // Public Data
+  static const char* commandName;
 
-	// Command's Flags
-	static const char* nameFlagShort;
-	static const char* nameFlagLong;
+  // Command's Flags
+  static const char* nameFlagShort;
+  static const char* nameFlagLong;
 
-	static const char* parentFlagShort;
-	static const char* parentFlagLong;
+  static const char* parentFlagShort;
+  static const char* parentFlagLong;
 
-	static const char* translateToFlagShort;
-	static const char* translateToFlagLong;
+  static const char* translateToFlagShort;
+  static const char* translateToFlagLong;
 
-	static const char* rotatetToFlagShort;
-	static const char* rotatetToFlagLong;
+  static const char* rotatetToFlagShort;
+  static const char* rotatetToFlagLong;
 
-	static const char* localPositionFlagShort;
-	static const char* localPositionFlagLong;
+  static const char* localPositionFlagShort;
+  static const char* localPositionFlagLong;
 
-	static const char* localRotateFlagShort;
-	static const char* localRotateFlagLong;
-	
-	static const char* localScaleFlagShort;
-	static const char* localScaleFlagLong;
+  static const char* localRotateFlagShort;
+  static const char* localRotateFlagLong;
+  
+  static const char* localScaleFlagShort;
+  static const char* localScaleFlagLong;
 
-	// Visual flags
-	static const char* shapeFlagShort;
-	static const char* shapeFlagLong;
+  // Visual flags
+  static const char* shapeFlagShort;
+  static const char* shapeFlagLong;
 
-	static const char* createShapeNodeFlagShort;
-	static const char* createShapeNodeFlagLong;
+  static const char* fillShapeFlagShort;
+  static const char* fillShapeFlagLong;
 
-	static const char* drawLineFlagShort;
-	static const char* drawLineFlagLong;
+  static const char* fillShapeOpacityFlagShort;
+  static const char* fillShapeOpacityFlagLong;
 
-	static const char* drawSolverModeFlagShort;
-	static const char* drawSolverModeFlagLong;
+  static const char* createShapeNodeFlagShort;
+  static const char* createShapeNodeFlagLong;
 
-	static const char* solverModePositionFlagShort;
-	static const char* solverModePositionFlagLong;
+  static const char* drawLineFlagShort;
+  static const char* drawLineFlagLong;
 
-	static const char* lineWidthFlagShort;
-	static const char* lineWidthFlagLong;
+  static const char* drawSolverModeFlagShort;
+  static const char* drawSolverModeFlagLong;
 
-	static const char* colorFlagShort;
-	static const char* colorFlagLong;
+  static const char* solverModePositionFlagShort;
+  static const char* solverModePositionFlagLong;
 
-	static const char* lockShapeAttributesFlagShort;
-	static const char* lockShapeAttributesFlagLong;
+  static const char* lineWidthFlagShort;
+  static const char* lineWidthFlagLong;
 
-	static const char* hideOnPlaybackFlagShort;
-	static const char* hideOnPlaybackFlagLong;
+  static const char* colorFlagShort;
+  static const char* colorFlagLong;
 
-	static const char* helpFlagShort;
-	static const char* helpFlagLong;
+  static const char* lockShapeAttributesFlagShort;
+  static const char* lockShapeAttributesFlagLong;
 
-	MString name;
-	MString parent;
+  static const char* hideOnPlaybackFlagShort;
+  static const char* hideOnPlaybackFlagLong;
 
-	bool bTranslateTo;
-	bool bRotateTo;
-	MString strTranslateTo;
-	MString strRotateTo;
+  static const char* helpFlagShort;
+  static const char* helpFlagLong;
 
-	MVector localPosition;
-	MVector localRotate;
-	MVector localScale;
-	MVector solverModePosition;
+  MString name;
+  MString parent;
 
-	MString strColor;
-	MColor colorOverride;
+  bool bTranslateTo;
+  bool bRotateTo;
+  MString strTranslateTo;
+  MString strRotateTo;
+
+  MVector localPosition;
+  MVector localRotate;
+  MVector localScale;
+  MVector solverModePosition;
+
+  MString strColor;
+  MColor colorOverride;
 
   bool bCreateShapeNode;
-	short indxShape;
-	bool draw_solver_mode;
-	bool bDrawLine;
-	double lineWidth;
-	bool bLockShapeAttributes;
-	bool bHideOnPlayback;
+  short indxShape;
+  bool bFillShape;
+  float fillShapeOpacity;
+  bool draw_solver_mode;
+  bool bDrawLine;
+  double lineWidth;
+  bool bLockShapeAttributes;
+  bool bHideOnPlayback;
 
-	// Constructors
-	CtrlCommand()
- 		: MPxCommand()
-		, name(Ctrl::typeName)
-		, bTranslateTo(false)
-		, bRotateTo(false)
- 		, localPosition(0.0, 0.0, 0.0)
- 		, localRotate(0.0, 0.0, 0.0)
- 		, localScale(1.0, 1.0, 1.0)
- 		, solverModePosition(0.0, 0.0, 0.0)
+  // Constructors
+  CtrlCommand()
+    : MPxCommand()
+    , name(Ctrl::typeName)
+    , bTranslateTo(false)
+    , bRotateTo(false)
+    , localPosition(0.0, 0.0, 0.0)
+    , localRotate(0.0, 0.0, 0.0)
+    , localScale(1.0, 1.0, 1.0)
+    , solverModePosition(0.0, 0.0, 0.0)
     , bCreateShapeNode(true)
- 		, indxShape(0)
- 		, bDrawLine(false)
- 		, draw_solver_mode(false)
- 		, lineWidth(2.0)
-		, strColor("yellow")
-		, colorOverride(1.0, 1.0, 0.25)
-		, bLockShapeAttributes(false)
-		, bHideOnPlayback(false)
-		, command(kCommandCreate)
-	{};
+    , indxShape(0)
+    , bFillShape(false)
+    , fillShapeOpacity(0.1)
+    , bDrawLine(false)
+    , draw_solver_mode(false)
+    , lineWidth(2.0)
+    , strColor("yellow")
+    , colorOverride(1.0, 1.0, 0.25)
+    , bLockShapeAttributes(false)
+    , bHideOnPlayback(false)
+    , command(kCommandCreate)
+  {};
 
-	// Public Methods
-	static void* creator() {return new CtrlCommand();}
-	virtual bool isUndoable() const override {return command == kCommandCreate;}
-	static MSyntax syntaxCreator();
+  // Public Methods
+  static void* creator() {return new CtrlCommand();}
+  virtual bool isUndoable() const override {return command == kCommandCreate;}
+  static MSyntax syntaxCreator();
 
-	virtual MStatus doIt(const MArgList& argList) override;
-	virtual MStatus redoIt() override;
-	virtual MStatus undoIt() override;
+  virtual MStatus doIt(const MArgList& argList) override;
+  virtual MStatus redoIt() override;
+  virtual MStatus undoIt() override;
 
-	MStatus parseArguments(const MArgList& argList);
+  MStatus parseArguments(const MArgList& argList);
 
 private:
-	// Private Data
-	MObject objThisTransform;
-	MDagPath dpThisTransform;
+  // Private Data
+  MObject objThisTransform;
+  MDagPath dpThisTransform;
 
-	MObject objThisShape;
+  MObject objThisShape;
 
-	MDagPath dpTargetTranslation;
-	MDagPath dpTargetRotation;
-	MVector posTarget;
-	MQuaternion rotTarget;
+  MDagPath dpTargetTranslation;
+  MDagPath dpTargetRotation;
+  MVector posTarget;
+  MQuaternion rotTarget;
 
-	MSelectionList listSelection;
-	MDagModifier modDag;
+  MSelectionList listSelection;
+  MDagModifier modDag;
 };

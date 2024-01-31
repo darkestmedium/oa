@@ -55,8 +55,8 @@
 
 // Open APi
 #include "api/Utils.hpp"
-#include "api/LMText.hpp"
-#include "api/LMAttribute.hpp"
+#include "api/Text.hpp"
+#include "api/Attribute.hpp"
 
 
 
@@ -133,8 +133,10 @@ public:
   static MObject localRotate, localRotateX, localRotateY, localRotateZ;
   static MObject localScale, localScaleX, localScaleY, localScaleZ;
 
-  static MObject attr_line_width;
   static MObject attr_shape_indx;
+  static MObject attr_fill_shape;
+  static MObject attr_fill_shape_opacity;
+  static MObject attr_line_width;
   static MObject attr_in_draw_line;
 
   static MObject attr_draw_solver_mode;
@@ -170,8 +172,9 @@ public:
   void            getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
   SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
 
-  bool            isBounded() const override {return true;};
+  bool            isBounded() const override {return true;}
   virtual MBoundingBox boundingBox() const override;
+  virtual bool     treatAsTransform() const override {return true;}
 };
 
 
@@ -191,12 +194,18 @@ public:
   MPoint          pos_draw_pv_to;
 
   short           shape_indx;
+  bool            bFillShape;
+  float           fillShapeOpacity;
   unsigned int    prio_depth;
-  MPointArray     list_vertecies;
-  MPointArray     list_lines;
-  MPointArray     list_line;
+
+  MPointArray     arrayVertecies;
+  MPointArray     arrayEdges;
+  MPointArray     arrayTriangles;
+  MPointArray     arrayLine;
+
   float           line_width;
   MColor          col_wireframe;
+  MColor          col_shape;
   MColor          col_grey;
 
   // Fk / Ik state
@@ -231,9 +240,9 @@ public:
 
   void PopulateVertexBuffer(
     const vector<array<float,3>>& points,
-    const vector<pair<int,int>>& indecies,
+    const vector<array<int,2>>& idxEdges,
     MPointArray& vertecies,
-    MPointArray& lines,
+    MPointArray& edges,
     MMatrix& matrix
   ) {
     // Multiply the points by the matrix first
@@ -241,8 +250,35 @@ public:
       vertecies.append(MPoint(points[i][0], points[i][1], points[i][2]) * matrix);
     }
     // Fill edges based on vertecies
-    for (const auto& indexPair : indecies) {
-      lines.append(vertecies[indexPair.first]); lines.append(vertecies[indexPair.second]);
+    for (int i=0; i<idxEdges.size(); i++) {
+      edges.append(vertecies[idxEdges[i][0]]);
+      edges.append(vertecies[idxEdges[i][1]]);
+    }
+  };
+
+  void PopulateVertexBuffer(
+    const vector<array<float,3>>& points,
+    const vector<array<int,2>>& idxEdges,
+    const vector<array<int,3>>& idxTriangles,
+    MPointArray& vertecies,
+    MPointArray& edges,
+    MPointArray& triangles,
+    MMatrix& matrix
+  ) {
+    // Multiply the points by the matrix first
+    for (int i=0; i<points.size(); i++) {
+      vertecies.append(MPoint(points[i][0], points[i][1], points[i][2]) * matrix);
+    }
+    // Fill edges based on vertecies
+    for (int i=0; i<idxEdges.size(); i++) {
+      edges.append(vertecies[idxEdges[i][0]]);
+      edges.append(vertecies[idxEdges[i][1]]);
+    }
+    // Fill triangles
+    for (int i=0; i<idxTriangles.size(); i++) {
+      triangles.append(vertecies[idxTriangles[i][0]]);
+      triangles.append(vertecies[idxTriangles[i][1]]);
+      triangles.append(vertecies[idxTriangles[i][2]]);
     }
   };
 

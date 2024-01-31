@@ -174,25 +174,25 @@ MStatus MetaDataCmd::redoIt() {
 		// MFnDependencyNode fnShape(objShape);
 		// TRANSFORM NODE
 		MPlug plugTranslateX = fn_metadata.findPlug("translateX", false);
-		LMAttribute::lockAndHideAttr(plugTranslateX);
+		Attr::lockAndHideAttr(plugTranslateX);
 		MPlug plugTranslateY = fn_metadata.findPlug("translateY", false);
-		LMAttribute::lockAndHideAttr(plugTranslateY);
+		Attr::lockAndHideAttr(plugTranslateY);
 		MPlug plugTranslateZ = fn_metadata.findPlug("translateZ", false);
-		LMAttribute::lockAndHideAttr(plugTranslateZ);
+		Attr::lockAndHideAttr(plugTranslateZ);
 		MPlug plugRotateX = fn_metadata.findPlug("rotateX", false);
-		LMAttribute::lockAndHideAttr(plugRotateX);
+		Attr::lockAndHideAttr(plugRotateX);
 		MPlug plugRotateY = fn_metadata.findPlug("rotateY", false);
-		LMAttribute::lockAndHideAttr(plugRotateY);
+		Attr::lockAndHideAttr(plugRotateY);
 		MPlug plugRotateZ = fn_metadata.findPlug("rotateZ", false);
-		LMAttribute::lockAndHideAttr(plugRotateZ);
+		Attr::lockAndHideAttr(plugRotateZ);
 		MPlug plugScaleX = fn_metadata.findPlug("scaleX", false);
-		LMAttribute::lockAndHideAttr(plugScaleX);
+		Attr::lockAndHideAttr(plugScaleX);
 		MPlug plugScaleY = fn_metadata.findPlug("scaleY", false);
-		LMAttribute::lockAndHideAttr(plugScaleY);
+		Attr::lockAndHideAttr(plugScaleY);
 		MPlug plugScaleZ = fn_metadata.findPlug("scaleZ", false);
-		LMAttribute::lockAndHideAttr(plugScaleZ);
+		Attr::lockAndHideAttr(plugScaleZ);
 		// MPlug plugVisibility = fn_metadata.findPlug("visibility", false);
-		// LMAttribute::lockAndHideAttr(plugVisibility);
+		// Attr::lockAndHideAttr(plugVisibility);
 
 		// Sets the plugs values based on the flag arguments
 		MPlug plugMetaData(obj_metadata, MetaDataNode::attrInMetaData);

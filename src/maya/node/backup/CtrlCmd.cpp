@@ -487,34 +487,34 @@ MStatus CtrlCommand::redoIt() {
       // MPlug plugScale = fn_transform.findPlug("scale", false);
       // plugScale.setLocked(true);
   
-      LMAttribute::lockAndHideAttr(plugLocalPosition);
-      LMAttribute::lockAndHideAttr(plugLocalPositionX);
-      LMAttribute::lockAndHideAttr(plugLocalPositionY);
-      LMAttribute::lockAndHideAttr(plugLocalPositionZ);
+      Attribute::lockAndHideAttr(plugLocalPosition);
+      Attribute::lockAndHideAttr(plugLocalPositionX);
+      Attribute::lockAndHideAttr(plugLocalPositionY);
+      Attribute::lockAndHideAttr(plugLocalPositionZ);
       // Local rotate
-      LMAttribute::lockAndHideAttr(plugLocalRotate);
-      LMAttribute::lockAndHideAttr(plugLocalRotateX);
-      LMAttribute::lockAndHideAttr(plugLocalRotateY);
-      LMAttribute::lockAndHideAttr(plugLocalRotateZ);
+      Attribute::lockAndHideAttr(plugLocalRotate);
+      Attribute::lockAndHideAttr(plugLocalRotateX);
+      Attribute::lockAndHideAttr(plugLocalRotateY);
+      Attribute::lockAndHideAttr(plugLocalRotateZ);
       // Local scale
-      LMAttribute::lockAndHideAttr(plugLocalScale);
-      LMAttribute::lockAndHideAttr(plugLocalScaleX);
-      LMAttribute::lockAndHideAttr(plugLocalScaleY);
-      LMAttribute::lockAndHideAttr(plugLocalScaleZ);
+      Attribute::lockAndHideAttr(plugLocalScale);
+      Attribute::lockAndHideAttr(plugLocalScaleX);
+      Attribute::lockAndHideAttr(plugLocalScaleY);
+      Attribute::lockAndHideAttr(plugLocalScaleZ);
       // Shape attrs
-      LMAttribute::lockAndHideAttr(plugShape);
-      LMAttribute::lockAndHideAttr(plugDrawLine);
+      Attribute::lockAndHideAttr(plugShape);
+      Attribute::lockAndHideAttr(plugDrawLine);
 
-      LMAttribute::lockAndHideAttr(plug_draw_solver_mode);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_size);
+      Attribute::lockAndHideAttr(plug_draw_solver_mode);
+      Attribute::lockAndHideAttr(plug_solver_mode_size);
 
-      LMAttribute::lockAndHideAttr(plug_solver_mode_position);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_positionX);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_positionY);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_positionZ);
+      Attribute::lockAndHideAttr(plug_solver_mode_position);
+      Attribute::lockAndHideAttr(plug_solver_mode_positionX);
+      Attribute::lockAndHideAttr(plug_solver_mode_positionY);
+      Attribute::lockAndHideAttr(plug_solver_mode_positionZ);
 
-      LMAttribute::lockAndHideAttr(plugLineWidth);
-      LMAttribute::lockAndHideAttr(plugInFkIk);
+      Attribute::lockAndHideAttr(plugLineWidth);
+      Attribute::lockAndHideAttr(plugInFkIk);
 
       // LMAttribute::lockAndHideAttr(plug_has_dynamic_attributes);
     }

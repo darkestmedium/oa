@@ -11,8 +11,6 @@
 #include <vector>
 
 // Maya General Includes
-#include <maya/MAnimControl.h>
-#include <maya/MTime.h>
 #include <maya/MSelectionList.h>
 #include <maya/MAngle.h>
 #include <maya/MArrayDataBuilder.h>
@@ -32,7 +30,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnUnitAttribute.h>
-// #include <maya/MFnPlugin.h>
+#include <maya/MFnToolContext.h>
 
 // Iterators
 
@@ -40,37 +38,28 @@
 #include <maya/MPxNode.h>
 
 // Custom
-// #include "LMObject.h"
+#include "Object.hpp"
 
 
 
 
-namespace LMAnimControl {
-	/* LMAnimControl
-	 * Lunar Maya AnimControl	wrapper with additional methods.
+namespace GLobal {
+	/* LMScene
+	 * Lunar Maya Global wrapper class.
 	 */
 
+	inline bool currentToolIsTransformContext() {
+		/* Checks wheter or not the current tool context is the 'Move Tool' or 'Rotate Tool'
 
-	inline bool timeChanged(MAnimControl& animCtrl, MTime& timeCached, MTime& timeCurrent) {
-		/* Checks wheter or not time has changed.
-
-		Playback / scrubbing / time change
-		if (AnimCtrl.isPlaying() or AnimCtrl.isScrubbing() or TimeCached != TimeCurrent)
-
-		Args:
-			animCtrl (MAnimControl&): Animation control instance to check isPlaying and isSrubbing.
-			timeCached (MTimge&): Time that has been cached - ex. previous frame.
-			timeCurrent (MTimge&): Current time / frame.
-
-		Return:
-			bool: True if time has changed, false if it didn't.
-
-		*/
-		if (animCtrl.isPlaying() || animCtrl.isScrubbing() || timeCached != timeCurrent) {
+		 */
+		MFnToolContext fnCurrentToolContext = MGlobal::currentToolContext();
+		MString strToolTitle = fnCurrentToolContext.title();
+		if (strToolTitle == "Move Tool" || strToolTitle == "Rotate Tool") {
 			return true;
 		}
 
 		return false;
-	};
+	}
+
 
 }

@@ -18,8 +18,6 @@ import oa.maya.Core as omc
 
 
 
-
-
 class Attribute():
   """Wrapper class for attribute utilities.
   """
@@ -28,12 +26,15 @@ class Attribute():
 
 
   @classmethod
-  def CopyTransformsToOPM(cls, object:str):
+  def copyTransformsToOPM(cls, object:str):
     """Copies the translation and rotation values to the offset parent matrix attribute.
     """
-    arrayLocalMatrix = cmds.xform(object, query=True, matrix=True, worldSpace=False)
-    cmds.setAttr(f"{object}.offsetParentMatrix", arrayLocalMatrix, type="matrix")
-    cmds.xform(object, translation=(0,0,0), rotation=(0,0,0))
+    cmds.setAttr(
+      f"{object}.offsetParentMatrix",
+      cmds.xform(object, query=True, matrix=True, worldSpace=False),
+      type="matrix"
+    )
+    cmds.xform(object, translation=(0,0,0), rotation=(0,0,0), scale=(0,0,0))
 
 
   @classmethod
@@ -45,85 +46,6 @@ class Attribute():
 
     """
     cmds.setAttr(name, lock=True, keyable=False, channelBox=False)
-
-
-  @classmethod
-  def addDisplayType(cls, object:str, name:str, defaultValue:int=0) -> str:
-    """Adds a display type attribute on the given object.
-    """
-    attrName = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="enum", enumName="normal=0:template=1:reference=2", keyable=False, defaultValue=defaultValue)
-    cmds.setAttr(attrName, channelBox=True)
-    # cmds.setAttr(f"{object}.overrideEnabled", True)
-    return attrName
-
-
-  @classmethod
-  def addFloat(cls, object:str, name:str, defaultValue:float=0.0) -> str:
-    """Adds a float attribute on the given object.
-    """
-    attrName = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="float", keyable=True, defaultValue=defaultValue)
-    return attrName
-
-
-  @classmethod
-  def addOnOff(cls, object:str, name:str, defaultValue:bool=True) -> str:
-    """Adds a on / off attribute on the given object.
-    """
-    attrName = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="enum", enumName="off=0:on=1", keyable=False, defaultValue=defaultValue)
-    cmds.setAttr(attrName, channelBox=True)
-    return attrName
-
-
-  @classmethod
-  def addSeparator(cls, object:str, name:str="_") -> str:
-    """Adds a separator attribute on the given object.
-    """
-    attrName = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="enum", enumName=" =0:", defaultValue=False, keyable=False)
-    cmds.setAttr(attrName, lock=True, channelBox=True)
-    return attrName
-
-
-  @classmethod
-  def addFloatFkIk(cls, object:str, name:str, minValue:float=0.0, maxValue:float=100.0, defaultValue:float=0.0) -> str:
-    """Adds a float attribute on the given object.
-    """
-    attrName = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="float", minValue=minValue, maxValue=maxValue, keyable=True, defaultValue=defaultValue)
-    return attrName
-
-
-  @classmethod
-  def addFkIkMode(cls, object:str, name:str, defaultValue:int=0) -> str:
-    """Adds a display type attribute on the given object.
-    """
-    # attrName = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="enum", enumName="Fk=0:Ik=1", keyable=True, defaultValue=defaultValue)
-    # cmds.setAttr(attrName, channelBox=True)
-    cmds.setAttr(f"{object}.overrideEnabled", True)
-    return f"{object}.{name}"
-
-
-  @classmethod
-  def addMessage(cls, object:str, name:str="component", isArray:bool=False):
-    cmds.addAttr(object, longName=name, attributeType="message", multi=isArray)
-    return f"{object}.{name}"
-
-
-  @classmethod
-  def addCtrls(cls, object:str, name:str="ctrls", addFk:bool=True, addIk:bool=True) -> str:
-    attr_name = f"{object}.{name}"
-    cmds.addAttr(object, longName=name, attributeType="compound", numberOfChildren=2)
-    if addFk: cmds.addAttr(object, longName="fk", attributeType="message", multi=True, parent=name)
-    if addIk: cmds.addAttr(object, longName="ik", attributeType="message", multi=True, parent=name)
-    return (
-      attr_name,
-      f"{attr_name}.fk",
-      f"{attr_name}.ik",
-    )
 
 
   @classmethod
@@ -209,8 +131,91 @@ class Attribute():
 
 
 
+
+  """Attribute creation convinience methods.
+  """
+
+
+
+
   @classmethod
-  def ConnectSceneTime(cls, object:str, plug:str="inTime", doIt:bool=True) -> None:
+  def addDisplayType(cls, object:str, name:str, defaultValue:int=0) -> str:
+    """Adds a display type attribute on the given object.
+    """
+    attrName = f"{object}.{name}"
+    cmds.addAttr(object, longName=name, attributeType="enum", enumName="normal=0:template=1:reference=2", keyable=False, defaultValue=defaultValue)
+    cmds.setAttr(attrName, channelBox=True)
+    return attrName
+
+
+  @classmethod
+  def addFloat(cls, object:str, name:str, defaultValue:float=0.0) -> str:
+    """Adds a float attribute on the given object.
+    """
+    attrName = f"{object}.{name}"
+    cmds.addAttr(object, longName=name, attributeType="float", keyable=True, defaultValue=defaultValue)
+    return attrName
+
+
+  @classmethod
+  def addOnOff(cls, object:str, name:str, defaultValue:bool=True) -> str:
+    """Adds a on / off attribute on the given object.
+    """
+    attrName = f"{object}.{name}"
+    cmds.addAttr(object, longName=name, attributeType="enum", enumName="off=0:on=1", keyable=False, defaultValue=defaultValue)
+    cmds.setAttr(attrName, channelBox=True)
+    return attrName
+
+
+  @classmethod
+  def addSeparator(cls, object:str, name:str="_") -> str:
+    """Adds a separator attribute on the given object.
+    """
+    attrName = f"{object}.{name}"
+    cmds.addAttr(object, longName=name, attributeType="enum", enumName=" =0:", defaultValue=False, keyable=False)
+    cmds.setAttr(attrName, lock=True, channelBox=True)
+    return attrName  @classmethod
+
+
+  @classmethod
+  def addFloatFkIk(cls, object:str, name:str, minValue:float=0.0, maxValue:float=100.0, defaultValue:float=0.0) -> str:
+    """Adds a float attribute on the given object.
+    """
+    attrName = f"{object}.{name}"
+    cmds.addAttr(object, longName=name, attributeType="float", minValue=minValue, maxValue=maxValue, keyable=True, defaultValue=defaultValue)
+    return attrName
+
+
+  @classmethod
+  def addFkIkMode(cls, object:str, name:str, defaultValue:int=0) -> str:
+    """Adds a display type attribute on the given object.
+    """
+    cmds.addAttr(object, longName=name, attributeType="enum", enumName="Fk=0:Ik=1", keyable=True, defaultValue=defaultValue)
+    cmds.setAttr(f"{object}.overrideEnabled", True)
+    return f"{object}.{name}"
+
+
+  @classmethod
+  def addMessage(cls, object:str, name:str="component", isArray:bool=False):
+    cmds.addAttr(object, longName=name, attributeType="message", multi=isArray)
+    return f"{object}.{name}"
+
+
+  @classmethod
+  def addCtrls(cls, object:str, name:str="ctrls", addFk:bool=True, addIk:bool=True) -> str:
+    attrName = f"{object}.{name}"
+    cmds.addAttr(object, longName=name, attributeType="compound", numberOfChildren=2)
+    if addFk: cmds.addAttr(object, longName="fk", attributeType="message", multi=True, parent=name)
+    if addIk: cmds.addAttr(object, longName="ik", attributeType="message", multi=True, parent=name)
+    return (
+      attrName,
+      f"{attrName}.fk",
+      f"{attrName}.ik",
+    )
+
+
+  @classmethod
+  def connectSceneTime(cls, object:str, plug:str="inTime", doIt:bool=True) -> None:
     """Connects the scene's default time1 node to the given target.
     """
     fnTarget = om.MFnDependencyNode(omc.Object.GetObjFromString(object))

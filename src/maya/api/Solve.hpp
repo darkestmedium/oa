@@ -38,7 +38,7 @@
 // Custom
 #include "Utils.hpp"
 #include "MathUtility.hpp"
-#include "LMObject.hpp"
+#include "Object.hpp"
 
 
 
@@ -62,7 +62,7 @@ namespace LMSolve {
     const MVector& vecA, const MVector& vecB, const MVector& vecC, const MVector& vecT, const MVector& vecPv,
     MAngle& twist, double softness, bool bIsPvConnected,
     MQuaternion& quatA, MQuaternion& quatB
-    ) {
+  ) {
     /* Calculates the ik for a two bone limb.
     
     Reference:

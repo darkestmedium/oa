@@ -38,13 +38,13 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "LMObject.hpp"
-#include "LMScene.hpp"
+#include "Object.hpp"
+#include "Scene.hpp"
 
 
 
 
-namespace LMAttribute {
+namespace Attr {
   /* LMAttrUtilis
    * Wrapper namespace for attribute utilities.
    */
@@ -65,6 +65,7 @@ namespace LMAttribute {
 
     return MS::kSuccess;
   };
+
 
   inline MStatus lockAndHideAttr(MObject& node, MObject& attribute) {
     /* Locks and hides the given plug from the channelbox.

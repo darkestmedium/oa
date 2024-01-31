@@ -17,21 +17,6 @@ import oa.maya.resources.templates.ctrls as omrtc
 
 
 
-
-dict_colors = {
-  "lightyellow":  [1.0, 1.0, 0.25],
-  "yellow":       [1.0, 0.6, 0.1],
-  "lightorange":  [1.0, 0.467, 0.2],
-  "orange":       [0.8, 0.25, 0.05],
-  "lightblue":    [0.4, 0.8, 1.0],
-  "blue":         [0.05, 0.25, 0.8],
-  "magenta":      [0.6, 0.2, 0.4],
-  "green":        [0.2, 0.8, 0.4]
-}
-
-
-
-
 class Ctrl():
   """Class for building the rig controller.
   """

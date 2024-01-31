@@ -178,7 +178,7 @@ MStatus Ik2bSolver::parseDataBlock(MDataBlock& dataBlock) {
 
   // Pole vector
   MDagPath pathPv;
-  status = MDagPath::getAPathTo(LMAttribute::getSourceObjFromPlug(objSelf, dataBlock.inputValue(attrInPv).attribute()), pathPv);
+  status = MDagPath::getAPathTo(Attr::getSourceObjFromPlug(objSelf, dataBlock.inputValue(attrInPv).attribute()), pathPv);
   if (status == MS::kSuccess) {
     fnPv.setObject(pathPv);
     bIsPvConnected = true;

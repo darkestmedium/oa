@@ -53,8 +53,8 @@
 
 // Lunar
 #include "api/Utils.hpp"
-#include "api/LMText.hpp"
-#include "api/LMAttribute.hpp"
+#include "api/Text.hpp"
+#include "api/Attribute.hpp"
 #include "api/Utils.hpp"
 
 
@@ -733,16 +733,16 @@ MStatus ComponentCmd::redoIt() {
 
     // Lock shape attributes
     if (lock_attributes == true) {	
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::translate);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotate);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::scale);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::shear);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateAxis);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateOrder);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::inheritsTransform);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::offsetParentMatrix);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::rotateQuaternion);
-      LMAttribute::lockAndHideAttr(self_object, ComponentNode::visibility);
+      Attr::lockAndHideAttr(self_object, ComponentNode::translate);
+      Attr::lockAndHideAttr(self_object, ComponentNode::rotate);
+      Attr::lockAndHideAttr(self_object, ComponentNode::scale);
+      Attr::lockAndHideAttr(self_object, ComponentNode::shear);
+      Attr::lockAndHideAttr(self_object, ComponentNode::rotateAxis);
+      Attr::lockAndHideAttr(self_object, ComponentNode::rotateOrder);
+      Attr::lockAndHideAttr(self_object, ComponentNode::inheritsTransform);
+      Attr::lockAndHideAttr(self_object, ComponentNode::offsetParentMatrix);
+      Attr::lockAndHideAttr(self_object, ComponentNode::rotateQuaternion);
+      Attr::lockAndHideAttr(self_object, ComponentNode::visibility);
     }
 
     // Set hide on playback

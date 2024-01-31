@@ -9,13 +9,14 @@ Shapes
 6 Diamond
 7 Pyramid
 8 Triangle
-9 Locator
-10 Frame
-11 Arrow
-12 Base
-13 Hip
-13 Rounded Double Circle
-14 Pin Round
+9 Prism
+10 Locator
+11 Frame
+12 Arrow
+13 Base
+14 Hip
+15 Rounded Double Circle
+16 Pin Round
 
 
 Arrow Two Way

@@ -54,8 +54,8 @@
 
 // Lunar
 #include "api/Utils.hpp"
-#include "api/LMText.hpp"
-#include "api/LMAttribute.hpp"
+#include "api/Text.hpp"
+#include "api/Attribute.hpp"
 #include "api/Utils.hpp"
 
 

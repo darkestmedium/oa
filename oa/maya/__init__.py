@@ -11,10 +11,10 @@
 
 # Built-in imports
 
+
 # Third-party imports
 
 # Open APi imports
-
 
 
 
@@ -53,3 +53,29 @@ OpenUi:
 
 
 """
+
+
+
+
+# Constants
+
+
+
+
+# C
+class Color():
+  Yellow        = [1.0, 0.6, 0.1]
+  LightYellow   = [1.0, 1.0, 0.25]
+  Orange        = [0.8, 0.25, 0.05]
+  LightOrange   = [1.0, 0.467, 0.2]
+  Blue          = [0.05, 0.25, 0.8]
+  LightBlue     = [0.4, 0.8, 1.0]
+  Magenta       = [0.6, 0.2, 0.4]
+  Green         = [0.2, 0.8, 0.4]
+
+
+
+
+class Lock():
+  TransformsVisibility = ["translate", "rotate", "scale", "visibility"]
+

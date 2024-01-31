@@ -15,7 +15,6 @@ from PySide2 import QtCore as qtc
 
 
 
-
 class Object(om.MObject):
   """Wrapper class with MObjects utils.
   """
@@ -24,7 +23,7 @@ class Object(om.MObject):
 
 
   @classmethod
-  def GetObjFromString(cls, object:str) -> om.MObject:
+  def getObjFromString(cls, object:str) -> om.MObject:
     """Gets the MObject for given object.
 
     Python Api 1.0 Reference:
@@ -38,7 +37,7 @@ class Object(om.MObject):
 
 
   @classmethod
-  def GetDagPathFromString(cls, object:str) -> om.MDagPath:
+  def getDagPathFromString(cls, object:str) -> om.MDagPath:
     """Gets the MDagPath for the given object.
 
     Python Api 1.0 Reference:

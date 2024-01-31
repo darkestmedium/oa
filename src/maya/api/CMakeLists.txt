@@ -3,15 +3,15 @@ project(lunarmayaapi LANGUAGES CXX)
 
 set(API_FILES
   # Api
-  LMAttribute.h
-  LMGlobal.h
-  LMAnimControl.h
-  LMObject.h
-  LMPlugin.h
-  LMRigUtils.h
-  LMScene.h
-  LMSolve.h
-  LMText.h
+  Attribute.h
+  Global.h
+  AnimControl.h
+  Object.h
+  Plugin.h
+  RigUtils.h
+  Scene.h
+  Solve.h
+  Text.h
   MathUtility.h
   Utils.h
 )

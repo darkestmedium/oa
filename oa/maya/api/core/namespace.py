@@ -8,7 +8,7 @@ import logging
 # Maya imports
 from maya import cmds
 from maya import mel
-import maya.api.OpenMaya as om
+import maya.OpenMaya as om
 
 from PySide2 import QtCore as qtc
 

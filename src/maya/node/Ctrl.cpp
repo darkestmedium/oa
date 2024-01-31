@@ -26,6 +26,8 @@ MObject Ctrl::localRotate, Ctrl::localRotateX, Ctrl::localRotateY, Ctrl::localRo
 MObject Ctrl::localScale, Ctrl::localScaleX, Ctrl::localScaleY, Ctrl::localScaleZ;
 
 MObject Ctrl::attr_shape_indx;
+MObject Ctrl::attr_fill_shape;
+MObject Ctrl::attr_fill_shape_opacity;
 MObject Ctrl::attr_line_width;
 
 MObject Ctrl::attr_in_draw_line;
@@ -93,17 +95,31 @@ MStatus Ctrl::initialize() {
   fn_enum.addField("Diamond", 6);
   fn_enum.addField("Pyramid", 7);
   fn_enum.addField("Triangle", 8);
-  fn_enum.addField("Locator", 9);
-  fn_enum.addField("Frame", 10);
-  fn_enum.addField("Arrow", 11);
-  fn_enum.addField("Base", 12);
-  fn_enum.addField("Hip", 13);
-  fn_enum.addField("CircleHalfDouble", 14);
-  fn_enum.addField("PinRound", 15);
-  fn_enum.addField("Clavicle", 16);
+  fn_enum.addField("Prism", 9);
+  fn_enum.addField("Locator", 10);
+  fn_enum.addField("Frame", 11);
+  fn_enum.addField("Arrow", 12);
+  fn_enum.addField("Circle4Arrows", 13);
+  fn_enum.addField("Hip", 14);
+  fn_enum.addField("CircleHalfDouble", 15);
+  fn_enum.addField("PinRound", 16);
+  fn_enum.addField("Clavicle", 17);
   fn_enum.setKeyable(false);
   fn_enum.setStorable(true);
   fn_enum.setChannelBox(true);
+
+  attr_fill_shape = fn_num.create("fillShape", "fp", MFnNumericData::kBoolean, false);
+  fn_num.setStorable(true);
+  fn_num.setKeyable(false);
+  fn_num.setChannelBox(true);
+
+  attr_fill_shape_opacity = fn_num.create("fillShapeOpacity", "fso", MFnNumericData::kFloat, 0.1);
+  fn_num.setMin(0.01);
+  // fn_num.setDefault(2.0);
+  fn_num.setMax(1);
+  fn_num.setStorable(true);
+  fn_num.setKeyable(false);
+  fn_num.setChannelBox(true);
 
   attr_line_width = fn_num.create("lineWidth", "lw", MFnNumericData::kFloat, 2.0);
   fn_num.setMin(0.5);
@@ -160,7 +176,7 @@ MStatus Ctrl::initialize() {
   // Add attributes
   addAttributes(
     localPosition, localRotate, localScale,
-    attr_shape_indx, attr_line_width,
+    attr_shape_indx, attr_fill_shape, attr_fill_shape_opacity, attr_line_width,
     attr_in_draw_line, attr_in_line_matrix,
     attr_draw_solver_mode,
     attr_solver_mode_size,
@@ -196,6 +212,8 @@ MStatus Ctrl::setDependentsDirty(const MPlug& plug, MPlugArray& affectedPlugs) {
       || plug == localRotate
       || plug == localScale
       || plug == attr_shape_indx
+      || plug == attr_fill_shape
+      || plug == attr_fill_shape_opacity
       || plug == attr_line_width
       || plug == attr_in_draw_line
       || plug == attr_out_line_matrix
@@ -325,9 +343,11 @@ void CtrlUserData::get_plugs(const MObject& object) {
 
   MFnDependencyNode fn_object(object);
 
-  bDrawline = MPlug(object, Ctrl::attr_in_draw_line).asBool();
-  line_width = MPlug(object, Ctrl::attr_line_width).asFloat();
   shape_indx = MPlug(object, Ctrl::attr_shape_indx).asShort();
+  bFillShape = MPlug(object, Ctrl::attr_fill_shape).asBool();
+  fillShapeOpacity = MPlug(object, Ctrl::attr_fill_shape_opacity).asFloat();
+  line_width = MPlug(object, Ctrl::attr_line_width).asFloat();
+  bDrawline = MPlug(object, Ctrl::attr_in_draw_line).asBool();
   solver_mode_size = MPlug(object, Ctrl::attr_solver_mode_size).asInt();
 
   mat_pv = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
@@ -372,27 +392,30 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
     case 8: // Triangle
       this->bbox = PopulateBoundingBox(bboxTriangle);
       break;
-    case 9: // Locator
+    case 9: // Prism
+      this->bbox = PopulateBoundingBox(bboxPrism);
+      break;
+    case 10: // Locator
       this->bbox = PopulateBoundingBox(bboxLocator);
       break;
-    case 10: // Frame
+    case 11: // Frame
       this->bbox = PopulateBoundingBox(bboxFrame);
       break;
-    case 11: // Arrow
+    case 12: // Arrow
       this->bbox = PopulateBoundingBox(bboxArrow);
       break;
-    case 12: // Base
-      this->bbox = PopulateBoundingBox(bboxBase);
+    case 13: // Circle4Arrows
+      this->bbox = PopulateBoundingBox(bboxCircle4Arrows);
       break;
-    case 13: // Hip
+    case 14: // Hip
       this->bbox = PopulateBoundingBox(bboxHip);
       break;
-    case 14: // CircleHalfDouble
+    case 15: // CircleHalfDouble
       this->bbox = PopulateBoundingBox(bboxCircleHalfDouble);
       break;
-    case 15: // PinRound
+    case 16: // PinRound
       this->bbox = PopulateBoundingBox(bboxPinRound);
-    case 16: // Clavicle
+    case 17: // Clavicle
       this->bbox = PopulateBoundingBox(bboxClavicle);
       break;
   }
@@ -416,72 +439,75 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
 
   shape_indx = MPlug(object, Ctrl::attr_shape_indx).asShort();
 
-  this->list_vertecies.clear();
-  this->list_lines.clear();
-  this->list_line.clear();  // for pole vector line only
+  this->arrayVertecies.clear();
+  this->arrayEdges.clear();
+  this->arrayTriangles.clear();
+  this->arrayLine.clear();  // for pole vector line only
 
   switch(shape_indx) {
     case 0:  // Cube
-      PopulateVertexBuffer(pointsCube, indiciesCube, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsCube, idxEdgesCube, idxTrianglesCube, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 1:  // Square
-      PopulateVertexBuffer(pointsSquare, indiciesSquare, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsSquare, idxEdgesSquare, idxTrianglesSquare, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 2:  // Cylinder
-      PopulateVertexBuffer(pointsCylinder, indiciesCylinder, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsCylinder, idxEdgesCylinder, idxTrianglesCylinder, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 3:  // Circle
-      PopulateVertexBuffer(pointsCircle, indiciesCircle, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsCircle, idxEdgesCircle, idxTrianglesCircle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 4:  // Sphere
-      PopulateVertexBuffer(pointsSphere, indiciesSphere, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsSphere, idxEdgesSphere, arrayVertecies, arrayEdges, matrix);
       break;
     case 5:  // Dome
-      PopulateVertexBuffer(pointsDome, indiciesDome, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsDome, idxEdgesDome, arrayVertecies, arrayEdges, matrix);
       break;
     case 6:  // Diamond
-      PopulateVertexBuffer(pointsDiamond, indiciesDiamond, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsDiamond, idxEdgesDiamond, idxTrianglesDiamond, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 7:  // Pyramid
-      PopulateVertexBuffer(pointsPyramid, indiciesPyramid, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsPyramid, idxEdgesPyramid, idxTrianglesPyramid, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 8:  // Triangle
-      PopulateVertexBuffer(pointsTriangle, indiciesTriangle, list_vertecies, list_lines, matrix);
+      PopulateVertexBuffer(pointsTriangle, idxEdgesTriangle, idxTrianglesTriangle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 9:  // Locator
-      PopulateVertexBuffer(pointsLocator, indiciesLocator, list_vertecies, list_lines, matrix);
+    case 9:  // Prism
+      PopulateVertexBuffer(pointsPrism, idxEdgesPrism, idxTrianglesPrism, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 10:  // Frame
-      PopulateVertexBuffer(pointsFrame, indiciesFrame, list_vertecies, list_lines, matrix);
+    case 10:  // Locator
+      PopulateVertexBuffer(pointsLocator, idxEdgesLocator, arrayVertecies, arrayEdges, matrix);
       break;
-    case 11:  // Arrow
-      PopulateVertexBuffer(pointsArrow, indiciesArrow, list_vertecies, list_lines, matrix);
+    case 11:  // Frame
+      PopulateVertexBuffer(pointsFrame, idxEdgesFrame, arrayVertecies, arrayEdges, matrix);
       break;
-    case 12:  // Base
-      PopulateVertexBuffer(pointsBase, indiciesBase, list_vertecies, list_lines, matrix);
+    case 12:  // Arrow
+      PopulateVertexBuffer(pointsArrow, idxEdgesArrow, idxTrianglesArrow, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 13:  // Hip
-      PopulateVertexBuffer(pointsHip, indiciesHip, list_vertecies, list_lines, matrix);
+    case 13:  // Circle4Arrows
+      PopulateVertexBuffer(pointsCircle4Arrows, idxEdgesCircle4Arrows, idxTrianglesCircle4Arrows, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 14:  // CircleHalfDouble
-      PopulateVertexBuffer(pointsCircleHalfDouble, indiciesCircleHalfDouble, list_vertecies, list_lines, matrix);
+    case 14:  // Hip
+      PopulateVertexBuffer(pointsHip, idxEdgesHip, arrayVertecies, arrayEdges, matrix);
       break;
-    case 15:  // PinRound
-      PopulateVertexBuffer(pointsPinRound, indiciesPinRound, list_vertecies, list_lines, matrix);
+    case 15:  // CircleHalfDouble
+      PopulateVertexBuffer(pointsCircleHalfDouble, idxEdgesCircleHalfDouble, arrayVertecies, arrayEdges, matrix);
       break;
-    case 16:  // Clavicle
-      PopulateVertexBuffer(pointsClavicle, indiciesClavicle, list_vertecies, list_lines, matrix);
+    case 16:  // PinRound
+      PopulateVertexBuffer(pointsPinRound, idxEdgesPinRound, idxTrianglesPinRound, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 17:  // Clavicle
+      PopulateVertexBuffer(pointsClavicle, idxEdgesClavicle, arrayVertecies, arrayEdges, matrix);
       break;
     default:
       break;
   };
 
-
   // Draw line for pole vectors
   if (bDrawline) { 
     // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
-    list_line.append(MPoint() * matrix);
-    list_line.append(MPoint(pos_draw_pv_to[0], pos_draw_pv_to[1], pos_draw_pv_to[2]) * dp_object.inclusiveMatrixInverse());
+    arrayLine.append(MPoint() * matrix);
+    arrayLine.append(MPoint(pos_draw_pv_to[0], pos_draw_pv_to[1], pos_draw_pv_to[2]) * dp_object.inclusiveMatrixInverse());
   }
 }
 
@@ -587,6 +613,7 @@ MUserData* CtrlDrawOverride::prepareForDraw(const MDagPath& objPath, const MDagP
   data->get_text(object);
 
   data->col_wireframe = MHWRender::MGeometryUtilities::wireframeColor(objPath);
+  data->col_shape = MColor(data->col_wireframe.r, data->col_wireframe.g, data->col_wireframe.b, data->fillShapeOpacity);
 
   // If XRay Joints Draw in XRay Mode
   // if (frameContext.getDisplayStyle() & MHWRender::MFrameContext::kXrayJoint) {data->DrawInXray = true;}
@@ -639,11 +666,10 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
 
   // // If XRay Joints Draw in XRay Mode
   // if (pCtrlData->DrawInXray) {drawManager.beginDrawInXray();}
-  
+  // Draw edges
   drawManager.setColor(pTransformData->col_wireframe);
   drawManager.setLineWidth(pTransformData->line_width);
-
-  drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->list_lines);
+  drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->arrayEdges);
 
   // Fk Ik State
   if (pTransformData->draw_solver_mode) {
@@ -651,10 +677,17 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
     drawManager.text(pTransformData->pos_solver_mode, pTransformData->str_solver_mode, drawManager.kCenter);
   }
 
+  // drawManager.mesh(MHWRender::MUIDrawManager::kTriangles, pTransformData->arrayTriangles);
+  // Draw fill shape
+  if (pTransformData->bFillShape) {
+    drawManager.setColor(pTransformData->col_shape);
+    drawManager.mesh(MHWRender::MUIDrawManager::kTriangles, pTransformData->arrayTriangles);
+  }
+
   if (pTransformData->bDrawline) {
     drawManager.setColor(pTransformData->col_grey);
     drawManager.setLineStyle(MHWRender::MUIDrawManager::kDashed);
-    drawManager.line(pTransformData->list_line[0], pTransformData->list_line[1]);
+    drawManager.line(pTransformData->arrayLine[0], pTransformData->arrayLine[1]);
   }
 
   // End drawable

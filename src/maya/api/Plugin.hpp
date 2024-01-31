@@ -39,7 +39,7 @@
 
 // Custom
 #include "Utils.hpp"
-#include "LMObject.hpp"
+#include "Object.hpp"
 
 
 
@@ -56,7 +56,7 @@ namespace LMPlugin {
     MStatus status;
     MDagPath dpObj;
     status = MDagPath::getAPathTo(
-      LMAttribute::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
+      Attr::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
       dpObj
     );
     if (status == MS::kSuccess) {
@@ -74,7 +74,7 @@ namespace LMPlugin {
     MStatus status;
     MDagPath dpObj;
     status = MDagPath::getAPathTo(
-      LMAttribute::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
+      Attr::getSourceObjFromPlug(obj, dataBlock.inputValue(objAttribute).attribute()),
       dpObj
     );
     if (status == MS::kSuccess) {
@@ -91,7 +91,7 @@ namespace LMPlugin {
     */
     MStatus status;
     MDagPath dpObj;
-    MPlugArray destinations = LMAttribute::getDestinationObjFromPlug(obj, dataBlock.outputValue(objAttribute).attribute());
+    MPlugArray destinations = Attr::getDestinationObjFromPlug(obj, dataBlock.outputValue(objAttribute).attribute());
     if (destinations.length() > 0) {
       status = MDagPath::getAPathTo(
         destinations[0].node(),

@@ -38,7 +38,7 @@
 
 // Custom
 #include "MathUtility.hpp"
-#include "LMObject.hpp"
+#include "Object.hpp"
 
 
 

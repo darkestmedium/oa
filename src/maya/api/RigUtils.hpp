@@ -30,7 +30,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnUnitAttribute.h>
-#include <maya/MFnToolContext.h>
+// #include <maya/MFnPlugin.h>
 
 // Iterators
 
@@ -38,28 +38,34 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "LMObject.hpp"
+#include "Object.hpp"
 
 
 
 
-namespace LMGLobal {
-	/* LMScene
-	 * Lunar Maya Global wrapper class.
+namespace LMRigUtils {
+	/* LMRigUtils
+	 * Lunar Maya Rig Utilities
 	 */
 
-	inline bool currentToolIsTransformContext() {
-		/* Checks wheter or not the current tool context is the 'Move Tool' or 'Rotate Tool'
+	inline MVector getPvPosition(MVector& vecA, MVector& vecB, MVector& vecC, MString space="world") {
+		/* Gets the pole vector position from the input of three vectors.
 
-		 */
-		MFnToolContext fnCurrentToolContext = MGlobal::currentToolContext();
-		MString strToolTitle = fnCurrentToolContext.title();
-		if (strToolTitle == "Move Tool" || strToolTitle == "Rotate Tool") {
-			return true;
-		}
+		From Greg's Hendrix tutorial https://www.youtube.com/watch?v=bB_HL1tBVHY
 
-		return false;
+		*/
+		MVector vecAC = vecC - vecA;
+		MVector vecAB = vecB - vecA;
+		MVector vecBC = vecC - vecB;
+
+		double valScale = (vecAC * vecAB) / (vecAC * vecAC);
+		MVector vecProjection = vecAC * valScale + vecA;
+		double lenABC = vecAB.length() + vecBC.length();
+
+		MVector posPv((vecB - vecProjection).normal() * lenABC);
+
+		if (space == "world") {return posPv + vecB;}
+		return posPv;
 	}
+};
 
-
-}

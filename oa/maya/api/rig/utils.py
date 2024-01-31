@@ -48,7 +48,8 @@ class Utils():
 
   @classmethod
   def createMatrixConstraint(cls, parent, child, offset, sourceNode:str=None) -> str:
-
+    """Creates a simple matrix 'constraint'.
+    """
     nodeMultMatrix = cmds.createNode("multMatrix", name=f"{child}_matCnst")
     if sourceNode:
       arrayLocalMatrix = cmds.xform(sourceNode, query=True, matrix=True, worldSpace=False),
@@ -63,7 +64,7 @@ class Utils():
 
 
   @classmethod
-  def create_space_switch(cls, node, drivers, switch_attribute:str="space"):
+  def createSpaceSwitch(cls, node, drivers, switchAttribute:str="space"):
     """Creates a space switch network.
 
     The network uses the offsetParentMatrix attribute and does not create any
@@ -71,13 +72,13 @@ class Utils():
 
     :param node: Transform to drive
     :param drivers: List of tuples: [(driver1, "spaceName1"), (driver2, "spaceName2")]
-    :param switch_attribute: Name of the switch attribute to create on the target node.
+    :param switchAttribute: Name of the switch attribute to create on the target node.
 
     """
-    if cmds.objExists(f"{node}.{switch_attribute}"): cmds.deleteAttr(node, at=switch_attribute)
+    if cmds.objExists(f"{node}.{switchAttribute}"): cmds.deleteAttr(node, at=switchAttribute)
 
     names = [d[1] for d in drivers]
-    cmds.addAttr(node, ln=switch_attribute, at="enum", en=":".join(names), keyable=True)
+    cmds.addAttr(node, ln=switchAttribute, at="enum", en=":".join(names), keyable=True)
 
     spaceswitch = cmds.spaceSwitch(name=f"{node}_spaceswitch")
     # Get the current offset parent matrix. This is used as the starting blend point
@@ -93,11 +94,11 @@ class Utils():
       target_attr = f"{spaceswitch}.target[{indx}]"
 
     cmds.connectAttr(f"{spaceswitch}.outputMatrix", f"{node}.offsetParentMatrix")
-    cmds.connectAttr(f"{node}.{switch_attribute}", f"{spaceswitch}.space")
+    cmds.connectAttr(f"{node}.{switchAttribute}", f"{spaceswitch}.space")
 
 
   @classmethod
-  def _connect_driver_matrix_network(cls, spaceswitch, node, driver, index, to_parent_local):
+  def _connect_driver_matrix_network(cls, spaceswitch, node, driver, index, toParentLocal):
     # The multMatrix node will calculate the transformation to blend to when driven
     # by this driver transform
     offset = (
@@ -106,12 +107,12 @@ class Utils():
     cmds.setAttr(f"{spaceswitch}.spaces[{index}].offsetMatrix", list(offset), type="matrix")
     cmds.connectAttr(f"{driver}.worldMatrix[0]", f"{spaceswitch}.spaces[{index}].driverMatrix")
 
-    if to_parent_local:	
-      cmds.connectAttr(to_parent_local, f"{spaceswitch}.spaces[{index}].driverInverseMatrix")
+    if toParentLocal:
+      cmds.connectAttr(toParentLocal, f"{spaceswitch}.spaces[{index}].driverInverseMatrix")
 
 
   @classmethod
-  def switch_space(cls, node, attribute, space, create_keys=False):
+  def switchSpace(cls, node, attribute, space, create_keys=False):
     """Seamlessly switch between spaces
 
     :param node: Node to switch
@@ -119,9 +120,9 @@ class Utils():
     :param space: Space index in the space attribute
     :param create_keys: True to create switching keys
     """
-    m = cmds.xform(node, q=True, ws=True, m=True)
+    mat = cmds.xform(node, q=True, ws=True, m=True)
     cmds.setAttr("{}.{}".format(node, attribute), space)
-    cmds.xform(node, ws=True, m=m)
+    cmds.xform(node, ws=True, m=mat)
 
 
   @classmethod
@@ -162,8 +163,8 @@ class Utils():
 
 
   @classmethod
-  def GetVerteciesPosition(cls, object:str, precision:int=3):
-    fnMesh = om.MFnMesh(omc.Object.GetDagPathFromString(object))
+  def getVerteciesPosition(cls, object:str, precision:int=3):
+    fnMesh = om.MFnMesh(omc.Object.getDagPathFromString(object))
     edgeIndecies = tuple(fnMesh.getVertices()[1])
     vrtxIndecies = set(edgeIndecies)
     listVertecies = []
@@ -174,5 +175,4 @@ class Utils():
         round(vrtxPos.y, precision),
         round(vrtxPos.z, precision),
       ))
-      listVertecies.append((vrtxPos.x, vrtxPos.y, vrtxPos.z))
     return tuple(listVertecies), edgeIndecies

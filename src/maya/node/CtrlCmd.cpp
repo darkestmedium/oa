@@ -33,6 +33,12 @@ const char* CtrlCommand::localScaleFlagLong = "-localScale";
 const char* CtrlCommand::shapeFlagShort = "-sh";
 const char* CtrlCommand::shapeFlagLong = "-shape";
 
+const char* CtrlCommand::fillShapeFlagShort = "-fs";
+const char* CtrlCommand::fillShapeFlagLong = "-fillShape";
+
+const char* CtrlCommand::fillShapeOpacityFlagShort = "-fso";
+const char* CtrlCommand::fillShapeOpacityFlagLong = "-fillShapeOpacity";
+
 const char* CtrlCommand::createShapeNodeFlagShort = "-csn";
 const char* CtrlCommand::createShapeNodeFlagLong = "-createShapeNode";
 
@@ -45,8 +51,6 @@ const char* CtrlCommand::drawSolverModeFlagLong = "-drawSolverMode";
 const char* CtrlCommand::solverModePositionFlagShort = "-smp";
 const char* CtrlCommand::solverModePositionFlagLong = "-solverModePosition";
 
-// const char* CtrlCommand::fillTransparencyFlagShort = "-ft";
-// const char* CtrlCommand::fillTransparencyFlagLong = "-fillTransparency";
 
 const char* CtrlCommand::lineWidthFlagShort = "-lw";
 const char* CtrlCommand::lineWidthFlagLong = "-lineWidth";
@@ -93,6 +97,9 @@ MSyntax CtrlCommand::syntaxCreator() {
   // Visual flags
   sytnax.addFlag(createShapeNodeFlagShort, createShapeNodeFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(shapeFlagShort, shapeFlagLong, MSyntax::kString);
+  sytnax.addFlag(fillShapeFlagShort, fillShapeFlagLong, MSyntax::kBoolean);
+  sytnax.addFlag(fillShapeOpacityFlagShort, fillShapeOpacityFlagLong, MSyntax::kDouble);
+
   sytnax.addFlag(drawLineFlagShort, drawLineFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(lineWidthFlagShort, lineWidthFlagLong, MSyntax::kDouble);
   sytnax.addFlag(colorFlagShort, colorFlagLong, MSyntax::kString);
@@ -144,6 +151,8 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     strHelp += "   -ls    -localScale           Double3    Local Scale of the controller.\n";
     strHelp += "   -csn   -createShapeNode      Bool       Whether or not to create the shape node.\n";
     strHelp += "   -sh    -shape                String     Shape to be drawn: 'cube' 'sphere' cross' 'diamond' 'square' 'circle' 'locator' 'none'.\n";
+    strHelp += "   -fs    -fillShape            Bool       Whether or not to draw the fill shape.\n";
+    strHelp += "   -fso   -fillShapeOpacity     Float      Opacity of the fill shape.\n";
     strHelp += "   -dl    -drawLine             Bool       Whether or not you want to display a line from the object center to a target.\n";
     strHelp += "   -dsm   -drawSolverMode       Bool       Whether or not you want to display te fk / ik mode.\n";
     strHelp += "   -smp   -solverModePosition   Double3    Local Position of the fk / ik mode.\n";
@@ -250,31 +259,38 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
       indxShape = 7;
     } else if (strShape == "triangle") {
       indxShape = 8;
-    } else if (strShape == "locator") {
+    } else if (strShape == "prism") {
       indxShape = 9;
-    } else if (strShape == "frame") {
+    } else if (strShape == "locator") {
       indxShape = 10;
-    } else if (strShape == "arrow") {
+    } else if (strShape == "frame") {
       indxShape = 11;
-    } else if (strShape == "base") {
+    } else if (strShape == "arrow") {
       indxShape = 12;
-    } else if (strShape == "hip") {
+    } else if (strShape == "circle4arrows") {
       indxShape = 13;
-    } else if (strShape == "circlehalfdouble") {
+    } else if (strShape == "hip") {
       indxShape = 14;
-    } else if (strShape == "pinround") {
+    } else if (strShape == "circlehalfdouble") {
       indxShape = 15;
-    } else if (strShape == "clavicle") {
+    } else if (strShape == "pinround") {
       indxShape = 16;
+    } else if (strShape == "clavicle") {
+      indxShape = 17;
     }	else {
       indxShape = 0;
     }
   }
-  // // Fill Shape Flag
-  // if (argData.isFlagSet(fillShapeFlagShort)) {
-  // 	bFillShape = argData.flagArgumentBool(fillShapeFlagShort, 0, &status);
-  // 	CHECK_MSTATUS_AND_RETURN_IT(status);
-  // }
+  // Fill Shape Flag
+  if (argData.isFlagSet(fillShapeFlagShort)) {
+  	bFillShape = argData.flagArgumentBool(fillShapeFlagShort, 0, &status);
+  	CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
+  // Fill Shape Opacity Flag
+  if (argData.isFlagSet(fillShapeOpacityFlagShort)) {
+  	fillShapeOpacity = argData.flagArgumentDouble(fillShapeOpacityFlagShort, 0, &status);
+  	CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
   // Draw Line Flag
   if (argData.isFlagSet(drawLineFlagShort)) {
     bDrawLine = argData.flagArgumentBool(drawLineFlagShort, 0, &status);
@@ -455,8 +471,11 @@ MStatus CtrlCommand::redoIt() {
     plugLocalScaleZ.setValue(localScale.z);
 
     // Visual flags
-    // MPlug plugFillShape = fn_transform.findPlug("fillShape", false);
-    // plugFillShape.setValue(bFillShape);
+    MPlug plugFillShape = fn_transform.findPlug("fillShape", false);
+    plugFillShape.setValue(bFillShape);
+
+    MPlug plugFillShapeOpacity = fn_transform.findPlug("fillShapeOpacity", false);
+    plugFillShapeOpacity.setValue(fillShapeOpacity);
 
     MPlug plugDrawLine = fn_transform.findPlug("drawLine", false);
     plugDrawLine.setValue(bDrawLine);
@@ -495,40 +514,42 @@ MStatus CtrlCommand::redoIt() {
     if (bLockShapeAttributes == true) {
       // optimize with a for loop and MPlugArray
       // Local position
-      // LMAttribute::lockAndHideAttr(plugScale);
+      // LMAttr::lockAndHideAttr(plugScale);
       // MPlug plugScale = fn_transform.findPlug("scale", false);
       // plugScale.setLocked(true);
   
-      LMAttribute::lockAndHideAttr(plugLocalPosition);
-      LMAttribute::lockAndHideAttr(plugLocalPositionX);
-      LMAttribute::lockAndHideAttr(plugLocalPositionY);
-      LMAttribute::lockAndHideAttr(plugLocalPositionZ);
+      Attr::lockAndHideAttr(plugLocalPosition);
+      Attr::lockAndHideAttr(plugLocalPositionX);
+      Attr::lockAndHideAttr(plugLocalPositionY);
+      Attr::lockAndHideAttr(plugLocalPositionZ);
       // Local rotate
-      LMAttribute::lockAndHideAttr(plugLocalRotate);
-      LMAttribute::lockAndHideAttr(plugLocalRotateX);
-      LMAttribute::lockAndHideAttr(plugLocalRotateY);
-      LMAttribute::lockAndHideAttr(plugLocalRotateZ);
+      Attr::lockAndHideAttr(plugLocalRotate);
+      Attr::lockAndHideAttr(plugLocalRotateX);
+      Attr::lockAndHideAttr(plugLocalRotateY);
+      Attr::lockAndHideAttr(plugLocalRotateZ);
       // Local scale
-      LMAttribute::lockAndHideAttr(plugLocalScale);
-      LMAttribute::lockAndHideAttr(plugLocalScaleX);
-      LMAttribute::lockAndHideAttr(plugLocalScaleY);
-      LMAttribute::lockAndHideAttr(plugLocalScaleZ);
+      Attr::lockAndHideAttr(plugLocalScale);
+      Attr::lockAndHideAttr(plugLocalScaleX);
+      Attr::lockAndHideAttr(plugLocalScaleY);
+      Attr::lockAndHideAttr(plugLocalScaleZ);
       // Shape attrs
-      LMAttribute::lockAndHideAttr(plugShape);
-      LMAttribute::lockAndHideAttr(plugDrawLine);
+      Attr::lockAndHideAttr(plugShape);
+      Attr::lockAndHideAttr(plugFillShape);
+      Attr::lockAndHideAttr(plugFillShapeOpacity);
+      Attr::lockAndHideAttr(plugDrawLine);
 
-      LMAttribute::lockAndHideAttr(plug_draw_solver_mode);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_size);
+      Attr::lockAndHideAttr(plug_draw_solver_mode);
+      Attr::lockAndHideAttr(plug_solver_mode_size);
 
-      LMAttribute::lockAndHideAttr(plug_solver_mode_position);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_positionX);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_positionY);
-      LMAttribute::lockAndHideAttr(plug_solver_mode_positionZ);
+      Attr::lockAndHideAttr(plug_solver_mode_position);
+      Attr::lockAndHideAttr(plug_solver_mode_positionX);
+      Attr::lockAndHideAttr(plug_solver_mode_positionY);
+      Attr::lockAndHideAttr(plug_solver_mode_positionZ);
 
-      LMAttribute::lockAndHideAttr(plugLineWidth);
-      LMAttribute::lockAndHideAttr(plugInFkIk);
+      Attr::lockAndHideAttr(plugLineWidth);
+      Attr::lockAndHideAttr(plugInFkIk);
 
-      // LMAttribute::lockAndHideAttr(plug_has_dynamic_attributes);
+      // Attr::lockAndHideAttr(plug_has_dynamic_attributes);
     }
 
     // Set hide on playback

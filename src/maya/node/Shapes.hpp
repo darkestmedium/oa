@@ -4,7 +4,9 @@
 
 
 
+
 using namespace std;
+
 
 
 
@@ -18,12 +20,12 @@ vector<array<float,3>> pointsCube = {{
   {-0.5,  0.5, -0.5},
   { 0.5,  0.5, -0.5},
   {-0.5, -0.5, -0.5},
-  { 0.5, -0.5, -0.5}
+  { 0.5, -0.5, -0.5},
 }};
 array<array<float,3>,2> bboxCube = {{
   {-0.5, -0.5, -0.5}, {0.5, 0.5, 0.5}
 }};
-vector<pair<int,int>> indiciesCube = {{
+vector<array<int,2>> idxEdgesCube = {{
   {0, 1},
   {1, 3},
   {3, 2},
@@ -35,9 +37,22 @@ vector<pair<int,int>> indiciesCube = {{
   {5, 3},
   {5, 4},
   {4, 2},
-  {4, 6}
+  {4, 6},
 }};
-
+vector<array<int,3>> idxTrianglesCube = {{
+  {0, 1, 2},
+  {2, 3, 1},
+  {1, 7, 3},
+  {3, 5, 7},
+  {7, 6, 5},
+  {5, 4, 6},
+  {6, 0, 4},
+  {4, 2, 0},
+  {2, 3, 4},
+  {4, 5, 3},
+  {0, 1, 6},
+  {6, 7, 1},
+}};
 
 
 
@@ -52,11 +67,15 @@ vector<array<float,3>> pointsSquare = {{
 array<array<float,3>,2> bboxSquare = {{
   {-0.5, 0.0, -0.5}, {0.5, 0.0, 0.5}
 }};
-vector<pair<int,int>> indiciesSquare = {{
+vector<array<int,2>> idxEdgesSquare = {{
   {0, 1},
   {1, 3},
   {3, 2},
   {2, 0},
+}};
+vector<array<int,3>> idxTrianglesSquare = {{
+  {0, 1, 2},
+  {2, 3, 1},
 }};
 
 
@@ -133,7 +152,7 @@ vector<array<float,3>> pointsCylinder = {{
 array<array<float,3>,2> bboxCylinder = {{
   {-0.5, 0.5, -0.5}, {0.5, 0.5, 0.5}
 }};
-vector<pair<int,int>> indiciesCylinder = {{
+vector<array<int,2>> idxEdgesCylinder = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -203,6 +222,133 @@ vector<pair<int,int>> indiciesCylinder = {{
   {47, 15},
   {55, 23},
 }};
+vector<array<int,3>> idxTrianglesCylinder = {{
+  {0, 1, 32},  // Sides
+  {32, 33, 1},
+  {1, 2, 33},
+  {33, 34, 2},
+  {2, 3, 34},
+  {34, 35, 3},
+  {3, 4, 35},
+  {35, 36, 4},
+  {4, 5, 36},
+  {36, 37, 5},
+  {5, 6, 37},
+  {37, 38, 6},
+  {6, 7, 38},
+  {38, 39, 7},
+  {7, 8, 39},
+  {39, 40, 8},
+  {8, 9, 40},
+  {40, 41, 9},
+  {9, 10, 41},
+  {41, 42, 10},
+  {10, 11, 42},
+  {42, 43, 11},
+  {11, 12, 43},
+  {43, 44, 12},
+  {12, 13, 44},
+  {44, 45, 13},
+  {13, 14, 45},
+  {45, 46, 14},
+  {14, 15, 46},
+  {46, 47, 15},
+  {15, 16, 47},
+  {47, 48, 16},
+  {16, 17, 48},
+  {48, 49, 17},
+  {17, 18, 49},
+  {49, 50, 18},
+  {18, 19, 50},
+  {50, 51, 19},
+  {19, 20, 51},
+  {51, 52, 20},
+  {20, 21, 52},
+  {52, 53, 21},
+  {21, 22, 53},
+  {53, 54, 22},
+  {22, 23, 54},
+  {54, 55, 23},
+  {23, 24, 55},
+  {55, 56, 24},
+  {24, 25, 56},
+  {56, 57, 25},
+  {25, 26, 57},
+  {57, 58, 26},
+  {26, 27, 58},
+  {58, 59, 27},
+  {27, 28, 59},
+  {59, 60, 28},
+  {28, 29, 60},
+  {60, 61, 29},
+  {29, 30, 61},
+  {61, 62, 30},
+  {30, 31, 62},
+  {62, 63, 31},
+  {31, 0, 63},
+  {63, 32, 0},
+  {22, 23, 24}, // Bottom
+  {21, 22, 24},
+  {24, 25, 21},
+  {20, 21, 25},
+  {25, 26, 20},
+  {19, 20, 26},
+  {26, 27, 19},
+  {18, 19, 27},
+  {27, 28, 18},
+  {17, 18, 28},
+  {28, 29, 17},
+  {16, 17, 29},
+  {29, 30, 16},
+  {15, 16, 30},
+  {30, 31, 15},
+  {14, 15, 31},
+  {31, 0, 14},
+  {13, 14, 0},
+  {0, 1, 13},
+  {12, 13, 1},
+  {1, 2, 12},
+  {11, 12, 2},
+  {2, 3, 11},
+  {10, 11, 3},
+  {3, 4, 10},
+  {9, 10, 4},
+  {4, 5, 9},
+  {8, 9, 5},
+  {5, 6, 8},
+  {7, 8, 6},
+  {40, 39, 38},  // Top
+  {41, 40, 38},
+  {38, 37, 41},
+  {42, 41, 37},
+  {37, 36, 42},
+  {43, 42, 36},
+  {36, 35, 43},
+  {44, 43, 35},
+  {35, 34, 44},
+  {45, 44, 34},
+  {34, 33, 45},
+  {46, 45, 33},
+  {33, 32, 46},
+  {47, 46, 32},
+  {32, 63, 47},
+  {48, 47, 63},
+  {63, 62, 48},
+  {49, 48, 62},
+  {62, 61, 49},
+  {50, 49, 61},
+  {61, 60, 50},
+  {51, 50, 60},
+  {60, 59, 51},
+  {52, 51, 59},
+  {59, 58, 52},
+  {53, 52, 58},
+  {58, 57, 53},
+  {54, 53, 57},
+  {57, 56, 54},
+  {54, 56, 55},
+}};
+
 
 
 
@@ -245,7 +391,7 @@ vector<array<float,3>> pointsCircle = {{
 array<array<float,3>,2> bboxCircle = {{
   {-0.5, 0.0, -0.5}, {0.5, 0.0, 0.5}
 }};
-vector<pair<int,int>> indiciesCircle = {{
+vector<array<int,2>> idxEdgesCircle = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -278,6 +424,38 @@ vector<pair<int,int>> indiciesCircle = {{
   {29, 30},
   {30, 31},
   {31, 0},
+}};
+vector<array<int,3>> idxTrianglesCircle = {{
+  {22, 23, 24},
+  {21, 22, 24},
+  {24, 25, 21},
+  {20, 21, 25},
+  {25, 26, 20},
+  {19, 20, 26},
+  {26, 27, 19},
+  {18, 19, 27},
+  {27, 28, 18},
+  {17, 18, 28},
+  {28, 29, 17},
+  {16, 17, 29},
+  {29, 30, 16},
+  {15, 16, 30},
+  {30, 31, 15},
+  {14, 15, 31},
+  {31, 0, 14},
+  {13, 14, 0},
+  {0, 1, 13},
+  {12, 13, 1},
+  {1, 2, 12},
+  {11, 12, 2},
+  {2, 3, 11},
+  {10, 11, 3},
+  {3, 4, 10},
+  {9, 10, 4},
+  {4, 5, 9},
+  {8, 9, 5},
+  {5, 6, 8},
+  {7, 8, 6},
 }};
 
 
@@ -382,7 +560,7 @@ vector<array<float,3>> pointsSphere = {{
 array<array<float,3>,2> bboxSphere = {{
   {-0.5, -0.5, -0.5}, {0.5, 0.5, 0.5}
 }};
-vector<pair<int,int>> indiciesSphere = {{
+vector<array<int,2>> idxEdgesSphere = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -553,7 +731,7 @@ vector<array<float,3>> pointsDome = {{
 array<array<float,3>,2> bboxDome = {{
   {-0.5, 0.0, -0.5}, {0.5, 0.5, 0.5}
 }};
-vector<pair<int,int>> indiciesDome = {{
+vector<array<int,2>> idxEdgesDome = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -637,7 +815,7 @@ vector<array<float,3>> pointsDiamond = {{
 array<array<float,3>,2> bboxDiamond = {{
   {-0.707, -0.707, -0.707}, {0.707, 0.707, 0.707}
 }};
-vector<pair<int,int>> indiciesDiamond = {{
+vector<array<int,2>> idxEdgesDiamond = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -651,7 +829,16 @@ vector<pair<int,int>> indiciesDiamond = {{
   {5, 2},
   {5, 3},
 }};
-
+vector<array<int,3>> idxTrianglesDiamond = {{
+  {0, 1, 4},
+  {1, 2, 4},
+  {2, 3, 4},
+  {3, 0, 4},
+  {0, 1, 5},
+  {1, 2, 5},
+  {2, 3, 5},
+  {3, 0, 5},
+}};
 
 
 
@@ -667,7 +854,7 @@ vector<array<float,3>> pointsPyramid = {{
 array<array<float,3>,2> bboxPyramid = {{
   {-0.707, 0.0, -0.707}, {0.707, 0.707, 0.707}
 }};
-vector<pair<int,int>> indiciesPyramid = {{
+vector<array<int,2>> idxEdgesPyramid = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -676,6 +863,14 @@ vector<pair<int,int>> indiciesPyramid = {{
   {4, 1},
   {4, 2},
   {4, 3},
+}};
+vector<array<int,3>> idxTrianglesPyramid = {{
+  {0, 1, 4},
+  {1, 2, 4},
+  {2, 3, 4},
+  {3, 0, 4},
+  {0, 1, 2},
+  {2, 3, 0},
 }};
 
 
@@ -691,10 +886,51 @@ vector<array<float,3>> pointsTriangle = {{
 array<array<float,3>,2> bboxTriangle = {{
   {-0.498, 0.0, -0.287}, {0.498, 0.0, 0.575}
 }};
-vector<pair<int,int>> indiciesTriangle = {{
+vector<array<int,2>> idxEdgesTriangle = {{
   {0, 1},
   {1, 2},
   {2, 0},
+}};
+vector<array<int,3>> idxTrianglesTriangle = {{
+  {0, 1, 2},
+}};
+
+
+
+
+// Prism
+//
+vector<array<float,3>> pointsPrism = {{
+  {0.5, -0.5, -0.289},
+  {-0.5, -0.5, -0.289},
+  {0.0, -0.5, 0.577},
+  {0.5, 0.5, -0.289},
+  {-0.5, 0.5, -0.289},
+  {0.0, 0.5, 0.577},
+}};
+array<array<float,3>,2> bboxPrism = {{
+  {-0.5, -0.5, -0.289}, {0.5, 0.5, 0.577}
+}};
+vector<array<int,2>> idxEdgesPrism = {{
+  {0, 1},
+  {1, 2},
+  {2, 0},
+  {3, 4},
+  {4, 5},
+  {5, 3},
+  {0, 3},
+  {1, 4},
+  {2, 5},
+}};
+vector<array<int,3>> idxTrianglesPrism = {{
+  {0, 1, 2},
+  {3, 4, 5},
+  {0, 1, 3},
+  {3, 4, 1},
+  {1, 2, 4},
+  {4, 5, 2},
+  {2, 0, 5},
+  {5, 3, 0},
 }};
 
 
@@ -713,7 +949,7 @@ vector<array<float,3>> pointsLocator = {{
 array<array<float,3>,2> bboxLocator = {{
   {-0.5, -0.5, -0.5}, {0.5, 0.5, 0.5}
 }};
-vector<pair<int,int>> indiciesLocator = {{
+vector<array<int,2>> idxEdgesLocator = {{
   {0, 1},
   {2, 3},
   {4, 5},
@@ -741,7 +977,7 @@ vector<array<float,3>> pointsFrame = {{
 array<array<float,3>,2> bboxFrame = {{
   {-0.5, 0.0, -0.5}, {0.5, 0.0, 0.5}
 }};
-vector<pair<int,int>> indiciesFrame = {{
+vector<array<int,2>> idxEdgesFrame = {{
   {11, 0},
   {0, 5},
   {7, 1},
@@ -770,7 +1006,7 @@ vector<array<float,3>> pointsArrow = {{
 array<array<float,3>,2> bboxArrow = {{
   {-0.5, 0.0, -0.5}, {0.5, 0.0, 0.5}
 }};
-vector<pair<int,int>> indiciesArrow = {{
+vector<array<int,2>> idxEdgesArrow = {{
   {0, 4},
   {4, 6},
   {6, 5},
@@ -779,13 +1015,20 @@ vector<pair<int,int>> indiciesArrow = {{
   {1, 2},
   {2, 0},
 }};
+vector<array<int,3>> idxTrianglesArrow = {{
+  {0, 2, 4},
+  {4, 3, 2},
+  {2, 1, 3},
+  {3, 4, 5},
+  {5, 6, 4},
+}};
 
 
 
 
-// Base
+// Circle4Arrows
 //
-vector<array<float,3>> pointsBase = {{
+vector<array<float,3>> pointsCircle4Arrows = {{
   {0.49, 0.0, -0.098},
   {0.462, 0.0, -0.191},
   {0.416, 0.0, -0.278},
@@ -831,10 +1074,10 @@ vector<array<float,3>> pointsBase = {{
   {-0.543, 0.0, -0.1},
   {-0.715, 0.0, 0.0},
 }};
-array<array<float,3>,2> bboxBase = {{
+array<array<float,3>,2> bboxCircle4Arrows = {{
   {-0.5, 0.0, -0.5}, {0.5, 0.0, 0.5}
 }};
-vector<pair<int,int>> indiciesBase = {{
+vector<array<int,2>> idxEdgesCircle4Arrows = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -880,7 +1123,42 @@ vector<pair<int,int>> indiciesBase = {{
   {42, 43},
   {43, 41},
 }};
-
+vector<array<int,3>> idxTrianglesCircle4Arrows = {{
+  {22, 23, 24},
+  {21, 22, 24},
+  {24, 25, 21},
+  {20, 21, 25},
+  {25, 26, 20},
+  {19, 20, 26},
+  {26, 27, 19},
+  {18, 19, 27},
+  {27, 28, 18},
+  {17, 18, 28},
+  {28, 29, 17},
+  {16, 17, 29},
+  {29, 30, 16},
+  {15, 16, 30},
+  {30, 31, 15},
+  {14, 15, 31},
+  {31, 0, 14},
+  {13, 14, 0},
+  {0, 1, 13},
+  {12, 13, 1},
+  {1, 2, 12},
+  {11, 12, 2},
+  {2, 3, 11},
+  {10, 11, 3},
+  {3, 4, 10},
+  {9, 10, 4},
+  {4, 5, 9},
+  {8, 9, 5},
+  {5, 6, 8},
+  {7, 8, 6},  // Circle
+  {32, 33, 34},
+  {35, 36, 37},
+  {38, 39, 40},
+  {41, 42, 43},
+}};
 
 
 
@@ -955,7 +1233,7 @@ vector<array<float,3>> pointsHip = {{
 array<array<float,3>,2> bboxHip = {{
   {-0.5, -0.1, -0.5}, {0.5, 0.225, 0.5}
 }};
-vector<pair<int,int>> indiciesHip = {{
+vector<array<int,2>> idxEdgesHip = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -1080,7 +1358,7 @@ vector<array<float,3>> pointsCircleHalfDouble = {{
 array<array<float,3>,2> bboxCircleHalfDouble = {{
   {-0.5, -0.1, -0.5}, {0.5, 0.1, 0.5}
 }};
-vector<pair<int,int>> indiciesCircleHalfDouble = {{
+vector<array<int,2>> idxEdgesCircleHalfDouble = {{
   {1, 2},
   {2, 3},
   {3, 4},
@@ -1174,7 +1452,7 @@ vector<array<float,3>> pointsPinRound = {{
 array<array<float,3>,2> bboxPinRound = {{
   {-0.2, 0.0, 0.0}, {0.2, 1.012, 0.0}
 }};
-vector<pair<int,int>> indiciesPinRound = {{
+vector<array<int,2>> idxEdgesPinRound = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -1209,7 +1487,38 @@ vector<pair<int,int>> indiciesPinRound = {{
   {31, 0},
   {23, 32},
 }};
-
+vector<array<int,3>> idxTrianglesPinRound = {{
+  {6, 7, 8},
+  {9, 8, 6},
+  {6, 5, 9},
+  {10, 9, 5},
+  {5, 4, 10},
+  {11, 10, 4},
+  {4, 3, 11},
+  {12, 11, 3},
+  {3, 2, 12},
+  {13, 12, 2},
+  {2, 1, 13},
+  {14, 13, 1},
+  {1, 0, 14},
+  {15, 14, 0},
+  {0, 31, 15},
+  {16, 15, 31},
+  {31, 30, 16},
+  {17, 16, 30},
+  {30, 29, 17},
+  {18, 17, 29},
+  {29, 28, 18},
+  {19, 18, 28},
+  {28, 27, 19},
+  {20, 19, 27},
+  {27, 26, 20},
+  {21, 20, 26},
+  {26, 25, 21},
+  {22, 21, 25},
+  {25, 24, 22},
+  {22, 23, 24},
+}};
 
 
 
@@ -1252,7 +1561,7 @@ vector<array<float,3>> pointsClavicle = {{
 array<array<float,3>,2> bboxClavicle = {{
   {-0.5, -0.35, -0.5}, {0.5, 0.435, 0.5}
 }};
-vector<pair<int,int>> indiciesClavicle = {{
+vector<array<int,2>> idxEdgesClavicle = {{
   {0, 1},
   {1, 2},
   {2, 3},
@@ -1305,7 +1614,7 @@ vector<array<float,3>> pointsNew = {{
 array<array<float,3>,2> bboxNew = {{
   {-0.5, -0.5, -0.5}, {0.5, 0.5, 0.5}
 }};
-vector<pair<int,int>> indiciesNew = {{
+vector<array<int,2>> idxEdgesNew = {{
   {0, 1},
   {1, 3},
   {3, 2},

@@ -41,8 +41,8 @@
 #include <maya/MPxNode.h>
 
 // Open APi
-#include "api/LMAttribute.hpp"
-#include "api/LMPlugin.hpp"
+#include "api/Attribute.hpp"
+#include "api/Plugin.hpp"
 #include "api/Utils.hpp"
 
 

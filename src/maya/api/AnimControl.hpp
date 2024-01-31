@@ -11,6 +11,8 @@
 #include <vector>
 
 // Maya General Includes
+#include <maya/MAnimControl.h>
+#include <maya/MTime.h>
 #include <maya/MSelectionList.h>
 #include <maya/MAngle.h>
 #include <maya/MArrayDataBuilder.h>
@@ -38,34 +40,37 @@
 #include <maya/MPxNode.h>
 
 // Custom
-#include "LMObject.hpp"
+// #include "LMObject.h"
 
 
 
 
-namespace LMRigUtils {
-	/* LMRigUtils
-	 * Lunar Maya Rig Utilities
+namespace AnimControl {
+	/* AnimControl
+	 * AnimControl	wrapper with additional methods.
 	 */
 
-	inline MVector getPvPosition(MVector& vecA, MVector& vecB, MVector& vecC, MString space="world") {
-		/* Gets the pole vector position from the input of three vectors.
 
-		From Greg's Hendrix tutorial https://www.youtube.com/watch?v=bB_HL1tBVHY
+	inline bool timeChanged(MAnimControl& animCtrl, MTime& timeCached, MTime& timeCurrent) {
+		/* Checks wheter or not time has changed.
+
+		Playback / scrubbing / time change
+		if (AnimCtrl.isPlaying() or AnimCtrl.isScrubbing() or TimeCached != TimeCurrent)
+
+		Args:
+			animCtrl (MAnimControl&): Animation control instance to check isPlaying and isSrubbing.
+			timeCached (MTimge&): Time that has been cached - ex. previous frame.
+			timeCurrent (MTimge&): Current time / frame.
+
+		Return:
+			bool: True if time has changed, false if it didn't.
 
 		*/
-		MVector vecAC = vecC - vecA;
-		MVector vecAB = vecB - vecA;
-		MVector vecBC = vecC - vecB;
+		if (animCtrl.isPlaying() || animCtrl.isScrubbing() || timeCached != timeCurrent) {
+			return true;
+		}
 
-		double valScale = (vecAC * vecAB) / (vecAC * vecAC);
-		MVector vecProjection = vecAC * valScale + vecA;
-		double lenABC = vecAB.length() + vecBC.length();
+		return false;
+	};
 
-		MVector posPv((vecB - vecProjection).normal() * lenABC);
-
-		if (space == "world") {return posPv + vecB;}
-		return posPv;
-	}
-};
-
+}
