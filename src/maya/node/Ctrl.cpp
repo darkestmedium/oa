@@ -37,6 +37,7 @@ Attribute Ctrl::attr_out_line_matrix;
 MObject Ctrl::attr_draw_solver_mode;
 MObject Ctrl::attr_solver_mode_size;
 MObject Ctrl::attr_solver_mode_positionX, Ctrl::attr_solver_mode_positionY, Ctrl::attr_solver_mode_positionZ, Ctrl::attr_solver_mode_position;
+MObject Ctrl::attrXRay;
 MObject Ctrl::attrInFkIk;
 MObject Ctrl::attr_component;
 
@@ -89,21 +90,28 @@ MStatus Ctrl::initialize() {
   fn_enum.addField("Cube", 0);
   fn_enum.addField("Square", 1);
   fn_enum.addField("Cylinder", 2);
-  fn_enum.addField("Circle", 3);
-  fn_enum.addField("Sphere", 4);
-  fn_enum.addField("Dome", 5);
-  fn_enum.addField("Diamond", 6);
-  fn_enum.addField("Pyramid", 7);
-  fn_enum.addField("Triangle", 8);
-  fn_enum.addField("Prism", 9);
-  fn_enum.addField("Locator", 10);
-  fn_enum.addField("Frame", 11);
-  fn_enum.addField("Arrow", 12);
-  fn_enum.addField("Circle4Arrows", 13);
-  fn_enum.addField("Hip", 14);
-  fn_enum.addField("CircleHalfDouble", 15);
-  fn_enum.addField("PinRound", 16);
-  fn_enum.addField("Clavicle", 17);
+  fn_enum.addField("Cone", 3);
+  fn_enum.addField("Circle", 4);
+  fn_enum.addField("Sphere", 5);
+  fn_enum.addField("Dome", 6);
+  fn_enum.addField("Diamond", 7);
+  fn_enum.addField("Pyramid", 8);
+  fn_enum.addField("Triangle", 9);
+  fn_enum.addField("Prism", 10);
+  fn_enum.addField("Locator", 11);
+  fn_enum.addField("Frame", 12);
+  fn_enum.addField("Arrow", 13);
+  fn_enum.addField("Arrow2Way", 14);
+  fn_enum.addField("Circle4Arrows", 15);
+  fn_enum.addField("Hip", 16);
+  fn_enum.addField("CircleHalfDouble", 17);
+  fn_enum.addField("PinRound", 18);
+  fn_enum.addField("Clavicle", 19);
+  fn_enum.addField("Pointer2Way", 20);
+  fn_enum.addField("Pointer2WayArc", 21);
+  fn_enum.addField("Cross", 22);
+  fn_enum.addField("CrossShort", 23);
+  fn_enum.addField("None", 24);
   fn_enum.setKeyable(false);
   fn_enum.setStorable(true);
   fn_enum.setChannelBox(true);
@@ -150,7 +158,7 @@ MStatus Ctrl::initialize() {
   fn_num.setKeyable(false);
   fn_num.setChannelBox(true);
 
-  attr_solver_mode_size = fn_num.create("solverModeSize", "sms", MFnNumericData::kInt, 12);
+  attr_solver_mode_size = fn_num.create("solverModeSize", "sms", MFnNumericData::kInt, 14);
   fn_num.setStorable(true);
   fn_num.setKeyable(false);
   fn_num.setChannelBox(true);
@@ -163,6 +171,11 @@ MStatus Ctrl::initialize() {
   fn_num.setChannelBox(true);
   fn_num.setSoftMin(0.0);
   fn_num.setSoftMax(100.0);
+
+  attrXRay = fn_num.create("xRay", "xr", MFnNumericData::kBoolean, false);
+  fn_num.setStorable(true);
+  fn_num.setKeyable(false);
+  fn_num.setChannelBox(true);
 
   attr_component = fn_mess.create("component", "component");
   fn_mess.setWritable(false);
@@ -182,6 +195,7 @@ MStatus Ctrl::initialize() {
     attr_solver_mode_size,
     attr_solver_mode_position,
     attrInFkIk,
+    attrXRay,
     geometryChanging,
     attr_component
   );
@@ -221,6 +235,7 @@ MStatus Ctrl::setDependentsDirty(const MPlug& plug, MPlugArray& affectedPlugs) {
       || plug == attr_solver_mode_size
       || plug == attr_solver_mode_position
       || plug == attrInFkIk
+      || plug == attrXRay
     ) {affectedPlugs.append(MPlug(self_object, geometryChanging));}
   }
 
@@ -309,7 +324,7 @@ MBoundingBox Ctrl::boundingBox() const {
   // Get the size
   CtrlUserData data;
   data.get_plugs(self_object);
-  data.get_bbox(self_object, self_path, data.mat_local);
+  data.get_bbox(self_object, self_path, data.matLocal);
 
   return data.bbox;
 }
@@ -335,23 +350,24 @@ void CtrlUserData::get_plugs(const MObject& object) {
   float sz = MPlug(object, Ctrl::localScaleZ).asFloat();
 
   // MEulerRotation rot_euler(rx, ry, rz);
-  this->mat_local = MEulerRotation(rx, ry, rz).asMatrix();
-  this->mat_local[3][0] = tx; this->mat_local[3][1] = ty;	this->mat_local[3][2] = tz;
-  this->mat_local[0][0] *= sx; this->mat_local[0][1] *= sx;	this->mat_local[0][2] *= sx;
-  this->mat_local[1][0] *= sy; this->mat_local[1][1] *= sy;	this->mat_local[1][2] *= sy;
-  this->mat_local[2][0] *= sz; this->mat_local[2][1] *= sz;	this->mat_local[2][2] *= sz;
+  this->matLocal = MEulerRotation(rx, ry, rz).asMatrix();
+  this->matLocal[3][0] = tx; this->matLocal[3][1] = ty;	this->matLocal[3][2] = tz;
+  this->matLocal[0][0] *= sx; this->matLocal[0][1] *= sx;	this->matLocal[0][2] *= sx;
+  this->matLocal[1][0] *= sy; this->matLocal[1][1] *= sy;	this->matLocal[1][2] *= sy;
+  this->matLocal[2][0] *= sz; this->matLocal[2][1] *= sz;	this->matLocal[2][2] *= sz;
 
   MFnDependencyNode fn_object(object);
 
-  shape_indx = MPlug(object, Ctrl::attr_shape_indx).asShort();
+  indxShape = MPlug(object, Ctrl::attr_shape_indx).asShort();
   bFillShape = MPlug(object, Ctrl::attr_fill_shape).asBool();
   fillShapeOpacity = MPlug(object, Ctrl::attr_fill_shape_opacity).asFloat();
-  line_width = MPlug(object, Ctrl::attr_line_width).asFloat();
+  widthLine = MPlug(object, Ctrl::attr_line_width).asFloat();
   bDrawline = MPlug(object, Ctrl::attr_in_draw_line).asBool();
+  bXRay = MPlug(object, Ctrl::attrXRay).asBool();
   solver_mode_size = MPlug(object, Ctrl::attr_solver_mode_size).asInt();
 
-  mat_pv = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
-  pos_draw_pv_to = MPoint(mat_pv[3][0], mat_pv[3][1], mat_pv[3][2]);
+  matPv = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
+  posDrawPvTo = MPoint(matPv[3][0], matPv[3][1], matPv[3][2]);
 }
 
 
@@ -363,8 +379,8 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
     matrix (MMatrix): Matrix used to transform the bounding box
 
   */
-  shape_indx = MPlug(object, Ctrl::attr_shape_indx).asShort();
-  switch(shape_indx) {
+  indxShape = MPlug(object, Ctrl::attr_shape_indx).asShort();
+  switch(indxShape) {
     case 0: // Cube
       this->bbox = PopulateBoundingBox(bboxCube);
       break;
@@ -374,54 +390,73 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
     case 2: // Cylinder
       this->bbox = PopulateBoundingBox(bboxCylinder);
       break;
-    case 3: // Circle
+    case 3: // Cone
+      this->bbox = PopulateBoundingBox(bboxCone);
+      break;
+    case 4: // Circle
       this->bbox = PopulateBoundingBox(bboxCircle);
       break;
-    case 4: // Sphere
+    case 5: // Sphere
       this->bbox = PopulateBoundingBox(bboxSphere);
       break;
-    case 5: // Dome
+    case 6: // Dome
       this->bbox = PopulateBoundingBox(bboxCircle);
       break;
-    case 6: // Diamond
+    case 7: // Diamond
       this->bbox = PopulateBoundingBox(bboxDiamond);
       break;
-    case 7: // Pyramid
+    case 8: // Pyramid
       this->bbox = PopulateBoundingBox(bboxPyramid);
       break;
-    case 8: // Triangle
+    case 9: // Triangle
       this->bbox = PopulateBoundingBox(bboxTriangle);
       break;
-    case 9: // Prism
+    case 10: // Prism
       this->bbox = PopulateBoundingBox(bboxPrism);
       break;
-    case 10: // Locator
+    case 11: // Locator
       this->bbox = PopulateBoundingBox(bboxLocator);
       break;
-    case 11: // Frame
+    case 12: // Frame
       this->bbox = PopulateBoundingBox(bboxFrame);
       break;
-    case 12: // Arrow
+    case 13: // Arrow
       this->bbox = PopulateBoundingBox(bboxArrow);
       break;
-    case 13: // Circle4Arrows
+    case 14: // Arrow2Way
+      this->bbox = PopulateBoundingBox(bboxArrow2Way);
+      break;
+    case 15: // Circle4Arrows
       this->bbox = PopulateBoundingBox(bboxCircle4Arrows);
       break;
-    case 14: // Hip
+    case 16: // Hip
       this->bbox = PopulateBoundingBox(bboxHip);
       break;
-    case 15: // CircleHalfDouble
+    case 17: // CircleHalfDouble
       this->bbox = PopulateBoundingBox(bboxCircleHalfDouble);
       break;
-    case 16: // PinRound
+    case 18: // PinRound
       this->bbox = PopulateBoundingBox(bboxPinRound);
-    case 17: // Clavicle
+      break;
+    case 19: // Clavicle
       this->bbox = PopulateBoundingBox(bboxClavicle);
+      break;
+    case 20: // Pointer2Way
+      this->bbox = PopulateBoundingBox(bboxPointer2Way);
+      break;
+    case 21: // Pointer2WayArc
+      this->bbox = PopulateBoundingBox(bboxPointer2WayArc);
+      break;
+    case 22: // Cross
+      this->bbox = PopulateBoundingBox(bboxCross);
+      break;
+    case 23: // CrossShort
+      this->bbox = PopulateBoundingBox(bboxCrossShort);
       break;
   }
 
   this->bbox.transformUsing(matrix);
-  this->bbox.expand(this->pos_draw_pv_to);
+  this->bbox.expand(this->posDrawPvTo);
 }
 
 
@@ -437,14 +472,14 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
   */
   MStatus status;
 
-  shape_indx = MPlug(object, Ctrl::attr_shape_indx).asShort();
+  indxShape = MPlug(object, Ctrl::attr_shape_indx).asShort();
 
   this->arrayVertecies.clear();
   this->arrayEdges.clear();
   this->arrayTriangles.clear();
   this->arrayLine.clear();  // for pole vector line only
 
-  switch(shape_indx) {
+  switch(indxShape) {
     case 0:  // Cube
       PopulateVertexBuffer(pointsCube, idxEdgesCube, idxTrianglesCube, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
@@ -454,52 +489,68 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
     case 2:  // Cylinder
       PopulateVertexBuffer(pointsCylinder, idxEdgesCylinder, idxTrianglesCylinder, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 3:  // Circle
+    case 3:  // Cone
+      PopulateVertexBuffer(pointsCone, idxEdgesCone, idxTrianglesCone, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 4:  // Circle
       PopulateVertexBuffer(pointsCircle, idxEdgesCircle, idxTrianglesCircle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 4:  // Sphere
+    case 5:  // Sphere
       PopulateVertexBuffer(pointsSphere, idxEdgesSphere, arrayVertecies, arrayEdges, matrix);
       break;
-    case 5:  // Dome
+    case 6:  // Dome
       PopulateVertexBuffer(pointsDome, idxEdgesDome, arrayVertecies, arrayEdges, matrix);
       break;
-    case 6:  // Diamond
+    case 7:  // Diamond
       PopulateVertexBuffer(pointsDiamond, idxEdgesDiamond, idxTrianglesDiamond, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 7:  // Pyramid
+    case 8:  // Pyramid
       PopulateVertexBuffer(pointsPyramid, idxEdgesPyramid, idxTrianglesPyramid, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 8:  // Triangle
+    case 9:  // Triangle
       PopulateVertexBuffer(pointsTriangle, idxEdgesTriangle, idxTrianglesTriangle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 9:  // Prism
+    case 10:  // Prism
       PopulateVertexBuffer(pointsPrism, idxEdgesPrism, idxTrianglesPrism, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 10:  // Locator
+    case 11:  // Locator
       PopulateVertexBuffer(pointsLocator, idxEdgesLocator, arrayVertecies, arrayEdges, matrix);
       break;
-    case 11:  // Frame
+    case 12:  // Frame
       PopulateVertexBuffer(pointsFrame, idxEdgesFrame, arrayVertecies, arrayEdges, matrix);
       break;
-    case 12:  // Arrow
+    case 13:  // Arrow
       PopulateVertexBuffer(pointsArrow, idxEdgesArrow, idxTrianglesArrow, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 13:  // Circle4Arrows
+    case 14:  // Arrow2Way
+      PopulateVertexBuffer(pointsArrow2Way, idxEdgesArrow2Way, idxTrianglesArrow2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 15:  // Circle4Arrows
       PopulateVertexBuffer(pointsCircle4Arrows, idxEdgesCircle4Arrows, idxTrianglesCircle4Arrows, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 14:  // Hip
+    case 16:  // Hip
       PopulateVertexBuffer(pointsHip, idxEdgesHip, arrayVertecies, arrayEdges, matrix);
       break;
-    case 15:  // CircleHalfDouble
+    case 17:  // CircleHalfDouble
       PopulateVertexBuffer(pointsCircleHalfDouble, idxEdgesCircleHalfDouble, arrayVertecies, arrayEdges, matrix);
       break;
-    case 16:  // PinRound
+    case 18:  // PinRound
       PopulateVertexBuffer(pointsPinRound, idxEdgesPinRound, idxTrianglesPinRound, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
-    case 17:  // Clavicle
+    case 19:  // Clavicle
       PopulateVertexBuffer(pointsClavicle, idxEdgesClavicle, arrayVertecies, arrayEdges, matrix);
       break;
-    default:
+    case 20:  // Pointer2Way
+      PopulateVertexBuffer(pointsPointer2Way, idxEdgesPointer2Way, idxTrianglesPointer2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 21:  // Pointer2WayArc
+      PopulateVertexBuffer(pointsPointer2WayArc, idxEdgesPointer2WayArc, idxTrianglesPointer2WayArc, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 22:  // Cross
+      PopulateVertexBuffer(pointsCross, idxEdgesCross, idxTrianglesCross, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 23:  // CrossShort
+      PopulateVertexBuffer(pointsCrossShort, idxEdgesCrossShort, idxTrianglesCrossShort, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
   };
 
@@ -507,7 +558,7 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
   if (bDrawline) { 
     // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
     arrayLine.append(MPoint() * matrix);
-    arrayLine.append(MPoint(pos_draw_pv_to[0], pos_draw_pv_to[1], pos_draw_pv_to[2]) * dp_object.inclusiveMatrixInverse());
+    arrayLine.append(MPoint(posDrawPvTo[0], posDrawPvTo[1], posDrawPvTo[2]) * dp_object.inclusiveMatrixInverse());
   }
 }
 
@@ -559,7 +610,7 @@ MBoundingBox CtrlDrawOverride::boundingBox(const MDagPath& objPath, const MDagPa
   MObject node = objPath.node();
 
   data.get_plugs(node);
-  data.get_bbox(node, objPath, data.mat_local);
+  data.get_bbox(node, objPath, data.matLocal);
 
   return data.bbox;
 }
@@ -609,15 +660,15 @@ MUserData* CtrlDrawOverride::prepareForDraw(const MDagPath& objPath, const MDagP
   if (!data) {data=new CtrlUserData;}
 
   data->get_plugs(object);
-  data->get_shape(object, objPath, data->mat_local);
+  data->get_shape(object, objPath, data->matLocal);
   data->get_text(object);
 
-  data->col_wireframe = MHWRender::MGeometryUtilities::wireframeColor(objPath);
-  data->col_shape = MColor(data->col_wireframe.r, data->col_wireframe.g, data->col_wireframe.b, data->fillShapeOpacity);
+  data->colWireframe = MHWRender::MGeometryUtilities::wireframeColor(objPath);
+  data->colShape = MColor(data->colWireframe.r, data->colWireframe.g, data->colWireframe.b, data->fillShapeOpacity);
 
   // If XRay Joints Draw in XRay Mode
-  // if (frameContext.getDisplayStyle() & MHWRender::MFrameContext::kXrayJoint) {data->DrawInXray = true;}
-  // else {data->DrawInXray = false;}
+  if (frameContext.getDisplayStyle() & MHWRender::MFrameContext::kXrayJoint) {data->bXRayJoint = true;}
+  else {data->bXRayJoint = false;}
 
   switch (MHWRender::MGeometryUtilities::displayStatus(objPath)) {
     case MHWRender::kLead:
@@ -630,7 +681,6 @@ MUserData* CtrlDrawOverride::prepareForDraw(const MDagPath& objPath, const MDagP
       data->prio_depth = MHWRender::MRenderItem::sDormantFilledDepthPriority;
       break;
   }
-
   return data;
 }
 
@@ -654,44 +704,49 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
   CtrlUserData* pTransformData = (CtrlUserData*)data;
   if (!pTransformData) {return;}
 
-  // // Define selectability
-  // if (pTransformData->shape_indx == 8) {
-  //   drawManager.beginDrawable(MHWRender::MUIDrawManager::kNonSelectable);
-  // } else {
-  //   drawManager.beginDrawable();
-  // }
-  drawManager.beginDrawable();
+  // Define selectability - make it unselectable if shape is none
+  if (pTransformData->indxShape == 24) {
+    drawManager.beginDrawable(MHWRender::MUIDrawManager::kNonSelectable);
+  } else {
+    drawManager.beginDrawable();
+  }
+  // drawManager.beginDrawable();
 
   drawManager.setDepthPriority(pTransformData->prio_depth);
 
-  // // If XRay Joints Draw in XRay Mode
-  // if (pCtrlData->DrawInXray) {drawManager.beginDrawInXray();}
+  // If XRay Joints Draw in XRay Mode
+  if (pTransformData->bXRayJoint) {
+    if (pTransformData->bXRay) {drawManager.beginDrawInXray();}
+  }
+
   // Draw edges
-  drawManager.setColor(pTransformData->col_wireframe);
-  drawManager.setLineWidth(pTransformData->line_width);
+  drawManager.setColor(pTransformData->colWireframe);
+  drawManager.setLineWidth(pTransformData->widthLine);
   drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->arrayEdges);
 
   // Fk Ik State
   if (pTransformData->draw_solver_mode) {
     drawManager.setFontSize(pTransformData->solver_mode_size);
+    drawManager.setFontWeight(MHWRender::MUIDrawManager::kWeightLight);
     drawManager.text(pTransformData->pos_solver_mode, pTransformData->str_solver_mode, drawManager.kCenter);
   }
 
-  // drawManager.mesh(MHWRender::MUIDrawManager::kTriangles, pTransformData->arrayTriangles);
   // Draw fill shape
   if (pTransformData->bFillShape) {
-    drawManager.setColor(pTransformData->col_shape);
+    drawManager.setColor(pTransformData->colShape);
     drawManager.mesh(MHWRender::MUIDrawManager::kTriangles, pTransformData->arrayTriangles);
   }
 
   if (pTransformData->bDrawline) {
-    drawManager.setColor(pTransformData->col_grey);
-    drawManager.setLineStyle(MHWRender::MUIDrawManager::kDashed);
+    drawManager.setColor(pTransformData->colGrey);
+    drawManager.setLineStyle(MHWRender::MUIDrawManager::kShortDashed);
     drawManager.line(pTransformData->arrayLine[0], pTransformData->arrayLine[1]);
   }
 
   // End drawable
-  // if (pCtrlData->DrawInXray) {drawManager.endDrawInXray();}
+  if (pTransformData->bXRayJoint) {
+    if (pTransformData->bXRay) {drawManager.endDrawInXray();}
+  }
 
   drawManager.endDrawable();
 }

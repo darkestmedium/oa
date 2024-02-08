@@ -6,6 +6,9 @@
 #include "node/MetaDataNode.hpp"
 #include "node/MetaDataCmd.hpp"
 // #include "node/ShapeNode.hpp"
+#include "node/ShakeNode.hpp"
+#include "node/ShakeNodeRot.hpp"
+#include "node/ShakeCommand.hpp"
 
 // Solvers
 #include "solve/Ik2bSolver.hpp"
@@ -169,6 +172,45 @@ MStatus initializePlugin(MObject obj) {
   );
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
+
+  // Shake Node
+  {
+    // Register shakeNode linear
+    status = fnPlugin.registerNode(
+      ShakeNode::typeName,
+      ShakeNode::typeId,
+      ShakeNode::creator,
+      ShakeNode::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // Register shakeNode angular
+    status = fnPlugin.registerNode(
+      ShakeNodeRot::typeName,
+      ShakeNodeRot::typeId,
+      ShakeNodeRot::creator,
+      ShakeNodeRot::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // Register shakeNode command
+    status = fnPlugin.registerCommand(
+      ShakeCommand::commandName,
+      ShakeCommand::creator,
+      ShakeCommand::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // // Add main menu items
+    // if (MGlobal::mayaState() == MGlobal::kInteractive)
+    // {
+    //   MGlobal::executePythonCommandOnIdle("from shakeNodeMainMenu import ShakeNodeMainMenu");
+    //   MGlobal::executePythonCommandOnIdle("ShakeNodeMainMenu().createMenuItems()");
+    // }
+  }
+
   // // Register FootRoll node
   // status = fnPlugin.registerNode(
   // 	FootRollSolver::typeName,
@@ -255,6 +297,29 @@ MStatus uninitializePlugin(MObject obj) {
   // Deregister TwistSolver
   status = fnPlugin.deregisterNode(TwistSolver::typeId);
   CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+  // Shake Node
+  {
+    // Deregister shakeNode command
+    status = fnPlugin.deregisterCommand(ShakeCommand::commandName);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // Deregister shakeNode angular
+    status = fnPlugin.deregisterNode(ShakeNodeRot::typeId);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // Deregister shakeNode linear
+    status = fnPlugin.deregisterNode(ShakeNode::typeId);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // // Remove main menu items
+    // if (MGlobal::mayaState() == MGlobal::kInteractive) {
+    //   MGlobal::executePythonCommandOnIdle("ShakeNodeMainMenu().deleteMenuItems()");
+    // }
+  }
+
+
 
   // Deregister Footroll Node
   // fnPlugin.deregisterNode(FootRollSolver::typeId);

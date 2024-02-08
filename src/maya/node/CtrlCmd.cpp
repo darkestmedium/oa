@@ -51,12 +51,14 @@ const char* CtrlCommand::drawSolverModeFlagLong = "-drawSolverMode";
 const char* CtrlCommand::solverModePositionFlagShort = "-smp";
 const char* CtrlCommand::solverModePositionFlagLong = "-solverModePosition";
 
-
 const char* CtrlCommand::lineWidthFlagShort = "-lw";
 const char* CtrlCommand::lineWidthFlagLong = "-lineWidth";
 
 const char* CtrlCommand::colorFlagShort = "-cl";
 const char* CtrlCommand::colorFlagLong = "-color";
+
+const char* CtrlCommand::xRayFlagShort = "-xr";
+const char* CtrlCommand::xRayFlagLong = "-xRay";
 
 const char* CtrlCommand::lockShapeAttributesFlagShort = "-lsa";
 const char* CtrlCommand::lockShapeAttributesFlagLong = "-lockShapeAttributes";
@@ -103,6 +105,7 @@ MSyntax CtrlCommand::syntaxCreator() {
   sytnax.addFlag(drawLineFlagShort, drawLineFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(lineWidthFlagShort, lineWidthFlagLong, MSyntax::kDouble);
   sytnax.addFlag(colorFlagShort, colorFlagLong, MSyntax::kString);
+  sytnax.addFlag(xRayFlagShort, xRayFlagLong, MSyntax::kBoolean);
 
   sytnax.addFlag(drawSolverModeFlagShort, drawSolverModeFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(solverModePositionFlagShort, solverModePositionFlagLong, MSyntax::kDouble, MSyntax::kDouble, MSyntax::kDouble);
@@ -159,6 +162,7 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     strHelp += "   -iad   -hasDynamicAttributes Bool       Forces redraw of the ctrl shape in the viewport, use for dynamic attributes like polevectors or fk/ik state display\n";
     strHelp += "   -fw    -lineWidth            Double     Controls the line width of the outline.\n";
     strHelp += "   -cl    -color                String     Viewport display color of the controller: 'lightyellow' 'yellow' 'lightorange' 'orange' 'lightblue' 'blue' 'magenta' 'green'.\n";
+    strHelp += "   -xr    -xRay                 Bool       Whether or not to enable X-Ray drawing.\n";
     strHelp += "   -lsa   -lockShapeAttributes  Bool       Locks all the shpae attributes node after creation.\n";
     strHelp += "   -hop   -hideOnPlayback       Bool       Wheter or not to hide the ctrl shapes on playback.\n";
     strHelp += "   -h     -help                 N/A        Display this text.\n";
@@ -247,36 +251,50 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
       indxShape = 1;
     }	else if (strShape == "cylinder") {
       indxShape = 2;
-    } else if (strShape == "circle") {
+    } else if (strShape == "cone") {
       indxShape = 3;
-    } else if (strShape == "sphere") {
+    } else if (strShape == "circle") {
       indxShape = 4;
-    }	else if (strShape == "dome") {
+    } else if (strShape == "sphere") {
       indxShape = 5;
-    } else if (strShape == "diamond") {
+    }	else if (strShape == "dome") {
       indxShape = 6;
-    } else if (strShape == "pyramid") {
+    } else if (strShape == "diamond") {
       indxShape = 7;
-    } else if (strShape == "triangle") {
+    } else if (strShape == "pyramid") {
       indxShape = 8;
-    } else if (strShape == "prism") {
+    } else if (strShape == "triangle") {
       indxShape = 9;
-    } else if (strShape == "locator") {
+    } else if (strShape == "prism") {
       indxShape = 10;
-    } else if (strShape == "frame") {
+    } else if (strShape == "locator") {
       indxShape = 11;
-    } else if (strShape == "arrow") {
+    } else if (strShape == "frame") {
       indxShape = 12;
-    } else if (strShape == "circle4arrows") {
+    } else if (strShape == "arrow") {
       indxShape = 13;
-    } else if (strShape == "hip") {
+    } else if (strShape == "arrow2way") {
       indxShape = 14;
-    } else if (strShape == "circlehalfdouble") {
+    } else if (strShape == "circle4arrows") {
       indxShape = 15;
-    } else if (strShape == "pinround") {
+    } else if (strShape == "hip") {
       indxShape = 16;
-    } else if (strShape == "clavicle") {
+    } else if (strShape == "circlehalfdouble") {
       indxShape = 17;
+    } else if (strShape == "pinround") {
+      indxShape = 18;
+    } else if (strShape == "clavicle") {
+      indxShape = 19;
+    } else if (strShape == "pointer2way") {
+      indxShape = 20;
+    } else if (strShape == "pointer2wayarc") {
+      indxShape = 21;
+    } else if (strShape == "cross") {
+      indxShape = 22;
+    } else if (strShape == "crossshort") {
+      indxShape = 23;
+    } else if (strShape == "none") {
+      indxShape = 24;
     }	else {
       indxShape = 0;
     }
@@ -296,9 +314,14 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     bDrawLine = argData.flagArgumentBool(drawLineFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
+  // Draw X-Ray
+  if (argData.isFlagSet(xRayFlagShort)) {
+    bXRay = argData.flagArgumentBool(xRayFlagShort, 0, &status);
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
   // Draw Solver Mode Flag
   if (argData.isFlagSet(drawSolverModeFlagShort)) {
-    draw_solver_mode = argData.flagArgumentBool(drawSolverModeFlagShort, 0, &status);
+    drawSolverMode = argData.flagArgumentBool(drawSolverModeFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
   // Solver Mode Position Flag
@@ -481,8 +504,8 @@ MStatus CtrlCommand::redoIt() {
     plugDrawLine.setValue(bDrawLine);
 
     // Fk Ik State
-    MPlug plug_draw_solver_mode = fn_transform.findPlug("drawSolverMode", false);
-    plug_draw_solver_mode.setValue(draw_solver_mode);
+    MPlug plugDrawSolverMode = fn_transform.findPlug("drawSolverMode", false);
+    plugDrawSolverMode.setValue(drawSolverMode);
     MPlug plug_solver_mode_size = fn_transform.findPlug("solverModeSize", false);
     // plugDrawFkIkStateSize.setValue(draw_solver_mode);
     MPlug plug_solver_mode_position = fn_transform.findPlug("solverModePosition", false);
@@ -497,6 +520,9 @@ MStatus CtrlCommand::redoIt() {
 
     MPlug plugLineWidth = fn_transform.findPlug("lineWidth", false);
     plugLineWidth.setValue(lineWidth);
+
+    MPlug plugXRay = fn_transform.findPlug("xRay", false);
+    plugXRay.setValue(bXRay);
 
     // Set color
     MPlug plugOverrideColorR = fn_transform.findPlug("overrideColorR", false);
@@ -538,7 +564,7 @@ MStatus CtrlCommand::redoIt() {
       Attr::lockAndHideAttr(plugFillShapeOpacity);
       Attr::lockAndHideAttr(plugDrawLine);
 
-      Attr::lockAndHideAttr(plug_draw_solver_mode);
+      Attr::lockAndHideAttr(plugDrawSolverMode);
       Attr::lockAndHideAttr(plug_solver_mode_size);
 
       Attr::lockAndHideAttr(plug_solver_mode_position);
@@ -548,6 +574,7 @@ MStatus CtrlCommand::redoIt() {
 
       Attr::lockAndHideAttr(plugLineWidth);
       Attr::lockAndHideAttr(plugInFkIk);
+      Attr::lockAndHideAttr(plugXRay);
 
       // Attr::lockAndHideAttr(plug_has_dynamic_attributes);
     }

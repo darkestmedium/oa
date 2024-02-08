@@ -12,6 +12,15 @@ set(MAYA_FILES
   node/MetaDataCmd.cpp
   node/MetaDataNode.hpp
   node/MetaDataNode.cpp
+  # Shake Node
+  node/PerlinNoise.hpp
+  node/PerlinNoise.cpp
+  node/ShakeNode.hpp
+  node/ShakeNode.cpp
+  node/ShakeNodeRot.hpp
+  node/ShakeNodeRot.cpp
+  node/ShakeCommand.hpp
+  node/ShakeCommand.cpp
 # Solvers
   solve/Ik2bSolver.hpp
   solve/Ik2bSolver.cpp

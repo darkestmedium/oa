@@ -28,6 +28,7 @@ global proc AEctrlTemplate(string $nodeName) {
 		editorTemplate -beginLayout "Ctrl" -collapse false;
 			editorTemplate -addControl "shape";
 			editorTemplate -addControl "fillShape";
+			editorTemplate -addControl "xRay";
 			editorTemplate -addControl "fillShapeOpacity";
 			editorTemplate -addControl "localPosition";
 			editorTemplate -addControl "localRotate";

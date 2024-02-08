@@ -143,6 +143,7 @@ public:
   static MObject attr_solver_mode_size;
   static MObject attr_solver_mode_positionX, attr_solver_mode_positionY, attr_solver_mode_positionZ, attr_solver_mode_position;
   static MObject attrInText;
+  static MObject attrXRay;
 
   static MObject attrInFkIk;
   static MObject attr_component;
@@ -174,7 +175,7 @@ public:
 
   bool            isBounded() const override {return true;}
   virtual MBoundingBox boundingBox() const override;
-  virtual bool     treatAsTransform() const override {return true;}
+  virtual bool     treatAsTransform() const override {return false;}
 };
 
 
@@ -188,14 +189,16 @@ public:
 
 class CtrlUserData : public MUserData {
 public:
-  MMatrix         mat_local;
+  MMatrix         matLocal;
   MBoundingBox    bbox;
-  MMatrix         mat_pv;
-  MPoint          pos_draw_pv_to;
+  MMatrix         matPv;
+  MPoint          posDrawPvTo;
 
-  short           shape_indx;
+  short           indxShape;
   bool            bFillShape;
   float           fillShapeOpacity;
+  bool            bXRay;
+  bool            bXRayJoint;
   unsigned int    prio_depth;
 
   MPointArray     arrayVertecies;
@@ -203,10 +206,10 @@ public:
   MPointArray     arrayTriangles;
   MPointArray     arrayLine;
 
-  float           line_width;
-  MColor          col_wireframe;
-  MColor          col_shape;
-  MColor          col_grey;
+  float           widthLine;
+  MColor          colWireframe;
+  MColor          colShape;
+  MColor          colGrey;
 
   // Fk / Ik state
   MObject objDrawLineTo;
@@ -222,7 +225,7 @@ public:
   // Constructors
   CtrlUserData()
     : MUserData(false)
-    , col_grey(0.5, 0.5, 0.5)
+    , colGrey(0.5, 0.5, 0.5)
   {};
 
   // Destructor
@@ -234,7 +237,7 @@ public:
   virtual void get_text(const MObject& object);
 
 
-  MBoundingBox PopulateBoundingBox(const array<array<float,3>,2>& bbox) {
+  MBoundingBox PopulateBoundingBox(const vector<array<float,3>>& bbox) {
     return MBoundingBox(MPoint(bbox[0][0], bbox[0][1], bbox[0][2]), MPoint(bbox[1][0], bbox[1][1], bbox[1][2]));
   }
 

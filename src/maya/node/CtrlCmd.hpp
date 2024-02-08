@@ -27,7 +27,6 @@
 // Proxies
 #include <maya/MPxCommand.h>
 
-
 // Lunar
 #include "Ctrl.hpp"
 #include "api/Utils.hpp"
@@ -94,6 +93,9 @@ public:
   static const char* colorFlagShort;
   static const char* colorFlagLong;
 
+  static const char* xRayFlagShort;
+  static const char* xRayFlagLong;
+
   static const char* lockShapeAttributesFlagShort;
   static const char* lockShapeAttributesFlagLong;
 
@@ -123,7 +125,8 @@ public:
   short indxShape;
   bool bFillShape;
   float fillShapeOpacity;
-  bool draw_solver_mode;
+  bool bXRay;
+  bool drawSolverMode;
   bool bDrawLine;
   double lineWidth;
   bool bLockShapeAttributes;
@@ -144,7 +147,8 @@ public:
     , bFillShape(false)
     , fillShapeOpacity(0.1)
     , bDrawLine(false)
-    , draw_solver_mode(false)
+    , bXRay(false)
+    , drawSolverMode(false)
     , lineWidth(2.0)
     , strColor("yellow")
     , colorOverride(1.0, 1.0, 0.25)

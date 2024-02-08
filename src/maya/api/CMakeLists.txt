@@ -1,5 +1,5 @@
 # Define the project name
-project(lunarmayaapi LANGUAGES CXX)
+project(oamayaapi LANGUAGES CXX)
 
 set(API_FILES
   # Api
