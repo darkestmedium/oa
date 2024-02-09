@@ -6,76 +6,76 @@
 
 
 // Public Data
-const char* CtrlCommand::commandName = "ctrl";
+const char* CtrlCmd::commandName = "ctrl";
 
 // Command's Flags
-const char* CtrlCommand::nameFlagShort = "-n";
-const char* CtrlCommand::nameFlagLong = "-name";
+const char* CtrlCmd::nameFlagShort = "-n";
+const char* CtrlCmd::nameFlagLong = "-name";
 
-const char* CtrlCommand::parentFlagShort = "-p";
-const char* CtrlCommand::parentFlagLong = "-parent";
+const char* CtrlCmd::parentFlagShort = "-p";
+const char* CtrlCmd::parentFlagLong = "-parent";
 
-const char* CtrlCommand::translateToFlagShort = "-tt";
-const char* CtrlCommand::translateToFlagLong = "-translateTo";
+const char* CtrlCmd::translateToFlagShort = "-tt";
+const char* CtrlCmd::translateToFlagLong = "-translateTo";
 
-const char* CtrlCommand::rotatetToFlagShort = "-rt";
-const char* CtrlCommand::rotatetToFlagLong = "-rotateTo";
+const char* CtrlCmd::rotatetToFlagShort = "-rt";
+const char* CtrlCmd::rotatetToFlagLong = "-rotateTo";
 
-const char* CtrlCommand::localPositionFlagShort = "-lp";
-const char* CtrlCommand::localPositionFlagLong = "-localPosition";
+const char* CtrlCmd::localPositionFlagShort = "-lp";
+const char* CtrlCmd::localPositionFlagLong = "-localPosition";
 
-const char* CtrlCommand::localRotateFlagShort = "-lr";
-const char* CtrlCommand::localRotateFlagLong = "-localRotate";
+const char* CtrlCmd::localRotateFlagShort = "-lr";
+const char* CtrlCmd::localRotateFlagLong = "-localRotate";
 
-const char* CtrlCommand::localScaleFlagShort = "-ls";
-const char* CtrlCommand::localScaleFlagLong = "-localScale";
+const char* CtrlCmd::localScaleFlagShort = "-ls";
+const char* CtrlCmd::localScaleFlagLong = "-localScale";
 
-const char* CtrlCommand::shapeFlagShort = "-sh";
-const char* CtrlCommand::shapeFlagLong = "-shape";
+const char* CtrlCmd::shapeFlagShort = "-sh";
+const char* CtrlCmd::shapeFlagLong = "-shape";
 
-const char* CtrlCommand::fillShapeFlagShort = "-fs";
-const char* CtrlCommand::fillShapeFlagLong = "-fillShape";
+const char* CtrlCmd::fillShapeFlagShort = "-fs";
+const char* CtrlCmd::fillShapeFlagLong = "-fillShape";
 
-const char* CtrlCommand::fillShapeOpacityFlagShort = "-fso";
-const char* CtrlCommand::fillShapeOpacityFlagLong = "-fillShapeOpacity";
+const char* CtrlCmd::fillShapeOpacityFlagShort = "-fso";
+const char* CtrlCmd::fillShapeOpacityFlagLong = "-fillShapeOpacity";
 
-const char* CtrlCommand::createShapeNodeFlagShort = "-csn";
-const char* CtrlCommand::createShapeNodeFlagLong = "-createShapeNode";
+// const char* CtrlCmd::createShapeNodeFlagShort = "-csn";
+// const char* CtrlCmd::createShapeNodeFlagLong = "-createShapeNode";
 
-const char* CtrlCommand::drawLineFlagShort = "-dl";
-const char* CtrlCommand::drawLineFlagLong = "-drawLine";
+const char* CtrlCmd::drawLineFlagShort = "-dl";
+const char* CtrlCmd::drawLineFlagLong = "-drawLine";
 
-const char* CtrlCommand::drawSolverModeFlagShort = "-dsm";
-const char* CtrlCommand::drawSolverModeFlagLong = "-drawSolverMode";
+const char* CtrlCmd::drawSolverModeFlagShort = "-dsm";
+const char* CtrlCmd::drawSolverModeFlagLong = "-drawSolverMode";
 
-const char* CtrlCommand::solverModePositionFlagShort = "-smp";
-const char* CtrlCommand::solverModePositionFlagLong = "-solverModePosition";
+const char* CtrlCmd::solverModePositionFlagShort = "-smp";
+const char* CtrlCmd::solverModePositionFlagLong = "-solverModePosition";
 
-const char* CtrlCommand::lineWidthFlagShort = "-lw";
-const char* CtrlCommand::lineWidthFlagLong = "-lineWidth";
+const char* CtrlCmd::lineWidthFlagShort = "-lw";
+const char* CtrlCmd::lineWidthFlagLong = "-lineWidth";
 
-const char* CtrlCommand::colorFlagShort = "-cl";
-const char* CtrlCommand::colorFlagLong = "-color";
+const char* CtrlCmd::colorFlagShort = "-cl";
+const char* CtrlCmd::colorFlagLong = "-color";
 
-const char* CtrlCommand::xRayFlagShort = "-xr";
-const char* CtrlCommand::xRayFlagLong = "-xRay";
+const char* CtrlCmd::xRayFlagShort = "-xr";
+const char* CtrlCmd::xRayFlagLong = "-xRay";
 
-const char* CtrlCommand::lockShapeAttributesFlagShort = "-lsa";
-const char* CtrlCommand::lockShapeAttributesFlagLong = "-lockShapeAttributes";
+const char* CtrlCmd::lockShapeAttributesFlagShort = "-lsa";
+const char* CtrlCmd::lockShapeAttributesFlagLong = "-lockShapeAttributes";
 
-const char* CtrlCommand::hideOnPlaybackFlagShort = "-hop";
-const char* CtrlCommand::hideOnPlaybackFlagLong = "-hideOnPlayback";
+const char* CtrlCmd::hideOnPlaybackFlagShort = "-hop";
+const char* CtrlCmd::hideOnPlaybackFlagLong = "-hideOnPlayback";
 
-const char* CtrlCommand::helpFlagShort = "-h";
-const char* CtrlCommand::helpFlagLong = "-help";
+const char* CtrlCmd::helpFlagShort = "-h";
+const char* CtrlCmd::helpFlagLong = "-help";
 
-// const char* CtrlCommand::hasDynamicAttributesFlagShort = "-hda";
-// const char* CtrlCommand::hasDynamicAttributesFlagLong = "-hasDynamicAttributes";
-
-
+// const char* CtrlCmd::hasDynamicAttributesFlagShort = "-hda";
+// const char* CtrlCmd::hasDynamicAttributesFlagLong = "-hasDynamicAttributes";
 
 
-MSyntax CtrlCommand::syntaxCreator() {
+
+
+MSyntax CtrlCmd::syntaxCreator() {
   /* Creates the command's syntax object and returns it.
 
   Returns:
@@ -97,7 +97,7 @@ MSyntax CtrlCommand::syntaxCreator() {
   sytnax.addFlag(localScaleFlagShort, localScaleFlagLong, MSyntax::kDouble, MSyntax::kDouble, MSyntax::kDouble);
 
   // Visual flags
-  sytnax.addFlag(createShapeNodeFlagShort, createShapeNodeFlagLong, MSyntax::kBoolean);
+  // sytnax.addFlag(createShapeNodeFlagShort, createShapeNodeFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(shapeFlagShort, shapeFlagLong, MSyntax::kString);
   sytnax.addFlag(fillShapeFlagShort, fillShapeFlagLong, MSyntax::kBoolean);
   sytnax.addFlag(fillShapeOpacityFlagShort, fillShapeOpacityFlagLong, MSyntax::kDouble);
@@ -124,7 +124,7 @@ MSyntax CtrlCommand::syntaxCreator() {
 }
 
 
-MStatus CtrlCommand::parseArguments(const MArgList &argList) {
+MStatus CtrlCmd::parseArguments(const MArgList &argList) {
   /* Parses the commands's flag arguments.
 
   Args:
@@ -152,7 +152,7 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     strHelp += "   -lp    -localPosition        Double3    Local Position of the controller.\n";
     strHelp += "   -lr    -localRotate          Double3    Local Rotate of the controller.\n";
     strHelp += "   -ls    -localScale           Double3    Local Scale of the controller.\n";
-    strHelp += "   -csn   -createShapeNode      Bool       Whether or not to create the shape node.\n";
+    // strHelp += "   -csn   -createShapeNode      Bool       Whether or not to create the shape node.\n";
     strHelp += "   -sh    -shape                String     Shape to be drawn: 'cube' 'sphere' cross' 'diamond' 'square' 'circle' 'locator' 'none'.\n";
     strHelp += "   -fs    -fillShape            Bool       Whether or not to draw the fill shape.\n";
     strHelp += "   -fso   -fillShapeOpacity     Float      Opacity of the fill shape.\n";
@@ -160,7 +160,7 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     strHelp += "   -dsm   -drawSolverMode       Bool       Whether or not you want to display te fk / ik mode.\n";
     strHelp += "   -smp   -solverModePosition   Double3    Local Position of the fk / ik mode.\n";
     strHelp += "   -iad   -hasDynamicAttributes Bool       Forces redraw of the ctrl shape in the viewport, use for dynamic attributes like polevectors or fk/ik state display\n";
-    strHelp += "   -fw    -lineWidth            Double     Controls the line width of the outline.\n";
+    strHelp += "   -lw    -lineWidth            Double     Controls the line width of the outline.\n";
     strHelp += "   -cl    -color                String     Viewport display color of the controller: 'lightyellow' 'yellow' 'lightorange' 'orange' 'lightblue' 'blue' 'magenta' 'green'.\n";
     strHelp += "   -xr    -xRay                 Bool       Whether or not to enable X-Ray drawing.\n";
     strHelp += "   -lsa   -lockShapeAttributes  Bool       Locks all the shpae attributes node after creation.\n";
@@ -236,11 +236,11 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
     localScale.z = argData.flagArgumentDouble(localScaleFlagShort, 2, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
-  // Create Shape Node Flag
-  if (argData.isFlagSet(createShapeNodeFlagShort)) {
-    bCreateShapeNode = argData.flagArgumentBool(createShapeNodeFlagShort, 0, &status);
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-  }
+  // // Create Shape Node Flag
+  // if (argData.isFlagSet(createShapeNodeFlagShort)) {
+  //   bCreateShapeNode = argData.flagArgumentBool(createShapeNodeFlagShort, 0, &status);
+  //   CHECK_MSTATUS_AND_RETURN_IT(status);
+  // }
   // Shape Flag
   if (argData.isFlagSet(shapeFlagShort)) {
     MString strShape = argData.flagArgumentString(shapeFlagShort, 0, &status);
@@ -321,7 +321,7 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
   }
   // Draw Solver Mode Flag
   if (argData.isFlagSet(drawSolverModeFlagShort)) {
-    drawSolverMode = argData.flagArgumentBool(drawSolverModeFlagShort, 0, &status);
+    bDrawSolverMode = argData.flagArgumentBool(drawSolverModeFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
   // Solver Mode Position Flag
@@ -340,7 +340,7 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
   // }
   // Line Width Flag
   if (argData.isFlagSet(lineWidthFlagShort)) {
-    lineWidth = argData.flagArgumentDouble(lineWidthFlagShort, 0, &status);
+    widthLine = argData.flagArgumentDouble(lineWidthFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
   // Color Flag
@@ -385,7 +385,7 @@ MStatus CtrlCommand::parseArguments(const MArgList &argList) {
 }
 
 
-MStatus CtrlCommand::doIt(const MArgList& argList) {
+MStatus CtrlCmd::doIt(const MArgList& argList) {
   /* Command's doIt method.
 
   This method should perform a command by setting up internal class data and then	calling the
@@ -436,7 +436,7 @@ MStatus CtrlCommand::doIt(const MArgList& argList) {
 }
 
 
-MStatus CtrlCommand::redoIt() {
+MStatus CtrlCmd::redoIt() {
   /* Command's redoIt method.
 
   This method should do the actual work of the command based on the internal class data only.	Internal class data should be set in the doIt method.
@@ -452,98 +452,93 @@ MStatus CtrlCommand::redoIt() {
     // We need to init the MFnTransform with a dag path, mobjects do not work with transformations
     // even if the object has a MFn::kTransform
     MDagPath::getAPathTo(objThisTransform, dpThisTransform);
-    MFnTransform fn_transform(dpThisTransform);
+    MFnTransform fnTransform(dpThisTransform);
 
     status = modDag.doIt();
     CHECK_MSTATUS_AND_RETURN_IT(status);
 
     // TRANSFORM NODE
-    if (bTranslateTo == true) {fn_transform.setTranslation(posTarget, MSpace::kWorld);}
-    if (bRotateTo == true) {fn_transform.setRotation(rotTarget, MSpace::kWorld);}
+    if (bTranslateTo == true) {fnTransform.setTranslation(posTarget, MSpace::kWorld);}
+    if (bRotateTo == true) {fnTransform.setRotation(rotTarget, MSpace::kWorld);}
 
     // SHAPE PLUGS
     // Sets the plugs values based on the flag arguments
-    MPlug plugShape = fn_transform.findPlug("shape", false);
+    MPlug plugShape = fnTransform.findPlug("shape", false);
     plugShape.setShort(indxShape);
 
     // Sets local position values
-    MPlug plugLocalPosition = fn_transform.findPlug("localPosition", false);
-    MPlug plugLocalPositionX = fn_transform.findPlug("localPositionX", false);
+    MPlug plugLocalPosition = fnTransform.findPlug("localPosition", false);
+    MPlug plugLocalPositionX = fnTransform.findPlug("localPositionX", false);
     plugLocalPositionX.setValue(localPosition.x);
-    MPlug plugLocalPositionY = fn_transform.findPlug("localPositionY", false);
+    MPlug plugLocalPositionY = fnTransform.findPlug("localPositionY", false);
     plugLocalPositionY.setValue(localPosition.y);
-    MPlug plugLocalPositionZ = fn_transform.findPlug("localPositionZ", false);
+    MPlug plugLocalPositionZ = fnTransform.findPlug("localPositionZ", false);
     plugLocalPositionZ.setValue(localPosition.z);
 
     // Sets local rotate values
-    MPlug plugLocalRotate = fn_transform.findPlug("localRotate", false);
-    MPlug plugLocalRotateX = fn_transform.findPlug("localRotateX", false);
+    MPlug plugLocalRotate = fnTransform.findPlug("localRotate", false);
+    MPlug plugLocalRotateX = fnTransform.findPlug("localRotateX", false);
     plugLocalRotateX.setValue(radians(localRotate.x));
-    MPlug plugLocalRotateY = fn_transform.findPlug("localRotateY", false);
+    MPlug plugLocalRotateY = fnTransform.findPlug("localRotateY", false);
     plugLocalRotateY.setValue(radians(localRotate.y));
-    MPlug plugLocalRotateZ = fn_transform.findPlug("localRotateZ", false);
+    MPlug plugLocalRotateZ = fnTransform.findPlug("localRotateZ", false);
     plugLocalRotateZ.setValue(radians(localRotate.z));
 
     // Sets local scale values
-    MPlug plugLocalScale = fn_transform.findPlug("localScale", false);
-    MPlug plugLocalScaleX = fn_transform.findPlug("localScaleX", false);
+    MPlug plugLocalScale = fnTransform.findPlug("localScale", false);
+    MPlug plugLocalScaleX = fnTransform.findPlug("localScaleX", false);
     plugLocalScaleX.setValue(localScale.x);
-    MPlug plugLocalScaleY = fn_transform.findPlug("localScaleY", false);
+    MPlug plugLocalScaleY = fnTransform.findPlug("localScaleY", false);
     plugLocalScaleY.setValue(localScale.y);
-    MPlug plugLocalScaleZ = fn_transform.findPlug("localScaleZ", false);
+    MPlug plugLocalScaleZ = fnTransform.findPlug("localScaleZ", false);
     plugLocalScaleZ.setValue(localScale.z);
 
     // Visual flags
-    MPlug plugFillShape = fn_transform.findPlug("fillShape", false);
+    MPlug plugFillShape = fnTransform.findPlug("fillShape", false);
     plugFillShape.setValue(bFillShape);
 
-    MPlug plugFillShapeOpacity = fn_transform.findPlug("fillShapeOpacity", false);
+    MPlug plugFillShapeOpacity = fnTransform.findPlug("fillShapeOpacity", false);
     plugFillShapeOpacity.setValue(fillShapeOpacity);
 
-    MPlug plugDrawLine = fn_transform.findPlug("drawLine", false);
+    MPlug plugDrawLine = fnTransform.findPlug("drawLine", false);
     plugDrawLine.setValue(bDrawLine);
 
     // Fk Ik State
-    MPlug plugDrawSolverMode = fn_transform.findPlug("drawSolverMode", false);
-    plugDrawSolverMode.setValue(drawSolverMode);
-    MPlug plug_solver_mode_size = fn_transform.findPlug("solverModeSize", false);
+    MPlug plugDrawSolverMode = fnTransform.findPlug("drawSolverMode", false);
+    plugDrawSolverMode.setValue(bDrawSolverMode);
+    MPlug plugSolverModeSize = fnTransform.findPlug("solverModeSize", false);
     // plugDrawFkIkStateSize.setValue(draw_solver_mode);
-    MPlug plug_solver_mode_position = fn_transform.findPlug("solverModePosition", false);
-    MPlug plug_solver_mode_positionX = fn_transform.findPlug("solverModePositionX", false);
-    plug_solver_mode_positionX.setValue(solverModePosition.x);
-    MPlug plug_solver_mode_positionY = fn_transform.findPlug("solverModePositionY", false);
-    plug_solver_mode_positionY.setValue(solverModePosition.y);
-    MPlug plug_solver_mode_positionZ = fn_transform.findPlug("solverModePositionZ", false);
-    plug_solver_mode_positionZ.setValue(solverModePosition.z);
+    MPlug plugSolverModePosition = fnTransform.findPlug("solverModePosition", false);
+    MPlug plugSolverModePositionX = fnTransform.findPlug("solverModePositionX", false);
+    plugSolverModePositionX.setValue(solverModePosition.x);
+    MPlug plugSolverModePositionY = fnTransform.findPlug("solverModePositionY", false);
+    plugSolverModePositionY.setValue(solverModePosition.y);
+    MPlug plugSolverModePositionZ = fnTransform.findPlug("solverModePositionZ", false);
+    plugSolverModePositionZ.setValue(solverModePosition.z);
 
-    MPlug plugInFkIk = fn_transform.findPlug("fkIk", false);
+    MPlug plugInFkIk = fnTransform.findPlug("fkIk", false);
 
-    MPlug plugLineWidth = fn_transform.findPlug("lineWidth", false);
-    plugLineWidth.setValue(lineWidth);
+    MPlug plugLineWidth = fnTransform.findPlug("lineWidth", false);
+    plugLineWidth.setValue(widthLine);
 
-    MPlug plugXRay = fn_transform.findPlug("xRay", false);
+    MPlug plugXRay = fnTransform.findPlug("xRay", false);
     plugXRay.setValue(bXRay);
 
     // Set color
-    MPlug plugOverrideColorR = fn_transform.findPlug("overrideColorR", false);
+    MPlug plugOverrideColorR = fnTransform.findPlug("overrideColorR", false);
     plugOverrideColorR.setValue(colorOverride.r);
-    MPlug plugOverrideColorG = fn_transform.findPlug("overrideColorG", false);
+    MPlug plugOverrideColorG = fnTransform.findPlug("overrideColorG", false);
     plugOverrideColorG.setValue(colorOverride.g);
-    MPlug plugOverrideColorB = fn_transform.findPlug("overrideColorB", false);
+    MPlug plugOverrideColorB = fnTransform.findPlug("overrideColorB", false);
     plugOverrideColorB.setValue(colorOverride.b);
   
 
-    // MPlug plug_has_dynamic_attributes = fn_transform.findPlug("hasDynamicAttributes", false);
+    // MPlug plug_has_dynamic_attributes = fnTransform.findPlug("hasDynamicAttributes", false);
     // plug_has_dynamic_attributes.setValue(has_dynamic_attributes);
 
     // Lock shape attributes
     if (bLockShapeAttributes == true) {
-      // optimize with a for loop and MPlugArray
-      // Local position
-      // LMAttr::lockAndHideAttr(plugScale);
-      // MPlug plugScale = fn_transform.findPlug("scale", false);
-      // plugScale.setLocked(true);
-  
+      // optimize with a for loop and MPlugArray  
       Attr::lockAndHideAttr(plugLocalPosition);
       Attr::lockAndHideAttr(plugLocalPositionX);
       Attr::lockAndHideAttr(plugLocalPositionY);
@@ -565,12 +560,12 @@ MStatus CtrlCommand::redoIt() {
       Attr::lockAndHideAttr(plugDrawLine);
 
       Attr::lockAndHideAttr(plugDrawSolverMode);
-      Attr::lockAndHideAttr(plug_solver_mode_size);
+      Attr::lockAndHideAttr(plugSolverModeSize);
 
-      Attr::lockAndHideAttr(plug_solver_mode_position);
-      Attr::lockAndHideAttr(plug_solver_mode_positionX);
-      Attr::lockAndHideAttr(plug_solver_mode_positionY);
-      Attr::lockAndHideAttr(plug_solver_mode_positionZ);
+      Attr::lockAndHideAttr(plugSolverModePosition);
+      Attr::lockAndHideAttr(plugSolverModePositionX);
+      Attr::lockAndHideAttr(plugSolverModePositionY);
+      Attr::lockAndHideAttr(plugSolverModePositionZ);
 
       Attr::lockAndHideAttr(plugLineWidth);
       Attr::lockAndHideAttr(plugInFkIk);
@@ -580,19 +575,19 @@ MStatus CtrlCommand::redoIt() {
     }
 
     // Set hide on playback
-    fn_transform.findPlug("hideOnPlayback", false).setValue(bHideOnPlayback);
+    fnTransform.findPlug("hideOnPlayback", false).setValue(bHideOnPlayback);
 
     // Sets command's output result in mel / python
     clearResult();
-    setResult(fn_transform.name());
-    // appendToResult(fn_transform.name());
+    setResult(fnTransform.name());
+    // appendToResult(fnTransform.name());
   }
 
   return MS::kSuccess;
 }
 
 
-MStatus CtrlCommand::undoIt() {
+MStatus CtrlCmd::undoIt() {
   /* Command's undoIt method.
 
   This method should undo the work done by the redoIt method based on the internal class data only.

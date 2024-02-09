@@ -56,6 +56,11 @@
 
 
 
+using namespace std;
+
+
+
+
 class Speedometer : public MPxLocatorNode {
 public:
   // Class attributes
@@ -65,10 +70,14 @@ public:
   static const MString drawRegistrationId;
 
   // Node's Input Attributes
+  static MObject localPosition, localPositionX, localPositionY, localPositionZ;
+  static MObject localRotate, localRotateX, localRotateY, localRotateZ;
+  static MObject localScale, localScaleX, localScaleY, localScaleZ;
+
+  static MObject attrShapeIndx;
   static Attribute attrInTransform;
   static MObject attrInTime;
   static MObject textOffsetAttr;
-  static MObject shapeAttr;
   static MObject textAttr;
   static MObject textSizeAttr;
   static MObject precisionAttr;
@@ -90,7 +99,7 @@ public:
   std::string strSpeed;
 
   std::string dispUnit;
-  MAnimControl _animCtl;
+  // MAnimControl animCtl;
   MDGModifier modDg;
 
   MTime timeCurrent, timeCached;

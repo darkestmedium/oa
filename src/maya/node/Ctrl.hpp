@@ -76,8 +76,8 @@ class Ctrl : public MPxTransform {
 
 public:
   // Controls the size of the footprint geometry
-  static Attribute    attr_in_line_matrix;
-  static Attribute    attr_out_line_matrix;
+  static Attribute    attrInLineMatrix;
+  static Attribute    attrOutLineMatrix;
   // static  MObject  inputSize;  // 'sz'   Input   Distance
   // static  MObject  outputSize; // 'osz'  Output  Distance: outputSize = [](inputSize) -> {return inputSize;}
 
@@ -133,26 +133,26 @@ public:
   static MObject localRotate, localRotateX, localRotateY, localRotateZ;
   static MObject localScale, localScaleX, localScaleY, localScaleZ;
 
-  static MObject attr_shape_indx;
-  static MObject attr_fill_shape;
-  static MObject attr_fill_shape_opacity;
-  static MObject attr_line_width;
-  static MObject attr_in_draw_line;
+  static MObject attrIndxShape;
+  static MObject attrFillShape;
+  static MObject attrFillShapeOpacity;
+  static MObject attrWidthLine;
+  static MObject attrInDrawLine;
 
-  static MObject attr_draw_solver_mode;
-  static MObject attr_solver_mode_size;
-  static MObject attr_solver_mode_positionX, attr_solver_mode_positionY, attr_solver_mode_positionZ, attr_solver_mode_position;
+  static MObject attrDrawSolverMode;
+  static MObject attrSolverModeSize;
+  static MObject attrSolverModePosition, attrSolverModePositionX, attrSolverModePositionY, attrSolverModePositionZ;
   static MObject attrInText;
   static MObject attrXRay;
 
   static MObject attrInFkIk;
-  static MObject attr_component;
+  static MObject attrComponent;
 
   // Use only on dynamic ctrl like fk/ik blending or pole vectors
-  bool draw_line;
+  bool      bDrawLine;
 
-  MObject self_object;
-  MDagPath self_path;
+  MObject   selfObject;
+  MDagPath  selfPath;
 
   // Constructors
   Ctrl()
@@ -173,9 +173,9 @@ public:
   void            getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
   SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
 
-  bool            isBounded() const override {return true;}
-  virtual MBoundingBox boundingBox() const override;
-  virtual bool     treatAsTransform() const override {return false;}
+  bool                  isBounded() const override {return true;}
+  virtual MBoundingBox  boundingBox() const override;
+  virtual bool          treatAsTransform() const override {return false;}
 };
 
 
@@ -189,38 +189,38 @@ public:
 
 class CtrlUserData : public MUserData {
 public:
-  MMatrix         matLocal;
-  MBoundingBox    bbox;
-  MMatrix         matPv;
-  MPoint          posDrawPvTo;
+  MMatrix       matLocal;
+  MBoundingBox  bbox;
+  MMatrix       matPv;
+  MPoint        posDrawPvTo;
 
-  short           indxShape;
-  bool            bFillShape;
-  float           fillShapeOpacity;
-  bool            bXRay;
-  bool            bXRayJoint;
-  unsigned int    prio_depth;
+  short         indxShape;
+  bool          bFillShape;
+  float         fillShapeOpacity;
+  bool          bXRay;
+  bool          bXRayJoint;
+  unsigned int  prioDepth;
 
-  MPointArray     arrayVertecies;
-  MPointArray     arrayEdges;
-  MPointArray     arrayTriangles;
-  MPointArray     arrayLine;
+  MPointArray   arrayVertecies;
+  MPointArray   arrayEdges;
+  MPointArray   arrayTriangles;
+  MPointArray   arrayLine;
 
-  float           widthLine;
-  MColor          colWireframe;
-  MColor          colShape;
-  MColor          colGrey;
+  float         widthLine;
+  MColor        colWireframe;
+  MColor        colShape;
+  MColor        colGrey;
 
   // Fk / Ik state
-  MObject objDrawLineTo;
-  MMatrix matTo;
-  double fkIk;
-  bool bDrawline;
+  MObject       objDrawLineTo;
+  MMatrix       matTo;
+  double        fkIk;
+  bool          bDrawline;
 
-  bool draw_solver_mode;
-  unsigned int solver_mode_size;
-  MPoint pos_solver_mode;
-  MString str_solver_mode;
+  bool          bDrawSolverMode;
+  unsigned int  sizeSolverMode;
+  MPoint        posSolverMode;
+  MString       strSolverMode;
 
   // Constructors
   CtrlUserData()

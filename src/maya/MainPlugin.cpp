@@ -103,9 +103,9 @@ MStatus initializePlugin(MObject obj) {
     );
     CHECK_MSTATUS_AND_RETURN_IT(status);
     status = fnPlugin.registerCommand(
-      CtrlCommand::commandName,
-      CtrlCommand::creator,
-      CtrlCommand::syntaxCreator
+      CtrlCmd::commandName,
+      CtrlCmd::creator,
+      CtrlCmd::syntaxCreator
     );
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
@@ -235,15 +235,16 @@ MStatus initializePlugin(MObject obj) {
   }
 
 
-  // Register TwistSolver node
-  status = fnPlugin.registerNode(
-    TwistSolver::typeName,
-    TwistSolver::typeId,
-    TwistSolver::creator,
-    TwistSolver::initialize,
-    MPxNode::kDependNode
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  { //TwistSolver
+    status = fnPlugin.registerNode(
+      TwistSolver::typeName,
+      TwistSolver::typeId,
+      TwistSolver::creator,
+      TwistSolver::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
 
 
 
@@ -324,7 +325,7 @@ MStatus uninitializePlugin(MObject obj) {
 
 
   { // Ctrl
-    fnPlugin.deregisterCommand(CtrlCommand::commandName);
+    fnPlugin.deregisterCommand(CtrlCmd::commandName);
     fnPlugin.deregisterNode(Ctrl::typeId);
     MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(Ctrl::typeDrawDb, Ctrl::typeDrawId);
   }
@@ -361,22 +362,18 @@ MStatus uninitializePlugin(MObject obj) {
   }
 
 
+  { // MetaDataNode
+    fnPlugin.deregisterCommand(IkCommand::commandName);
+    MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+      MetaDataNode::type_drawdb,
+      MetaDataNode::type_drawid
+    );
+    fnPlugin.deregisterNode(MetaDataNode::type_id);
+  }
 
-  // Deregister MetaData command
-  fnPlugin.deregisterCommand(IkCommand::commandName);
-
-  // Deregister MetaData draw override
-  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
-    MetaDataNode::type_drawdb,
-    MetaDataNode::type_drawid
-  );
-
-  // Deregister MetaDataNode
-  fnPlugin.deregisterNode(MetaDataNode::type_id);
 
   // Deregister IkCommand
   fnPlugin.deregisterCommand(IkCommand::commandName);
-
   // Deregister Ik2bSolver
   fnPlugin.deregisterNode(Ik2bSolver::typeId);
 

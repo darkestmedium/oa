@@ -3,18 +3,22 @@
 
 
 
-// Public Data
+// Class attributes
 const MString Speedometer::typeName("speedometer");
 const MTypeId Speedometer::typeId(0x0066671);
 const MString Speedometer::drawDbClassification("drawdb/geometry/speedometer");
 const MString Speedometer::drawRegistrationId("speedometerPlugin");
 
 // Nodes' Input Attributes
+MObject Speedometer::localPosition, Speedometer::localPositionX, Speedometer::localPositionY, Speedometer::localPositionZ;
+MObject Speedometer::localRotate, Speedometer::localRotateX, Speedometer::localRotateY, Speedometer::localRotateZ;
+MObject Speedometer::localScale, Speedometer::localScaleX, Speedometer::localScaleY, Speedometer::localScaleZ;
+
 Attribute Speedometer::attrInTransform;
 MObject Speedometer::attrInTime;
 
 MObject Speedometer::textOffsetAttr;
-MObject Speedometer::shapeAttr;
+MObject Speedometer::attrShapeIndx;
 MObject Speedometer::textAttr;
 MObject Speedometer::textSizeAttr;
 MObject Speedometer::precisionAttr;
@@ -37,11 +41,39 @@ MStatus Speedometer::initialize() {
       during the operation.
 
   */
-  MFnMatrixAttribute mAttr;
-  MFnNumericAttribute nAttr;
+  MFnUnitAttribute fnUnit;
+  MFnNumericAttribute fnNum;
+  MFnEnumAttribute fnEnum;
+  MFnMatrixAttribute fnMat;
   MFnTypedAttribute tAttr;
-  MFnEnumAttribute eAttr;
   MFnUnitAttribute uAttr;
+
+  localPositionX = fnNum.create("localPositionX", "lpx", MFnNumericData::kFloat);
+  localPositionY = fnNum.create("localPositionY", "lpy", MFnNumericData::kFloat);
+  localPositionZ = fnNum.create("localPositionZ", "lpz", MFnNumericData::kFloat);
+  localPosition = fnNum.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+
+  localRotateX = fnUnit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
+  localRotateY = fnUnit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
+  localRotateZ = fnUnit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
+  localRotate = fnNum.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+
+  localScaleX = fnNum.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
+  localScaleY = fnNum.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
+  localScaleZ = fnNum.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
+  localScale = fnNum.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
   createAttribute(attrInTransform, "inTransform", DefaultValue<MMatrix>());
 
@@ -49,64 +81,65 @@ MStatus Speedometer::initialize() {
   uAttr.setKeyable(true);
   uAttr.setReadable(false);
 
-  textOffsetAttr = nAttr.createPoint("textOffset", "tof");
-  nAttr.setKeyable(false);
-  nAttr.setChannelBox(true);
-  nAttr.setReadable(false);
+  textOffsetAttr = fnNum.createPoint("textOffset", "tof");
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+  fnNum.setReadable(false);
 
   textAttr = tAttr.create("text", "txt", MFnData::kString);
-  nAttr.setKeyable(false);
-  nAttr.setChannelBox(true);
-  nAttr.setReadable(false);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+  fnNum.setReadable(false);
 
-  textSizeAttr = nAttr.create("textSize", "txts", MFnNumericData::kInt, 12);
-  nAttr.setKeyable(false);
-  nAttr.setChannelBox(true);
-  nAttr.setReadable(false);
-  nAttr.setMin(9);
-  nAttr.setMax(24);
+  textSizeAttr = fnNum.create("textSize", "txts", MFnNumericData::kInt, 12);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+  fnNum.setReadable(false);
+  fnNum.setMin(9);
+  fnNum.setMax(24);
 
-  precisionAttr = nAttr.create("precision", "prec", MFnNumericData::kInt, 2);
-  nAttr.setMin(0);
-  nAttr.setMax(6);
-  nAttr.setKeyable(false);
-  nAttr.setChannelBox(true);
-  nAttr.setReadable(false);
+  precisionAttr = fnNum.create("precision", "prec", MFnNumericData::kInt, 2);
+  fnNum.setMin(0);
+  fnNum.setMax(6);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+  fnNum.setReadable(false);
 
-  unitTypeAttr = eAttr.create("unitType", "utyp");
-  eAttr.addField("km/h", 0);
-  eAttr.addField("mi/h", 1);
-  eAttr.addField("m/s", 2);
-  eAttr.setKeyable(false);
-  eAttr.setChannelBox(true);
+  unitTypeAttr = fnEnum.create("unitType", "utyp");
+  fnEnum.addField("km/h", 0);
+  fnEnum.addField("mi/h", 1);
+  fnEnum.addField("m/s", 2);
+  fnEnum.setKeyable(false);
+  fnEnum.setChannelBox(true);
 
-  shapeAttr = eAttr.create("shape", "shp");
-  eAttr.addField("Locator", 0);
-  eAttr.addField("Square", 1);
-  eAttr.addField("Cube", 2);
-  eAttr.addField("Circle", 3);
-  eAttr.addField("None", 4);
-  eAttr.setKeyable(false);
-  eAttr.setChannelBox(true);
+  attrShapeIndx = fnEnum.create("shape", "shp");
+  fnEnum.addField("Locator", 0);
+  fnEnum.addField("Square", 1);
+  fnEnum.addField("Cube", 2);
+  fnEnum.addField("Circle", 3);
+  fnEnum.addField("None", 4);
+  fnEnum.setKeyable(false);
+  fnEnum.setChannelBox(true);
 
-  lineWidthAttr = nAttr.create("lineWidth", "lw", MFnNumericData::kDouble);
-  nAttr.setMin(0.5);
-  nAttr.setDefault(1.0);
-  nAttr.setMax(5);
-  nAttr.setStorable(true);
-  nAttr.setKeyable(false);
-  nAttr.setChannelBox(true);
+  lineWidthAttr = fnNum.create("lineWidth", "lw", MFnNumericData::kDouble);
+  fnNum.setMin(0.5);
+  fnNum.setDefault(1.0);
+  fnNum.setMax(5);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  updateAttr = nAttr.create("update", "upt", MFnNumericData::kDouble, 0.0);
-  nAttr.setWritable(false);
+  updateAttr = fnNum.create("update", "upt", MFnNumericData::kDouble, 0.0);
+  fnNum.setWritable(false);
 
   outputAttr = tAttr.create("output", "out", MFnData::kString);
   tAttr.setWritable(false);
 
   // Add attributes
   addAttributes(
+    localPosition, localRotate, localScale,
     attrInTransform, attrInTime, textAttr, precisionAttr, unitTypeAttr,
-    textOffsetAttr, textSizeAttr, shapeAttr, lineWidthAttr,
+    textOffsetAttr, textSizeAttr, attrShapeIndx, lineWidthAttr,
     updateAttr, outputAttr
   );
 
@@ -543,7 +576,7 @@ void SpeedometerData::getBBox(const MObject& obj, MMatrix matrix) {
     matrix (MMatrix): Matrix used to transform the bounding box.
 
   */
-  unsigned int shapeIndex = MPlug(obj, Speedometer::shapeAttr).asInt();
+  unsigned int shapeIndex = MPlug(obj, Speedometer::attrShapeIndx).asInt();
 
   this->bBox.transformUsing(matrix);
 }
@@ -559,7 +592,7 @@ void SpeedometerData::getShpae(const MObject& obj, MMatrix matrix) {
   */
   MStatus status;
 
-  unsigned int shapeIndex = MPlug(obj, Speedometer::shapeAttr).asInt();
+  unsigned int shapeIndex = MPlug(obj, Speedometer::attrShapeIndx).asInt();
 
   this->fTransformedList.clear();
   this->fLineList.clear();

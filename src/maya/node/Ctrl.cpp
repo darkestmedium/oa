@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------
 
 
-// MObject Ctrl::attr_out_line_matrix	= {};
+// MObject Ctrl::attrOutLineMatrix	= {};
 // MObject Ctrl::inputSize            = {};
 MObject Ctrl::geometryChanging        = {};
 
@@ -25,21 +25,21 @@ MObject Ctrl::localPosition, Ctrl::localPositionX, Ctrl::localPositionY, Ctrl::l
 MObject Ctrl::localRotate, Ctrl::localRotateX, Ctrl::localRotateY, Ctrl::localRotateZ;
 MObject Ctrl::localScale, Ctrl::localScaleX, Ctrl::localScaleY, Ctrl::localScaleZ;
 
-MObject Ctrl::attr_shape_indx;
-MObject Ctrl::attr_fill_shape;
-MObject Ctrl::attr_fill_shape_opacity;
-MObject Ctrl::attr_line_width;
+MObject Ctrl::attrIndxShape;
+MObject Ctrl::attrFillShape;
+MObject Ctrl::attrFillShapeOpacity;
+MObject Ctrl::attrWidthLine;
 
-MObject Ctrl::attr_in_draw_line;
-Attribute Ctrl::attr_in_line_matrix;
-Attribute Ctrl::attr_out_line_matrix;
+MObject Ctrl::attrInDrawLine;
+Attribute Ctrl::attrInLineMatrix;
+Attribute Ctrl::attrOutLineMatrix;
 
-MObject Ctrl::attr_draw_solver_mode;
-MObject Ctrl::attr_solver_mode_size;
-MObject Ctrl::attr_solver_mode_positionX, Ctrl::attr_solver_mode_positionY, Ctrl::attr_solver_mode_positionZ, Ctrl::attr_solver_mode_position;
+MObject Ctrl::attrDrawSolverMode;
+MObject Ctrl::attrSolverModeSize;
+MObject Ctrl::attrSolverModePosition, Ctrl::attrSolverModePositionX, Ctrl::attrSolverModePositionY, Ctrl::attrSolverModePositionZ;
 MObject Ctrl::attrXRay;
 MObject Ctrl::attrInFkIk;
-MObject Ctrl::attr_component;
+MObject Ctrl::attrComponent;
 
 
 
@@ -53,154 +53,153 @@ MStatus Ctrl::initialize() {
       during the operation.
 
   */
-  MFnUnitAttribute fn_unit;
-  MFnNumericAttribute fn_num;
-  MFnEnumAttribute fn_enum;
-  MFnMessageAttribute fn_mess;
   MStatus status;
+  MFnUnitAttribute fnUnit;
+  MFnNumericAttribute fnNum;
+  MFnEnumAttribute fnEnum;
+  MFnMessageAttribute fnMess;
 
-  localPositionX = fn_num.create("localPositionX", "lpx", MFnNumericData::kFloat);
-  localPositionY = fn_num.create("localPositionY", "lpy", MFnNumericData::kFloat);
-  localPositionZ = fn_num.create("localPositionZ", "lpz", MFnNumericData::kFloat);
-  localPosition = fn_num.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
-  fn_num.setStorable(true);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  localPositionX = fnNum.create("localPositionX", "lpx", MFnNumericData::kFloat);
+  localPositionY = fnNum.create("localPositionY", "lpy", MFnNumericData::kFloat);
+  localPositionZ = fnNum.create("localPositionZ", "lpz", MFnNumericData::kFloat);
+  localPosition = fnNum.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  localRotateX = fn_unit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
-  localRotateY = fn_unit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
-  localRotateZ = fn_unit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
-  localRotate = fn_num.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
-  fn_num.setStorable(true);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  localRotateX = fnUnit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
+  localRotateY = fnUnit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
+  localRotateZ = fnUnit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
+  localRotate = fnNum.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  localScaleX = fn_num.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
-  localScaleY = fn_num.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
-  localScaleZ = fn_num.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
-  localScale = fn_num.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
-  fn_num.setStorable(true);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  localScaleX = fnNum.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
+  localScaleY = fnNum.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
+  localScaleZ = fnNum.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
+  localScale = fnNum.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_shape_indx = fn_enum.create("shape", "shp");
-  fn_enum.addField("Cube", 0);
-  fn_enum.addField("Square", 1);
-  fn_enum.addField("Cylinder", 2);
-  fn_enum.addField("Cone", 3);
-  fn_enum.addField("Circle", 4);
-  fn_enum.addField("Sphere", 5);
-  fn_enum.addField("Dome", 6);
-  fn_enum.addField("Diamond", 7);
-  fn_enum.addField("Pyramid", 8);
-  fn_enum.addField("Triangle", 9);
-  fn_enum.addField("Prism", 10);
-  fn_enum.addField("Locator", 11);
-  fn_enum.addField("Frame", 12);
-  fn_enum.addField("Arrow", 13);
-  fn_enum.addField("Arrow2Way", 14);
-  fn_enum.addField("Circle4Arrows", 15);
-  fn_enum.addField("Hip", 16);
-  fn_enum.addField("CircleHalfDouble", 17);
-  fn_enum.addField("PinRound", 18);
-  fn_enum.addField("Clavicle", 19);
-  fn_enum.addField("Pointer2Way", 20);
-  fn_enum.addField("Pointer2WayArc", 21);
-  fn_enum.addField("Cross", 22);
-  fn_enum.addField("CrossShort", 23);
-  fn_enum.addField("None", 24);
-  fn_enum.setKeyable(false);
-  fn_enum.setStorable(true);
-  fn_enum.setChannelBox(true);
+  attrIndxShape = fnEnum.create("shape", "shp");
+  fnEnum.addField("Cube", 0);
+  fnEnum.addField("Square", 1);
+  fnEnum.addField("Cylinder", 2);
+  fnEnum.addField("Cone", 3);
+  fnEnum.addField("Circle", 4);
+  fnEnum.addField("Sphere", 5);
+  fnEnum.addField("Dome", 6);
+  fnEnum.addField("Diamond", 7);
+  fnEnum.addField("Pyramid", 8);
+  fnEnum.addField("Triangle", 9);
+  fnEnum.addField("Prism", 10);
+  fnEnum.addField("Locator", 11);
+  fnEnum.addField("Frame", 12);
+  fnEnum.addField("Arrow", 13);
+  fnEnum.addField("Arrow2Way", 14);
+  fnEnum.addField("Circle4Arrows", 15);
+  fnEnum.addField("Hip", 16);
+  fnEnum.addField("CircleHalfDouble", 17);
+  fnEnum.addField("PinRound", 18);
+  fnEnum.addField("Clavicle", 19);
+  fnEnum.addField("Pointer2Way", 20);
+  fnEnum.addField("Pointer2WayArc", 21);
+  fnEnum.addField("Cross", 22);
+  fnEnum.addField("CrossShort", 23);
+  fnEnum.addField("None", 24);
+  fnEnum.setKeyable(false);
+  fnEnum.setStorable(true);
+  fnEnum.setChannelBox(true);
 
-  attr_fill_shape = fn_num.create("fillShape", "fp", MFnNumericData::kBoolean, false);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrFillShape = fnNum.create("fillShape", "fp", MFnNumericData::kBoolean, false);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_fill_shape_opacity = fn_num.create("fillShapeOpacity", "fso", MFnNumericData::kFloat, 0.1);
-  fn_num.setMin(0.01);
-  // fn_num.setDefault(2.0);
-  fn_num.setMax(1);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrFillShapeOpacity = fnNum.create("fillShapeOpacity", "fso", MFnNumericData::kFloat, 0.1);
+  fnNum.setMin(0.01);
+  fnNum.setMax(1);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_line_width = fn_num.create("lineWidth", "lw", MFnNumericData::kFloat, 2.0);
-  fn_num.setMin(0.5);
-  fn_num.setDefault(2.0);
-  fn_num.setMax(5);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrWidthLine = fnNum.create("lineWidth", "lw", MFnNumericData::kFloat, 2.0);
+  fnNum.setMin(0.5);
+  fnNum.setDefault(2.0);
+  fnNum.setMax(5);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_in_draw_line = fn_num.create("drawLine", "dl", MFnNumericData::kBoolean, false);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrInDrawLine = fnNum.create("drawLine", "dl", MFnNumericData::kBoolean, false);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  createAttribute(attr_in_line_matrix, "drawLineTo", DefaultValue<MMatrix>());
+  createAttribute(attrInLineMatrix, "drawLineTo", DefaultValue<MMatrix>());
 
-  attr_draw_solver_mode = fn_num.create("drawSolverMode", "dsm", MFnNumericData::kBoolean, false);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrDrawSolverMode = fnNum.create("drawSolverMode", "dsm", MFnNumericData::kBoolean, false);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_solver_mode_positionX = fn_num.create("solverModePositionX", "smpx", MFnNumericData::kDouble, 0.0);
-  attr_solver_mode_positionY = fn_num.create("solverModePositionY", "smpy", MFnNumericData::kDouble, 0.0);
-  attr_solver_mode_positionZ = fn_num.create("solverModePositionZ", "smpz", MFnNumericData::kDouble, 0.0);
-  attr_solver_mode_position = fn_num.create("solverModePosition", "smp", attr_solver_mode_positionX, attr_solver_mode_positionY, attr_solver_mode_positionZ);
-  fn_num.setStorable(true);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrSolverModePositionX = fnNum.create("solverModePositionX", "smpx", MFnNumericData::kDouble, 0.0);
+  attrSolverModePositionY = fnNum.create("solverModePositionY", "smpy", MFnNumericData::kDouble, 0.0);
+  attrSolverModePositionZ = fnNum.create("solverModePositionZ", "smpz", MFnNumericData::kDouble, 0.0);
+  attrSolverModePosition = fnNum.create("solverModePosition", "smp", attrSolverModePositionX, attrSolverModePositionY, attrSolverModePositionZ);
+  fnNum.setStorable(true);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_solver_mode_size = fn_num.create("solverModeSize", "sms", MFnNumericData::kInt, 14);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
-  fn_num.setMin(9);
-  fn_num.setMax(24);
+  attrSolverModeSize = fnNum.create("solverModeSize", "sms", MFnNumericData::kInt, 14);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+  fnNum.setMin(9);
+  fnNum.setMax(24);
 
-  attrInFkIk = fn_num.create("fkIk", "fkIk", MFnNumericData::kDouble);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
-  fn_num.setSoftMin(0.0);
-  fn_num.setSoftMax(100.0);
+  attrInFkIk = fnNum.create("fkIk", "fkIk", MFnNumericData::kDouble);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
+  fnNum.setSoftMin(0.0);
+  fnNum.setSoftMax(100.0);
 
-  attrXRay = fn_num.create("xRay", "xr", MFnNumericData::kBoolean, false);
-  fn_num.setStorable(true);
-  fn_num.setKeyable(false);
-  fn_num.setChannelBox(true);
+  attrXRay = fnNum.create("xRay", "xr", MFnNumericData::kBoolean, false);
+  fnNum.setStorable(true);
+  fnNum.setKeyable(false);
+  fnNum.setChannelBox(true);
 
-  attr_component = fn_mess.create("component", "component");
-  fn_mess.setWritable(false);
-  fn_mess.setReadable(true);
+  attrComponent = fnMess.create("component", "component");
+  fnMess.setWritable(false);
+  fnMess.setReadable(true);
 
-  geometryChanging = fn_num.create("geometryChanging", "gcg", MFnNumericData::kBoolean, true);
-  fn_num.setStorable(false);
-  fn_num.setHidden(true);
-  fn_num.setConnectable(false);
+  geometryChanging = fnNum.create("geometryChanging", "gcg", MFnNumericData::kBoolean, true);
+  fnNum.setStorable(false);
+  fnNum.setHidden(true);
+  fnNum.setConnectable(false);
 
   // Add attributes
   addAttributes(
     localPosition, localRotate, localScale,
-    attr_shape_indx, attr_fill_shape, attr_fill_shape_opacity, attr_line_width,
-    attr_in_draw_line, attr_in_line_matrix,
-    attr_draw_solver_mode,
-    attr_solver_mode_size,
-    attr_solver_mode_position,
+    attrIndxShape, attrFillShape, attrFillShapeOpacity, attrWidthLine,
+    attrInDrawLine, attrInLineMatrix,
+    attrDrawSolverMode,
+    attrSolverModeSize,
+    attrSolverModePosition,
     attrInFkIk,
     attrXRay,
     geometryChanging,
-    attr_component
+    attrComponent
   );
 
-  attributeAffects(Ctrl::attr_in_line_matrix, Ctrl::geometryChanging);
+  attributeAffects(Ctrl::attrInLineMatrix, Ctrl::geometryChanging);
 
   return MS::kSuccess;
 }
@@ -215,28 +214,28 @@ MStatus Ctrl::setDependentsDirty(const MPlug& plug, MPlugArray& affectedPlugs) {
       to this list.
 
   */
-  draw_line = MPlug(self_object, attr_in_draw_line).asBool();
-  if (draw_line) MHWRender::MRenderer::setGeometryDrawDirty(self_object);
+  bDrawLine = MPlug(selfObject, attrInDrawLine).asBool();
+  if (bDrawLine) MHWRender::MRenderer::setGeometryDrawDirty(selfObject);
 
   // Update the shape attrs for editing / rig creation - draw - line has to be on for
   // performance optimizations
   if (MEvaluationManager::graphConstructionActive()) {
-    if ( plug == attr_in_line_matrix
+    if ( plug == attrInLineMatrix
       || plug == localPosition
       || plug == localRotate
       || plug == localScale
-      || plug == attr_shape_indx
-      || plug == attr_fill_shape
-      || plug == attr_fill_shape_opacity
-      || plug == attr_line_width
-      || plug == attr_in_draw_line
-      || plug == attr_out_line_matrix
-      || plug == attr_draw_solver_mode
-      || plug == attr_solver_mode_size
-      || plug == attr_solver_mode_position
+      || plug == attrIndxShape
+      || plug == attrFillShape
+      || plug == attrFillShapeOpacity
+      || plug == attrWidthLine
+      || plug == attrInDrawLine
+      || plug == attrOutLineMatrix
+      || plug == attrDrawSolverMode
+      || plug == attrSolverModeSize
+      || plug == attrSolverModePosition
       || plug == attrInFkIk
       || plug == attrXRay
-    ) {affectedPlugs.append(MPlug(self_object, geometryChanging));}
+    ) {affectedPlugs.append(MPlug(selfObject, geometryChanging));}
   }
 
   return MS::kSuccess;
@@ -248,7 +247,7 @@ MStatus Ctrl::compute(const MPlug& plug, MDataBlock& dataBlock) {
   if (plug == geometryChanging) {
     MDataHandle boolHandle = dataBlock.outputValue(geometryChanging);
     boolHandle.setBool(true);
-    MHWRender::MRenderer::setGeometryDrawDirty(self_object);
+    MHWRender::MRenderer::setGeometryDrawDirty(selfObject);
   }	else {
     return MS::kUnknownParameter;
   }
@@ -299,14 +298,11 @@ void Ctrl::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInf
 
 
 void Ctrl::postConstructor() {
-  self_object=thisMObject();
-  MDagPath::getAPathTo(self_object, self_path);
+  selfObject=thisMObject();
+  MDagPath::getAPathTo(selfObject, selfPath);
 
-  MFnDependencyNode fn_this(self_object);
+  MFnDependencyNode fn_this(selfObject);
 
-  // fn_this.findPlug("hideOnPlayback", false).setBool(1);
-  // MPlug plug_scale = fn_this.findPlug("scale", false);
-  // LMAttribute::lockAndHideAttr(plug_scale);
   fn_this.findPlug("shear", false).setLocked(1);
   fn_this.findPlug("rotateAxis", false).setLocked(1);
   // Set color
@@ -316,15 +312,15 @@ void Ctrl::postConstructor() {
   fn_this.findPlug("overrideColorG", false).setDouble(1.0);
   fn_this.findPlug("overrideColorB", false).setDouble(0.25);
 
-  draw_line = MPlug(self_object, Ctrl::attr_in_draw_line).asBool();
+  bDrawLine = MPlug(selfObject, Ctrl::attrInDrawLine).asBool();
 }
 
 
 MBoundingBox Ctrl::boundingBox() const {
   // Get the size
   CtrlUserData data;
-  data.getPlugs(self_object);
-  data.getBbox(self_object, self_path, data.matLocal);
+  data.getPlugs(selfObject);
+  data.getBbox(selfObject, selfPath, data.matLocal);
 
   return data.bbox;
 }
@@ -349,7 +345,6 @@ void CtrlUserData::getPlugs(const MObject& object) {
   float sy = MPlug(object, Ctrl::localScaleY).asFloat();
   float sz = MPlug(object, Ctrl::localScaleZ).asFloat();
 
-  // MEulerRotation rot_euler(rx, ry, rz);
   this->matLocal = MEulerRotation(rx, ry, rz).asMatrix();
   this->matLocal[3][0] = tx; this->matLocal[3][1] = ty;	this->matLocal[3][2] = tz;
   this->matLocal[0][0] *= sx; this->matLocal[0][1] *= sx;	this->matLocal[0][2] *= sx;
@@ -358,15 +353,15 @@ void CtrlUserData::getPlugs(const MObject& object) {
 
   MFnDependencyNode fn_object(object);
 
-  indxShape = MPlug(object, Ctrl::attr_shape_indx).asShort();
-  bFillShape = MPlug(object, Ctrl::attr_fill_shape).asBool();
-  fillShapeOpacity = MPlug(object, Ctrl::attr_fill_shape_opacity).asFloat();
-  widthLine = MPlug(object, Ctrl::attr_line_width).asFloat();
-  bDrawline = MPlug(object, Ctrl::attr_in_draw_line).asBool();
+  indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
+  bFillShape = MPlug(object, Ctrl::attrFillShape).asBool();
+  fillShapeOpacity = MPlug(object, Ctrl::attrFillShapeOpacity).asFloat();
+  widthLine = MPlug(object, Ctrl::attrWidthLine).asFloat();
+  bDrawline = MPlug(object, Ctrl::attrInDrawLine).asBool();
   bXRay = MPlug(object, Ctrl::attrXRay).asBool();
-  solver_mode_size = MPlug(object, Ctrl::attr_solver_mode_size).asInt();
+  sizeSolverMode = MPlug(object, Ctrl::attrSolverModeSize).asInt();
 
-  matPv = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
+  matPv = MDataHandle(MPlug(object, Ctrl::attrInLineMatrix).asMDataHandle()).asMatrix();
   posDrawPvTo = MPoint(matPv[3][0], matPv[3][1], matPv[3][2]);
 }
 
@@ -379,7 +374,7 @@ void CtrlUserData::getBbox(const MObject& object, const MDagPath& dp_object, MMa
     matrix (MMatrix): Matrix used to transform the bounding box
 
   */
-  indxShape = MPlug(object, Ctrl::attr_shape_indx).asShort();
+  indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
   switch(indxShape) {
     case 0: // Cube
       this->bbox = PopulateBoundingBox(bboxCube);
@@ -472,7 +467,7 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MM
   */
   MStatus status;
 
-  indxShape = MPlug(object, Ctrl::attr_shape_indx).asShort();
+  indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
 
   this->arrayVertecies.clear();
   this->arrayEdges.clear();
@@ -556,7 +551,7 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MM
 
   // Draw line for pole vectors
   if (bDrawline) { 
-    // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attr_in_line_matrix).asMDataHandle()).asMatrix();
+    // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attrInLineMatrix).asMDataHandle()).asMatrix();
     arrayLine.append(MPoint() * matrix);
     arrayLine.append(MPoint(posDrawPvTo[0], posDrawPvTo[1], posDrawPvTo[2]) * dp_object.inclusiveMatrixInverse());
   }
@@ -564,20 +559,20 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MM
 
 
 void CtrlUserData::getText(const MObject& object) {
-  draw_solver_mode = MPlug(object, Ctrl::attr_draw_solver_mode).asBool();
-  pos_solver_mode = MPoint(
-    MPlug(object, Ctrl::attr_solver_mode_positionX).asFloat(),
-    MPlug(object, Ctrl::attr_solver_mode_positionY).asFloat(),
-    MPlug(object, Ctrl::attr_solver_mode_positionZ).asFloat()
+  bDrawSolverMode = MPlug(object, Ctrl::attrDrawSolverMode).asBool();
+  posSolverMode = MPoint(
+    MPlug(object, Ctrl::attrSolverModePositionX).asFloat(),
+    MPlug(object, Ctrl::attrSolverModePositionY).asFloat(),
+    MPlug(object, Ctrl::attrSolverModePositionZ).asFloat()
   );
   fkIk = MPlug(object, Ctrl::attrInFkIk).asDouble();
   if (fkIk == 0.0) {
-    str_solver_mode = MString("Fk");
+    strSolverMode = MString("Fk");
   } else if (fkIk > 0.0 && fkIk < 100.0) {
     MString strFkIk = LMText::doublePrecision(MPlug(object, Ctrl::attrInFkIk).asDouble(), 0).c_str();
-    str_solver_mode = MString("FkIk " + strFkIk);
+    strSolverMode = MString("FkIk " + strFkIk);
   } else if (fkIk == 100.0) {
-    str_solver_mode = MString("Ik");
+    strSolverMode = MString("Ik");
   }
 }
 
@@ -675,10 +670,10 @@ MUserData* CtrlDrawOverride::prepareForDraw(const MDagPath& objPath, const MDagP
     case MHWRender::kActive:
     case MHWRender::kHilite:
     case MHWRender::kActiveComponent:
-      data->prio_depth = MHWRender::MRenderItem::sActiveWireDepthPriority;
+      data->prioDepth = MHWRender::MRenderItem::sActiveWireDepthPriority;
       break;
     default:
-      data->prio_depth = MHWRender::MRenderItem::sDormantFilledDepthPriority;
+      data->prioDepth = MHWRender::MRenderItem::sDormantFilledDepthPriority;
       break;
   }
   return data;
@@ -712,7 +707,7 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
   }
   // drawManager.beginDrawable();
 
-  drawManager.setDepthPriority(pTransformData->prio_depth);
+  drawManager.setDepthPriority(pTransformData->prioDepth);
 
   // If XRay Joints Draw in XRay Mode
   if (pTransformData->bXRayJoint) {
@@ -725,10 +720,10 @@ void CtrlDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDra
   drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->arrayEdges);
 
   // Fk Ik State
-  if (pTransformData->draw_solver_mode) {
-    drawManager.setFontSize(pTransformData->solver_mode_size);
+  if (pTransformData->bDrawSolverMode) {
+    drawManager.setFontSize(pTransformData->sizeSolverMode);
     drawManager.setFontWeight(MHWRender::MUIDrawManager::kWeightLight);
-    drawManager.text(pTransformData->pos_solver_mode, pTransformData->str_solver_mode, drawManager.kCenter);
+    drawManager.text(pTransformData->posSolverMode, pTransformData->strSolverMode, drawManager.kCenter);
   }
 
   // Draw fill shape

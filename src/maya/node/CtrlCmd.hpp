@@ -35,7 +35,7 @@
 
 
 
-class CtrlCommand : public MPxCommand {
+class CtrlCmd : public MPxCommand {
 public:
   enum CommandMode {kCommandCreate, kCommandHelp};
   CommandMode command;
@@ -75,8 +75,8 @@ public:
   static const char* fillShapeOpacityFlagShort;
   static const char* fillShapeOpacityFlagLong;
 
-  static const char* createShapeNodeFlagShort;
-  static const char* createShapeNodeFlagLong;
+  // static const char* createShapeNodeFlagShort;
+  // static const char* createShapeNodeFlagLong;
 
   static const char* drawLineFlagShort;
   static const char* drawLineFlagLong;
@@ -119,21 +119,21 @@ public:
   MVector solverModePosition;
 
   MString strColor;
-  MColor colorOverride;
+  MColor  colorOverride;
 
-  bool bCreateShapeNode;
-  short indxShape;
-  bool bFillShape;
-  float fillShapeOpacity;
-  bool bXRay;
-  bool drawSolverMode;
-  bool bDrawLine;
-  double lineWidth;
-  bool bLockShapeAttributes;
-  bool bHideOnPlayback;
+  // bool    bCreateShapeNode;
+  short   indxShape;
+  bool    bFillShape;
+  float   fillShapeOpacity;
+  bool    bXRay;
+  bool    bDrawSolverMode;
+  bool    bDrawLine;
+  double  widthLine;
+  bool    bLockShapeAttributes;
+  bool    bHideOnPlayback;
 
   // Constructors
-  CtrlCommand()
+  CtrlCmd()
     : MPxCommand()
     , name(Ctrl::typeName)
     , bTranslateTo(false)
@@ -142,14 +142,14 @@ public:
     , localRotate(0.0, 0.0, 0.0)
     , localScale(1.0, 1.0, 1.0)
     , solverModePosition(0.0, 0.0, 0.0)
-    , bCreateShapeNode(true)
+    // , bCreateShapeNode(true)
     , indxShape(0)
     , bFillShape(false)
     , fillShapeOpacity(0.1)
     , bDrawLine(false)
     , bXRay(false)
-    , drawSolverMode(false)
-    , lineWidth(2.0)
+    , bDrawSolverMode(false)
+    , widthLine(2.0)
     , strColor("yellow")
     , colorOverride(1.0, 1.0, 0.25)
     , bLockShapeAttributes(false)
@@ -158,7 +158,7 @@ public:
   {};
 
   // Public Methods
-  static void* creator() {return new CtrlCommand();}
+  static void* creator() {return new CtrlCmd();}
   virtual bool isUndoable() const override {return command == kCommandCreate;}
   static MSyntax syntaxCreator();
 
