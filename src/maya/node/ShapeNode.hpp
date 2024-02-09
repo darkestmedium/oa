@@ -61,18 +61,18 @@ Technique 1.1:
 Geometry-change tracking with "always-return-true" attribute.
 
 Code structure:
-	- class FootPrintNode
-		The DAG node that representing the customize rendering geometry.
-		Evaluation caching should be fully implemented here.
+  - class FootPrintNode
+    The DAG node that representing the customize rendering geometry.
+    Evaluation caching should be fully implemented here.
 
-	- class FootPrintGeometryOverride
-		The customized rendering logic for FootPrintNode.
-		Viewport caching is handled in here.
+  - class FootPrintGeometryOverride
+    The customized rendering logic for FootPrintNode.
+    Viewport caching is handled in here.
 
 USAGE:
 ```MEL
-	loadPlugin footPrintNode_GeometryOverride;
-	createNode footPrint_GeometryOverride;
+  loadPlugin footPrintNode_GeometryOverride;
+  createNode footPrint_GeometryOverride;
 ```
 */
 
@@ -97,92 +97,92 @@ static constexpr const char   gPluginNodeMessagePrefix[]    = "ctrlShapeGeometry
 class FootPrintNode : public MPxLocatorNode // Or MPxSurfaceShape
 {
 public:
-	// Node Attributes :
-	// Attribute table 							//	'Alias'		I/O		Data-Type	Function body (in lambda format)
+  // Node Attributes :
+  // Attribute table 							//	'Alias'		I/O		Data-Type	Function body (in lambda format)
 
-	// Controls the size of the footprint geometry
-	static  MObject         inputSize;			// 'sz'		Input	Distance
-	static  MObject         outputSize;			// 'osz'			Output	Distance	: outputSize		= [](inputSize) -> {return inputSize;}
+  // Controls the size of the footprint geometry
+  static  MObject         inputSize;			// 'sz'		Input	Distance
+  static  MObject         outputSize;			// 'osz'			Output	Distance	: outputSize		= [](inputSize) -> {return inputSize;}
 
-	// Add your renderer-required-attributes here
-	// static MObject          inputXX;
-	// static MObject          outputXX;
+  // Add your renderer-required-attributes here
+  // static MObject          inputXX;
+  // static MObject          outputXX;
 
-	// Utility attribute for viewport
-	// [[maya::storable(false)]] [[maya::connectable(false)]] [[maya::hidden]]
-	static	MObject			geometryChanging;	// 'gcg'		Output	Bool		: geometryChanging	= [](inputSize) -> {return true;} [*] check notes
+  // Utility attribute for viewport
+  // [[maya::storable(false)]] [[maya::connectable(false)]] [[maya::hidden]]
+  static	MObject			geometryChanging;	// 'gcg'		Output	Bool		: geometryChanging	= [](inputSize) -> {return true;} [*] check notes
 
-	// Attribute dependencies:
-	//		inputSize	-> outputSize
-	//		inputSize	-> geometryChanging 
-	// 
-	//		* inputXX	-> outputXX
-	//		* inputXX	-> geometryChanging (if XX affect the geometry)
-	// 
-	// "Logical" dependencies (Technique 1):
-	//		outputSize, geometryChanging -> [renderer]
-	//		* outputXX -> [renderer]
-	// 
-	// Additional note:
-	//
-	// Q :	Why is there outputSize ? (Technique 1)
-	// A :	Input attributes, like inputSize cannot be cached by Evaluation Cache
-	//		Check FootPrintNode::setDependentsDirty() for more details about this work-around
-	//
-	// Q :	'outputXX' is not updating in EM mode? (Technique 1)
-	// A :	The virtual connections to [renderer] are not understand by EM.
-	//		Add this connection to FootPrintNode::setDependentsDirty().
-	//
-	// Q :	"geometryChanging" always returns 'true' ? (Technique 1.1)
-	// A :	"geometryChanging" is a "dirty flag attribute" tracking if the node needs geometry-update
-	//		If anything affecting it is changed, it will re-evaluate and return 'true' 
-	//		This will notify the viewport that the geometry is changing, 
-	//		Then, it will be reset to 'false' when geometry is updated (populateGeometry() is called)
-	//		This allows us to track the dirty status without override setDependentsDirty() or postEvaluation()
-	//		* Note, viewport will not reset its value in background evaluation (VP2 caching)
-	//		  Check requiresGeometryUpdate(), populateGeometry() for detail
-	//
+  // Attribute dependencies:
+  //		inputSize	-> outputSize
+  //		inputSize	-> geometryChanging 
+  // 
+  //		* inputXX	-> outputXX
+  //		* inputXX	-> geometryChanging (if XX affect the geometry)
+  // 
+  // "Logical" dependencies (Technique 1):
+  //		outputSize, geometryChanging -> [renderer]
+  //		* outputXX -> [renderer]
+  // 
+  // Additional note:
+  //
+  // Q :	Why is there outputSize ? (Technique 1)
+  // A :	Input attributes, like inputSize cannot be cached by Evaluation Cache
+  //		Check FootPrintNode::setDependentsDirty() for more details about this work-around
+  //
+  // Q :	'outputXX' is not updating in EM mode? (Technique 1)
+  // A :	The virtual connections to [renderer] are not understand by EM.
+  //		Add this connection to FootPrintNode::setDependentsDirty().
+  //
+  // Q :	"geometryChanging" always returns 'true' ? (Technique 1.1)
+  // A :	"geometryChanging" is a "dirty flag attribute" tracking if the node needs geometry-update
+  //		If anything affecting it is changed, it will re-evaluate and return 'true' 
+  //		This will notify the viewport that the geometry is changing, 
+  //		Then, it will be reset to 'false' when geometry is updated (populateGeometry() is called)
+  //		This allows us to track the dirty status without override setDependentsDirty() or postEvaluation()
+  //		* Note, viewport will not reset its value in background evaluation (VP2 caching)
+  //		  Check requiresGeometryUpdate(), populateGeometry() for detail
+  //
 
 public:
-	// Override methods for depend node
-	FootPrintNode();
-	~FootPrintNode() override;
+  // Override methods for depend node
+  FootPrintNode();
+  ~FootPrintNode() override;
 
     MStatus   		compute( const MPlug& plug, MDataBlock& data ) override;
-	MStatus			setDependentsDirty(const MPlug& plug, MPlugArray& plugArray) override;
-	MStatus			postEvaluation(const  MDGContext& context, const MEvaluationNode& evaluationNode, PostEvaluationType evalType) override;
-	void			getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
+  MStatus			setDependentsDirty(const MPlug& plug, MPlugArray& plugArray) override;
+  MStatus			postEvaluation(const  MDGContext& context, const MEvaluationNode& evaluationNode, PostEvaluationType evalType) override;
+  void			getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
 
-	// Do not override postEvaluation() to force evaluating 'rendering-required-attribute'.
-	// Check Technique 1 for how to do this.
+  // Do not override postEvaluation() to force evaluating 'rendering-required-attribute'.
+  // Check Technique 1 for how to do this.
 
-	bool            isBounded() const override { return true; }
-	MBoundingBox    boundingBox() const override;
+  bool            isBounded() const override { return true; }
+  MBoundingBox    boundingBox() const override;
 
-	MSelectionMask	getShapeSelectionMask() const override { return MSelectionMask(gPluginSelectionMask); }
+  MSelectionMask	getShapeSelectionMask() const override { return MSelectionMask(gPluginSelectionMask); }
 
-	static  void *  creator() { return new FootPrintNode(); }
-	static  MStatus initialize();
-
-public:
-	// Data defines the custom shape, which decides the generated geometry's vertex buffer
-	// This only contains geometry data, material and appearance data should not be contained here 
-	// E.g. Outer Radius R and inner radius r for a torus shape
-	struct GeometryParameters
-	{
-		double Size;
-	};
-
-	// Methods for the renderer to call
-	bool				isGeometryChanging() const;
-	void				updateRenderAttributes();
-	GeometryParameters	updatingGeometry();
+  static  void *  creator() { return new FootPrintNode(); }
+  static  MStatus initialize();
 
 public:
-	static const	MTypeId		id;
-	static const	MString		drawDbClassification;
-	static const	MString		drawRegistrantId;
-	static const	MString		drawDbLightClassification;
+  // Data defines the custom shape, which decides the generated geometry's vertex buffer
+  // This only contains geometry data, material and appearance data should not be contained here 
+  // E.g. Outer Radius R and inner radius r for a torus shape
+  struct GeometryParameters
+  {
+    double Size;
+  };
+
+  // Methods for the renderer to call
+  bool				isGeometryChanging() const;
+  void				updateRenderAttributes();
+  GeometryParameters	updatingGeometry();
+
+public:
+  static const	MTypeId		id;
+  static const	MString		drawDbClassification;
+  static const	MString		drawRegistrantId;
+  static const	MString		drawDbLightClassification;
 };
 
 MObject FootPrintNode::outputSize       = {};
@@ -198,8 +198,8 @@ FootPrintNode::~FootPrintNode() {}
 
 MStatus FootPrintNode::compute( const MPlug& plug, MDataBlock& data )
 {
-	// Check documentation in "class FootPrintNode" for descriptions about the attributes here
-	if (plug.partialName() == "osz")
+  // Check documentation in "class FootPrintNode" for descriptions about the attributes here
+  if (plug.partialName() == "osz")
     {
         MStatus status;
         MDataHandle inputSizeHandle = data.inputValue(inputSize, &status);
@@ -210,13 +210,13 @@ MStatus FootPrintNode::compute( const MPlug& plug, MDataBlock& data )
 
         sizeHandle.copy(inputSizeHandle);
     }
-	else if (plug.partialName() == "gcg")
-	{
-		MStatus status;
-		MDataHandle boolHandle = data.outputValue(geometryChanging, &status);
-		if (status != MStatus::kSuccess) return status;
-		boolHandle.setBool(true);
-	}
+  else if (plug.partialName() == "gcg")
+  {
+    MStatus status;
+    MDataHandle boolHandle = data.outputValue(geometryChanging, &status);
+    if (status != MStatus::kSuccess) return status;
+    boolHandle.setBool(true);
+  }
     else
     {
         return MS::kUnknownParameter;
@@ -226,111 +226,111 @@ MStatus FootPrintNode::compute( const MPlug& plug, MDataBlock& data )
 }
 
 /*
-	Technique 1: Hack the EM to force evaluate and cache attributes.
+  Technique 1: Hack the EM to force evaluate and cache attributes.
 
-	To improve performance, Evaluation Manager aggressively skips evaluation of attributes which are not connected to other nodes.
-	In cases where an external user of DG data (in this case the renderer) 
-	needs to read unconnected values from a node during or after EM evaluation,
-	we need to take extra steps to ensure the data is evaluated by the EM (and cached).
+  To improve performance, Evaluation Manager aggressively skips evaluation of attributes which are not connected to other nodes.
+  In cases where an external user of DG data (in this case the renderer) 
+  needs to read unconnected values from a node during or after EM evaluation,
+  we need to take extra steps to ensure the data is evaluated by the EM (and cached).
 
-	The most notable rules used by the EM for skipping evaluation are:
-		1. Output attributes without output-connections are not computed in EM (and are not eligible for caching).
-		2. Input attributes are never cached in Evaluation Cache.
+  The most notable rules used by the EM for skipping evaluation are:
+    1. Output attributes without output-connections are not computed in EM (and are not eligible for caching).
+    2. Input attributes are never cached in Evaluation Cache.
 
-	In FootPrintNode, attributes "outputSize", "geometryChanging" are virtually connected to the renderer.
-	But EM does not understand these "virtual connection", and skips evaluation and caching for them.
-	The current workaround are:
-	1. To bypass rule 2, we made them a passing-through output attributes : inputSize->outputSize
-	2. To bypass rule 1, repeat the affect relationship in setDependentsDirty(). [*]
-		[*]	Note, this is a trick that relies on some internal hack to EM.
-			Maya may provide better API for this in future updates. 
-			When proper force evaluation API is come, you won't need to override this method.
+  In FootPrintNode, attributes "outputSize", "geometryChanging" are virtually connected to the renderer.
+  But EM does not understand these "virtual connection", and skips evaluation and caching for them.
+  The current workaround are:
+  1. To bypass rule 2, we made them a passing-through output attributes : inputSize->outputSize
+  2. To bypass rule 1, repeat the affect relationship in setDependentsDirty(). [*]
+    [*]	Note, this is a trick that relies on some internal hack to EM.
+      Maya may provide better API for this in future updates. 
+      When proper force evaluation API is come, you won't need to override this method.
 */
 MStatus FootPrintNode::setDependentsDirty(const MPlug& plug, MPlugArray& plugArray)
 {
-	// Repeating the affect relationship we have specified
-	// This method just mean to trick EM
-	// No need to do this outside of EM graph construction (for the sake of performance)
-	if (MEvaluationManager::graphConstructionActive())
-	{
-		if (plug.partialName() == "sz")
-		{
-			MObject thisNode = thisMObject();
-			MPlug osPlug(thisNode, outputSize);
-			MPlug scPlug(thisNode, geometryChanging);
-			plugArray.append(osPlug);
-			plugArray.append(scPlug);
-		}
-	}
+  // Repeating the affect relationship we have specified
+  // This method just mean to trick EM
+  // No need to do this outside of EM graph construction (for the sake of performance)
+  if (MEvaluationManager::graphConstructionActive())
+  {
+    if (plug.partialName() == "sz")
+    {
+      MObject thisNode = thisMObject();
+      MPlug osPlug(thisNode, outputSize);
+      MPlug scPlug(thisNode, geometryChanging);
+      plugArray.append(osPlug);
+      plugArray.append(scPlug);
+    }
+  }
 
-	// Try not set any data or attribute value in this method
-	// Because EM's parallel evaluation will not call this method at all
-	// A widely used *bad* approach is to write "mGeometryChanged=true" when some attribute changed.
-	// Use Technique 1.1 to avoid this.
+  // Try not set any data or attribute value in this method
+  // Because EM's parallel evaluation will not call this method at all
+  // A widely used *bad* approach is to write "mGeometryChanged=true" when some attribute changed.
+  // Use Technique 1.1 to avoid this.
 
-	return MStatus::kSuccess;
+  return MStatus::kSuccess;
 }
 
 MStatus FootPrintNode::postEvaluation(const MDGContext & context, const MEvaluationNode & evaluationNode, PostEvaluationType evalType)
 {
-	// For cache restoration only
-	// This method is responsible for fixing the 'geometryChanging' flag in cache restore frames
-	// Because in cache store phase,
-	// PopulateGeometry & Viewport-Caching happens before Evaluation-Cache store
-	// The value of 'geometryChanging' will always be set to 'false' (it is already used by render)
-	// Thus, we have to fix the geometryChanging attribute to the correct value 
-	MStatus status;
-	if (evalType == PostEvaluationEnum::kEvaluatedDirectly && // kEvaluatedDirectly indicates we are restoring from cache
-		evaluationNode.dirtyPlugExists(geometryChanging,&status) && status)
-	{
-		MDataBlock data = forceCache();
-		MDataHandle boolHandle = data.outputValue(geometryChanging, &status);
-		if (status != MStatus::kSuccess) return status;
-		boolHandle.setBool(true);
-		boolHandle.setClean();
-	}
+  // For cache restoration only
+  // This method is responsible for fixing the 'geometryChanging' flag in cache restore frames
+  // Because in cache store phase,
+  // PopulateGeometry & Viewport-Caching happens before Evaluation-Cache store
+  // The value of 'geometryChanging' will always be set to 'false' (it is already used by render)
+  // Thus, we have to fix the geometryChanging attribute to the correct value 
+  MStatus status;
+  if (evalType == PostEvaluationEnum::kEvaluatedDirectly && // kEvaluatedDirectly indicates we are restoring from cache
+    evaluationNode.dirtyPlugExists(geometryChanging,&status) && status)
+  {
+    MDataBlock data = forceCache();
+    MDataHandle boolHandle = data.outputValue(geometryChanging, &status);
+    if (status != MStatus::kSuccess) return status;
+    boolHandle.setBool(true);
+    boolHandle.setClean();
+  }
 
-	return MPxLocatorNode::postEvaluation(context, evaluationNode, evalType);
+  return MPxLocatorNode::postEvaluation(context, evaluationNode, evalType);
 }
 
 void FootPrintNode::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const
 {
-	MPxLocatorNode::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
-	assert(!disablingInfo.getCacheDisabled());
-	cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
+  MPxLocatorNode::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
+  assert(!disablingInfo.getCacheDisabled());
+  cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
 }
 
 MBoundingBox FootPrintNode::boundingBox() const
 {
-	// Get the outputSize
-	//
-	MObject thisNode = thisMObject();
-	MPlug plug( thisNode, outputSize );
-	MDistance sizeVal;
-	plug.getValue( sizeVal );
+  // Get the outputSize
+  //
+  MObject thisNode = thisMObject();
+  MPlug plug( thisNode, outputSize );
+  MDistance sizeVal;
+  plug.getValue( sizeVal );
 
-	double multiplier = sizeVal.asCentimeters();
+  double multiplier = sizeVal.asCentimeters();
 
-	MPoint corner1( -0.17, 0.0, -0.7 );
-	MPoint corner2( 0.17, 0.0, 0.3 );
+  MPoint corner1( -0.17, 0.0, -0.7 );
+  MPoint corner2( 0.17, 0.0, 0.3 );
 
-	corner1 = corner1 * multiplier;
-	corner2 = corner2 * multiplier;
+  corner1 = corner1 * multiplier;
+  corner2 = corner2 * multiplier;
 
-	return MBoundingBox( corner1, corner2 );
+  return MBoundingBox( corner1, corner2 );
 }
 
 // Must be called after MPxGeometryOverride::updateDG()
 // Typically used by MPxGeometryOverride::requiresGeometryUpdate()
 bool FootPrintNode::isGeometryChanging() const
 {
-	MDataBlock block = const_cast<FootPrintNode*>(this)->forceCache();
-	// Use inputValue() to trigger evaluation here
-	// Because MPxGeometryOverride::requiresGeometryUpdate() can be called outside of
-	// MPxGeometryOverride::initialize()/updateDG()
-	// This evaluation is safe because this attribute cannot be connected
-	// And thus cannot reach other nodes
-	return block.inputValue(FootPrintNode::geometryChanging).asBool();
+  MDataBlock block = const_cast<FootPrintNode*>(this)->forceCache();
+  // Use inputValue() to trigger evaluation here
+  // Because MPxGeometryOverride::requiresGeometryUpdate() can be called outside of
+  // MPxGeometryOverride::initialize()/updateDG()
+  // This evaluation is safe because this attribute cannot be connected
+  // And thus cannot reach other nodes
+  return block.inputValue(FootPrintNode::geometryChanging).asBool();
 }
 
 // Workload for MPxGeometryOverride::updateDG()
@@ -338,9 +338,9 @@ bool FootPrintNode::isGeometryChanging() const
 // Ensure these attributes can be accessed by outputValue() safely later
 void FootPrintNode::updateRenderAttributes()
 {
-	MDataBlock datablock = forceCache();
-	datablock.inputValue(FootPrintNode::geometryChanging);
-	datablock.inputValue(FootPrintNode::outputSize);
+  MDataBlock datablock = forceCache();
+  datablock.inputValue(FootPrintNode::geometryChanging);
+  datablock.inputValue(FootPrintNode::outputSize);
 }
 
 // Should only be called from MPxGeometryOverride::populateGeometry()
@@ -349,25 +349,25 @@ void FootPrintNode::updateRenderAttributes()
 // [[ensure : isGeometryChanging() == false]]
 FootPrintNode::GeometryParameters FootPrintNode::updatingGeometry()
 {
-	MDataBlock block = const_cast<FootPrintNode*>(this)->forceCache();
+  MDataBlock block = const_cast<FootPrintNode*>(this)->forceCache();
 
-	// Reset the geometryChanging attribute to false so that we do not update the geometry multiple times
-	block.outputValue(FootPrintNode::geometryChanging).set(false);
+  // Reset the geometryChanging attribute to false so that we do not update the geometry multiple times
+  block.outputValue(FootPrintNode::geometryChanging).set(false);
 
-	GeometryParameters param;
-	param.Size = block.outputValue(FootPrintNode::outputSize).asDistance().asCentimeters();
-	return param;
+  GeometryParameters param;
+  param.Size = block.outputValue(FootPrintNode::outputSize).asDistance().asCentimeters();
+  return param;
 }
 
 using namespace MHWRender;
 
 struct ShaderDeleter {
-	void operator()(MShaderInstance* shader) {
-		auto* rednerer = MRenderer::theRenderer();
-		auto* mgr = rednerer ? rednerer->getShaderManager() : nullptr;
-		if (mgr)
-			mgr->releaseShader(shader);
-	}
+  void operator()(MShaderInstance* shader) {
+    auto* rednerer = MRenderer::theRenderer();
+    auto* mgr = rednerer ? rednerer->getShaderManager() : nullptr;
+    if (mgr)
+      mgr->releaseShader(shader);
+  }
 };
 
 // A simple store for sharing solid-color-shader with the given color
@@ -375,11 +375,11 @@ struct ShaderDeleter {
 // One should add recycling mechanism for production usage
 class SolidColorShaderStore {
 public:
-	MShaderInstance* get(MColor color);
-	void clear() { mShaders.clear(); }
+  MShaderInstance* get(MColor color);
+  void clear() { mShaders.clear(); }
 private:
-	static std::uint32_t encode(MColor color);
-	std::unordered_map<std::uint32_t, std::unique_ptr<MShaderInstance, ShaderDeleter>> mShaders; // Map a R8B8G8A8 color to a shader instance
+  static std::uint32_t encode(MColor color);
+  std::unordered_map<std::uint32_t, std::unique_ptr<MShaderInstance, ShaderDeleter>> mShaders; // Map a R8B8G8A8 color to a shader instance
 };
 
 //---------------------------------------------------------------------------
@@ -401,8 +401,8 @@ private:
 //			Thus, we just leave whatever memories we allocated as-is
 //			Since the application is closing anyway
 struct GlobalVariables {
-	// A helper that shares all static solid color shader with same color
-	SolidColorShaderStore solidColorShaderStore;
+  // A helper that shares all static solid color shader with same color
+  SolidColorShaderStore solidColorShaderStore;
 };
 
 // Note, do not use std::unique_ptr<GlobalVariables> here
@@ -428,91 +428,91 @@ static const /*constexpr*/ MColor  ErrorColor         = { 1.0F, 0.0F,0.0F,1.0F }
 class FootPrintGeometryOverride : public MPxGeometryOverride
 {
 public:
-	static MPxGeometryOverride* Creator(const MObject& obj) { return new FootPrintGeometryOverride(obj); }
-	~FootPrintGeometryOverride() override;
+  static MPxGeometryOverride* Creator(const MObject& obj) { return new FootPrintGeometryOverride(obj); }
+  ~FootPrintGeometryOverride() override;
 
-	// Support configuration functions :
-	DrawAPI supportedDrawAPIs() const override			{ return (DrawAPI::kOpenGL | DrawAPI::kDirectX11 | DrawAPI::kOpenGLCoreProfile); }
-	bool hasUIDrawables() const override							{ return false; }
-	bool supportsEvaluationManagerParallelUpdate() const override	{ return true; }
-	// Supporting Viewport Caching (VP2 Custom Caching)
-	//		Viewport Cache for customize rendering nodes is caching the geometry data 
-	//		generated by MPxGeometryOverride::populateGeometry()
-	//		Like the graphics API, the geometry data is usually expressed in three different objects:
-	//			- Vertex Buffer		:	Viewport Cache
-	//			- Index	Buffer		:	No cache, must be time-independent
-	//			- Uniform Buffer	:	Evaluation Cache
-	//		Currently, *only* Vertex Buffer can be cached in Viewport Cache 
-	//		And all the data in Uniform Buffer (shader parameters such as Color), must be stored in Evaluation Cache
-	//		Viewport Caching is helpful if you are generating the geometry data in CPU
-	//		For GPU generated geometry, the benefit is limited
-	//		To make the Viewport caching works properly the following constraints must be meet
-	//			- requiresUpdateRenderItems(path) always return 'false' in background-dg-context.
-	//			- requiresGeometryUpdate() always return 'true' when restored from cache (if geometry is animated).
-	//			- populateGeometry() should be context-safe
-	//		Check these methods for more detail
-	bool supportsVP2CustomCaching() const override					{ return true; }
+  // Support configuration functions :
+  DrawAPI supportedDrawAPIs() const override			{ return (DrawAPI::kOpenGL | DrawAPI::kDirectX11 | DrawAPI::kOpenGLCoreProfile); }
+  bool hasUIDrawables() const override							{ return false; }
+  bool supportsEvaluationManagerParallelUpdate() const override	{ return true; }
+  // Supporting Viewport Caching (VP2 Custom Caching)
+  //		Viewport Cache for customize rendering nodes is caching the geometry data 
+  //		generated by MPxGeometryOverride::populateGeometry()
+  //		Like the graphics API, the geometry data is usually expressed in three different objects:
+  //			- Vertex Buffer		:	Viewport Cache
+  //			- Index	Buffer		:	No cache, must be time-independent
+  //			- Uniform Buffer	:	Evaluation Cache
+  //		Currently, *only* Vertex Buffer can be cached in Viewport Cache 
+  //		And all the data in Uniform Buffer (shader parameters such as Color), must be stored in Evaluation Cache
+  //		Viewport Caching is helpful if you are generating the geometry data in CPU
+  //		For GPU generated geometry, the benefit is limited
+  //		To make the Viewport caching works properly the following constraints must be meet
+  //			- requiresUpdateRenderItems(path) always return 'false' in background-dg-context.
+  //			- requiresGeometryUpdate() always return 'true' when restored from cache (if geometry is animated).
+  //			- populateGeometry() should be context-safe
+  //		Check these methods for more detail
+  bool supportsVP2CustomCaching() const override					{ return true; }
 
 
-	// Interaction with FootPrintNode
-	//	- This is the only method you can call Mplug::getValue() or Mdatablock::inputValue()
-	//  - This method can be empty (in EM modes), if you have setup the node correctly with Technique 1.
-	void updateDG() override;
-	// For the best practice, this method should contains no status data
-	void cleanUp() override {};
+  // Interaction with FootPrintNode
+  //	- This is the only method you can call Mplug::getValue() or Mdatablock::inputValue()
+  //  - This method can be empty (in EM modes), if you have setup the node correctly with Technique 1.
+  void updateDG() override;
+  // For the best practice, this method should contains no status data
+  void cleanUp() override {};
 
-	// Render item functions, only involves in foreground rendering, should not affect VP2 Caching at all
-	bool requiresUpdateRenderItems(const MDagPath& path) const override;
-	void updateRenderItems(const MDagPath &path, MRenderItemList& list) override;
+  // Render item functions, only involves in foreground rendering, should not affect VP2 Caching at all
+  bool requiresUpdateRenderItems(const MDagPath& path) const override;
+  void updateRenderItems(const MDagPath &path, MRenderItemList& list) override;
 
-	// Geometry update functions, major entry for support VP2 Custom Caching
-	bool requiresGeometryUpdate() const override;
-	bool isIndexingDirty(const MRenderItem &item) override			{ return false; } // Viewport Caching does not support index buffer change (animated topology)
-	void populateGeometry(const MGeometryRequirements &requirements, const MRenderItemList &renderItems, MGeometry &data) override;
+  // Geometry update functions, major entry for support VP2 Custom Caching
+  bool requiresGeometryUpdate() const override;
+  bool isIndexingDirty(const MRenderItem &item) override			{ return false; } // Viewport Caching does not support index buffer change (animated topology)
+  void populateGeometry(const MGeometryRequirements &requirements, const MRenderItemList &renderItems, MGeometry &data) override;
 
-	// Debugging functions
-	bool traceCallSequence() const override;
-	void handleTraceMessage(const MString &message) const override;
+  // Debugging functions
+  bool traceCallSequence() const override;
+  void handleTraceMessage(const MString &message) const override;
 
 private:
-	FootPrintGeometryOverride(const MObject& obj);
+  FootPrintGeometryOverride(const MObject& obj);
 
 protected:
-	// Helpers for generating the footprint geometry
-	void fillFootprintSolidIndices(int numIndex, unsigned int * indices);
-	void fillFootprintWireframeIndices(int numIndex, unsigned int * indices);
-	void fillFootPrintVertices(float * vertices, float outputSize);
+  // Helpers for generating the footprint geometry
+  void fillFootprintSolidIndices(int numIndex, unsigned int * indices);
+  void fillFootprintWireframeIndices(int numIndex, unsigned int * indices);
+  void fillFootPrintVertices(float * vertices, float outputSize);
 
 private:
-	// To ensure the plugin works well with Viewport and Evaluation Caching
-	// We recommend to use a state-less MpxGeometryOverride:
-	// 
-	//	- Store all time-dependent data on the attributes of corresponding Maya node, Instead of a data member in MpxGeometryOverride.
-	//	- updateDG() pulls (evaluates) all the time-dependent data on node by "MDataBlock::inputValue()",
-	//	  but *not* store them in a data member of MPxGeometryOverride
-	//	- Always access the time-dependent data by "MDataBlock::outputValue()" in the renderer
-	//
-	// Backgrounds of the recommendation : 
-	// 
-	// In this plugin example, we have 3 different pipeline stages involved:
-	//	1. Node Evaluation
-	//	2. Geometry Update (MPxGeometryOverride invocation)
-	//	3. Rendering (Shader-pre-draw-callback invocation)
-	// 
-	// With (Evaluation or Viewport) Caching, some surprising mixture of stages happen concurrently :
-	// 
-	//	- Foreground thread : -- MPxGeometryOverride ------>------ Shader Callback -------->	(Rendering on frame 10)
-	//	- Background thread : -------- Node Evaluation ----->-- MPxGeometryOverride ------->	(Viewport cache fill on frame 20)
-	//
-	// Accessing the same data directly cross stage boundaries can cause incorrect result or even crash maya.
-	// Thus we must use different storage for each data in each DG context (frame).
-	// And, a depend node's attribute are always isolated for different context.
-	//
-	// Beside, within the MPxGeometryOverride invocation stage, it is not always safe to access its data member :
-	// During Viewport Cache Restoration, requiresGeometryUpdate() is the only method get called. (No updateDG() call)
-	// Thus the data must be stored in the node.
-	// 
-	FootPrintNode*				mFootPrintNode;				// The node we are rendering
+  // To ensure the plugin works well with Viewport and Evaluation Caching
+  // We recommend to use a state-less MpxGeometryOverride:
+  // 
+  //	- Store all time-dependent data on the attributes of corresponding Maya node, Instead of a data member in MpxGeometryOverride.
+  //	- updateDG() pulls (evaluates) all the time-dependent data on node by "MDataBlock::inputValue()",
+  //	  but *not* store them in a data member of MPxGeometryOverride
+  //	- Always access the time-dependent data by "MDataBlock::outputValue()" in the renderer
+  //
+  // Backgrounds of the recommendation : 
+  // 
+  // In this plugin example, we have 3 different pipeline stages involved:
+  //	1. Node Evaluation
+  //	2. Geometry Update (MPxGeometryOverride invocation)
+  //	3. Rendering (Shader-pre-draw-callback invocation)
+  // 
+  // With (Evaluation or Viewport) Caching, some surprising mixture of stages happen concurrently :
+  // 
+  //	- Foreground thread : -- MPxGeometryOverride ------>------ Shader Callback -------->	(Rendering on frame 10)
+  //	- Background thread : -------- Node Evaluation ----->-- MPxGeometryOverride ------->	(Viewport cache fill on frame 20)
+  //
+  // Accessing the same data directly cross stage boundaries can cause incorrect result or even crash maya.
+  // Thus we must use different storage for each data in each DG context (frame).
+  // And, a depend node's attribute are always isolated for different context.
+  //
+  // Beside, within the MPxGeometryOverride invocation stage, it is not always safe to access its data member :
+  // During Viewport Cache Restoration, requiresGeometryUpdate() is the only method get called. (No updateDG() call)
+  // Thus the data must be stored in the node.
+  // 
+  FootPrintNode*				mFootPrintNode;				// The node we are rendering
 };
 
 //---------------------------------------------------------------------------
@@ -538,114 +538,114 @@ FootPrintGeometryOverride::~FootPrintGeometryOverride()
 
 void FootPrintGeometryOverride::updateDG()
 {
-	// Pull (evaluate) all attributes in FootPrintNode node we will be using
-	// Here is the list of attributes we are pulling : 
-	// - geometryChanging	: Needed by requiresGeometryUpdate()				To check if we needs to update the vertex and index buffer
-	// - outputSize			: Needed by populateGeometry()						To generate the geometry
-	//
-	// It is very important that all the attributes pulled from this method are cached (with Technique 1)
-	// Otherwise Evaluation Cache will not work
-	// In fact, this method is not needed by EM Evaluation modes
-	mFootPrintNode->updateRenderAttributes();
+  // Pull (evaluate) all attributes in FootPrintNode node we will be using
+  // Here is the list of attributes we are pulling : 
+  // - geometryChanging	: Needed by requiresGeometryUpdate()				To check if we needs to update the vertex and index buffer
+  // - outputSize			: Needed by populateGeometry()						To generate the geometry
+  //
+  // It is very important that all the attributes pulled from this method are cached (with Technique 1)
+  // Otherwise Evaluation Cache will not work
+  // In fact, this method is not needed by EM Evaluation modes
+  mFootPrintNode->updateRenderAttributes();
 }
 
 bool FootPrintGeometryOverride::requiresUpdateRenderItems(const MDagPath & path) const 
 {
-	// Override this function if you need a more complicated animated-material behavior
-	// For example, you will need to change this to `return true` if object's associated shader
-	// is changing at every frame. (This could be very expensive)
-	// Note, this method have to return 'false' in most case, otherwise VP2 caching may not work
-	// Note 2, for rendering simple animated-material like animated-color or animated-texture-uv
-	// Check FootPrintGeometryOverrideAnimatedMaterial example
-	return false;
+  // Override this function if you need a more complicated animated-material behavior
+  // For example, you will need to change this to `return true` if object's associated shader
+  // is changing at every frame. (This could be very expensive)
+  // Note, this method have to return 'false' in most case, otherwise VP2 caching may not work
+  // Note 2, for rendering simple animated-material like animated-color or animated-texture-uv
+  // Check FootPrintGeometryOverrideAnimatedMaterial example
+  return false;
 }
 
 void FootPrintGeometryOverride::updateRenderItems( const MDagPath& path, MRenderItemList& list )
 {
-	// This method will only happen for rendering, but not VP2 caching
-	// And it is usually call when the selection status of the object is changed
+  // This method will only happen for rendering, but not VP2 caching
+  // And it is usually call when the selection status of the object is changed
 
-	// Get an static solid color shader for selection highlight
-	// Note, by sharing the solid color shader, we allow VP2 to consolidate multiple geometries together during the drawing process
-	MColor color = MGeometryUtilities::wireframeColor(path);
-	MShaderInstance* shader = Globals->solidColorShaderStore.get(color);
+  // Get an static solid color shader for selection highlight
+  // Note, by sharing the solid color shader, we allow VP2 to consolidate multiple geometries together during the drawing process
+  MColor color = MGeometryUtilities::wireframeColor(path);
+  MShaderInstance* shader = Globals->solidColorShaderStore.get(color);
 
-	// Create the wireframe render item
-	int index = list.indexOf(WireframeItemName);
-	MRenderItem* wireframeItem = nullptr;
-	if (index < 0)
-	{
-		wireframeItem = MRenderItem::Create(
-			WireframeItemName,
-			MRenderItem::DecorationItem,
-			MGeometry::kLines);
-		wireframeItem->setDrawMode(MGeometry::kWireframe);
-		wireframeItem->enable(true);
-		wireframeItem->depthPriority(MRenderItem::sDormantWireDepthPriority);
-		list.append(wireframeItem);
-	} else {
-		wireframeItem = list.itemAt(index);
-	}
+  // Create the wireframe render item
+  int index = list.indexOf(WireframeItemName);
+  MRenderItem* wireframeItem = nullptr;
+  if (index < 0)
+  {
+    wireframeItem = MRenderItem::Create(
+      WireframeItemName,
+      MRenderItem::DecorationItem,
+      MGeometry::kLines);
+    wireframeItem->setDrawMode(MGeometry::kWireframe);
+    wireframeItem->enable(true);
+    wireframeItem->depthPriority(MRenderItem::sDormantWireDepthPriority);
+    list.append(wireframeItem);
+  } else {
+    wireframeItem = list.itemAt(index);
+  }
 
-	if (wireframeItem)
-	{
-		wireframeItem->setShader(shader);
-	}
+  if (wireframeItem)
+  {
+    wireframeItem->setShader(shader);
+  }
 
-	MRenderItem* shadedItem = nullptr;
+  MRenderItem* shadedItem = nullptr;
     index = list.indexOf(ShadedItemName);
     if (index < 0)
     {
-		shadedItem = MRenderItem::Create(
+    shadedItem = MRenderItem::Create(
             ShadedItemName,
             MRenderItem::DecorationItem,
             MGeometry::kTriangles);
-		shadedItem->setDrawMode((MGeometry::DrawMode)(MGeometry::kShaded | MGeometry::kTextured));
-		shadedItem->depthPriority(MRenderItem::sDormantFilledDepthPriority);
-		shadedItem->enable(true);
-		list.append(shadedItem);
-	} else{
-		shadedItem = list.itemAt(index);
-	}
+    shadedItem->setDrawMode((MGeometry::DrawMode)(MGeometry::kShaded | MGeometry::kTextured));
+    shadedItem->depthPriority(MRenderItem::sDormantFilledDepthPriority);
+    shadedItem->enable(true);
+    list.append(shadedItem);
+  } else{
+    shadedItem = list.itemAt(index);
+  }
 
-	// Update the shader based on if it is selected
-	if (shadedItem)
-	{
-		shadedItem->setShader(shader);
-	}
+  // Update the shader based on if it is selected
+  if (shadedItem)
+  {
+    shadedItem->setShader(shader);
+  }
 }
 
 // Encode a MColor with R8B8G8A8 encoding
 std::uint32_t SolidColorShaderStore::encode(MColor color)
 {
-	constexpr int bitsPerChannel = 8;
-	constexpr std::uint32_t mask = (1 << bitsPerChannel) - 1;
-	return
-		(static_cast<std::uint32_t>(color.r * mask) << (bitsPerChannel * 0)) |
-		(static_cast<std::uint32_t>(color.g * mask) << (bitsPerChannel * 1)) |
-		(static_cast<std::uint32_t>(color.b * mask) << (bitsPerChannel * 2)) |
-		(static_cast<std::uint32_t>(color.a * mask) << (bitsPerChannel * 3));
+  constexpr int bitsPerChannel = 8;
+  constexpr std::uint32_t mask = (1 << bitsPerChannel) - 1;
+  return
+    (static_cast<std::uint32_t>(color.r * mask) << (bitsPerChannel * 0)) |
+    (static_cast<std::uint32_t>(color.g * mask) << (bitsPerChannel * 1)) |
+    (static_cast<std::uint32_t>(color.b * mask) << (bitsPerChannel * 2)) |
+    (static_cast<std::uint32_t>(color.a * mask) << (bitsPerChannel * 3));
 }
 
 // Get or create a solid color shader of the given color
 MShaderInstance * SolidColorShaderStore::get(MColor color) {
-	auto& stored = mShaders[encode(color)];
-	if (!stored)
-	{
-		MShaderInstance* shader = nullptr;
-		MRenderer* renderer = MRenderer::theRenderer();
-		if (renderer)
-		{
-			const MShaderManager* shaderMgr = renderer->getShaderManager();
-			if (shaderMgr)
-			{
-				shader = shaderMgr->getStockShader(MShaderManager::k3dSolidShader);
-				shader->setParameter(ColorParameterName, &color.r);
-				stored.reset(shader);
-			}
-		}
-	}
-	return stored.get();
+  auto& stored = mShaders[encode(color)];
+  if (!stored)
+  {
+    MShaderInstance* shader = nullptr;
+    MRenderer* renderer = MRenderer::theRenderer();
+    if (renderer)
+    {
+      const MShaderManager* shaderMgr = renderer->getShaderManager();
+      if (shaderMgr)
+      {
+        shader = shaderMgr->getStockShader(MShaderManager::k3dSolidShader);
+        shader->setParameter(ColorParameterName, &color.r);
+        stored.reset(shader);
+      }
+    }
+  }
+  return stored.get();
 }
 
 //---------------------------------------------------------------------------
@@ -660,18 +660,18 @@ MShaderInstance * SolidColorShaderStore::get(MColor color) {
 // as it was in the corresponding cache-store frame
 bool FootPrintGeometryOverride::requiresGeometryUpdate() const
 {
-	// Checking the "FootPrintNode::geometryChanging" attribute
-	// If any attribute affecting the geometry is changing, "FootPrintNode::geometryChanging" should be affected and dirtied
-	// Also check FootPrintNode::updatingGeometry() 
-	// Warning, this method may be called outside of regular { update() : cleanUp() } scope.
-	// Thus, we must invoke node-local evaluation to ensure the correctness
-	return mFootPrintNode->isGeometryChanging();
+  // Checking the "FootPrintNode::geometryChanging" attribute
+  // If any attribute affecting the geometry is changing, "FootPrintNode::geometryChanging" should be affected and dirtied
+  // Also check FootPrintNode::updatingGeometry() 
+  // Warning, this method may be called outside of regular { update() : cleanUp() } scope.
+  // Thus, we must invoke node-local evaluation to ensure the correctness
+  return mFootPrintNode->isGeometryChanging();
 }
 
 namespace
 {
-	static constexpr int soleCount = 21;
-	static constexpr int heelCount = 17;
+  static constexpr int soleCount = 21;
+  static constexpr int heelCount = 17;
 }
 
 // Generate the geometry(vertex / index) from FootPrintNode's parameter data
@@ -681,203 +681,203 @@ void FootPrintGeometryOverride::populateGeometry(
     const MRenderItemList& renderItems,
     MGeometry& data)
 {
-	// This call will ensure the post-condition that requiresGeometryUpdate() is false
-	FootPrintNode::GeometryParameters footprintParam = mFootPrintNode->updatingGeometry();
+  // This call will ensure the post-condition that requiresGeometryUpdate() is false
+  FootPrintNode::GeometryParameters footprintParam = mFootPrintNode->updatingGeometry();
 
-	// Generating the vertex and index buffer from the parameters
-	MVertexBuffer* verticesBuffer       = nullptr;
+  // Generating the vertex and index buffer from the parameters
+  MVertexBuffer* verticesBuffer       = nullptr;
     float* vertices                     = nullptr;
 
-	const MVertexBufferDescriptorList& vertexBufferDescriptorList = requirements.vertexRequirements();
-	const int numberOfVertexRequirments = vertexBufferDescriptorList.length();
+  const MVertexBufferDescriptorList& vertexBufferDescriptorList = requirements.vertexRequirements();
+  const int numberOfVertexRequirments = vertexBufferDescriptorList.length();
 
-	MVertexBufferDescriptor vertexBufferDescriptor;
-	for (int requirmentNumber = 0; requirmentNumber < numberOfVertexRequirments; ++requirmentNumber)
-	{
-		if (!vertexBufferDescriptorList.getDescriptor(requirmentNumber, vertexBufferDescriptor))
-		{
-			continue;
-		}
+  MVertexBufferDescriptor vertexBufferDescriptor;
+  for (int requirmentNumber = 0; requirmentNumber < numberOfVertexRequirments; ++requirmentNumber)
+  {
+    if (!vertexBufferDescriptorList.getDescriptor(requirmentNumber, vertexBufferDescriptor))
+    {
+      continue;
+    }
 
-		switch (vertexBufferDescriptor.semantic())
-		{
-		case MGeometry::kPosition:
-			{
-				if (!verticesBuffer)
-				{
-					verticesBuffer = data.createVertexBuffer(vertexBufferDescriptor);
-					if (verticesBuffer)
-					{
-						vertices = (float*)verticesBuffer->acquire(soleCount+heelCount, false);
-					}
-				}
-			}
-			break;
-		default:
-			// do nothing for stuff we don't understand
-			break;
-		}
-	}
+    switch (vertexBufferDescriptor.semantic())
+    {
+    case MGeometry::kPosition:
+      {
+        if (!verticesBuffer)
+        {
+          verticesBuffer = data.createVertexBuffer(vertexBufferDescriptor);
+          if (verticesBuffer)
+          {
+            vertices = (float*)verticesBuffer->acquire(soleCount+heelCount, false);
+          }
+        }
+      }
+      break;
+    default:
+      // do nothing for stuff we don't understand
+      break;
+    }
+  }
 
-	fillFootPrintVertices(vertices, footprintParam.Size);
+  fillFootPrintVertices(vertices, footprintParam.Size);
 
-	if(verticesBuffer && vertices)
-	{
-		verticesBuffer->commit(vertices);
-	}
+  if(verticesBuffer && vertices)
+  {
+    verticesBuffer->commit(vertices);
+  }
 
-	// Now fill the index data
-	// Index data should not change with size
-	for (int i=0; i < renderItems.length(); ++i)
-	{
-		const MRenderItem* item = renderItems.itemAt(i);
+  // Now fill the index data
+  // Index data should not change with size
+  for (int i=0; i < renderItems.length(); ++i)
+  {
+    const MRenderItem* item = renderItems.itemAt(i);
 
-		if (!item)
-		{
-			continue;
-		}
+    if (!item)
+    {
+      continue;
+    }
 
-		MIndexBuffer* indexBuffer = data.createIndexBuffer(MGeometry::kUnsignedInt32);
+    MIndexBuffer* indexBuffer = data.createIndexBuffer(MGeometry::kUnsignedInt32);
 
-		if (item->name() == WireframeItemName )
-		{
-			int numPrimitive = heelCount + soleCount - 2;
-			int numIndex = numPrimitive * 2;
-
-            unsigned int* indices = (unsigned int*)indexBuffer->acquire(numIndex, false);
-
-			fillFootprintWireframeIndices(numIndex, indices);
-
-			indexBuffer->commit(indices);
-		}
-		else if (item->name() == ShadedItemName )
-		{
-			int numPrimitive = heelCount + soleCount - 4;
-			int numIndex = numPrimitive * 3;
+    if (item->name() == WireframeItemName )
+    {
+      int numPrimitive = heelCount + soleCount - 2;
+      int numIndex = numPrimitive * 2;
 
             unsigned int* indices = (unsigned int*)indexBuffer->acquire(numIndex, false);
-			fillFootprintSolidIndices(numIndex, indices);
 
-			indexBuffer->commit(indices);
-		}
+      fillFootprintWireframeIndices(numIndex, indices);
 
-		item->associateWithIndexBuffer(indexBuffer);
-	}
+      indexBuffer->commit(indices);
+    }
+    else if (item->name() == ShadedItemName )
+    {
+      int numPrimitive = heelCount + soleCount - 4;
+      int numIndex = numPrimitive * 3;
+
+            unsigned int* indices = (unsigned int*)indexBuffer->acquire(numIndex, false);
+      fillFootprintSolidIndices(numIndex, indices);
+
+      indexBuffer->commit(indices);
+    }
+
+    item->associateWithIndexBuffer(indexBuffer);
+  }
 }
 
 namespace {
-	// Foot Data
+  // Foot Data
 //
-	float sole[][3] = { {  0.00f, 0.0f, -0.70f },
-						{  0.04f, 0.0f, -0.69f },
-						{  0.09f, 0.0f, -0.65f },
-						{  0.13f, 0.0f, -0.61f },
-						{  0.16f, 0.0f, -0.54f },
-						{  0.17f, 0.0f, -0.46f },
-						{  0.17f, 0.0f, -0.35f },
-						{  0.16f, 0.0f, -0.25f },
-						{  0.15f, 0.0f, -0.14f },
-						{  0.13f, 0.0f,  0.00f },
-						{  0.00f, 0.0f,  0.00f },
-						{ -0.13f, 0.0f,  0.00f },
-						{ -0.15f, 0.0f, -0.14f },
-						{ -0.16f, 0.0f, -0.25f },
-						{ -0.17f, 0.0f, -0.35f },
-						{ -0.17f, 0.0f, -0.46f },
-						{ -0.16f, 0.0f, -0.54f },
-						{ -0.13f, 0.0f, -0.61f },
-						{ -0.09f, 0.0f, -0.65f },
-						{ -0.04f, 0.0f, -0.69f },
-						{ -0.00f, 0.0f, -0.70f } };
-	float heel[][3] = { {  0.00f, 0.0f,  0.06f },
-						{  0.13f, 0.0f,  0.06f },
-						{  0.14f, 0.0f,  0.15f },
-						{  0.14f, 0.0f,  0.21f },
-						{  0.13f, 0.0f,  0.25f },
-						{  0.11f, 0.0f,  0.28f },
-						{  0.09f, 0.0f,  0.29f },
-						{  0.04f, 0.0f,  0.30f },
-						{  0.00f, 0.0f,  0.30f },
-						{ -0.04f, 0.0f,  0.30f },
-						{ -0.09f, 0.0f,  0.29f },
-						{ -0.11f, 0.0f,  0.28f },
-						{ -0.13f, 0.0f,  0.25f },
-						{ -0.14f, 0.0f,  0.21f },
-						{ -0.14f, 0.0f,  0.15f },
-						{ -0.13f, 0.0f,  0.06f },
-						{ -0.00f, 0.0f,  0.06f } };
+  float sole[][3] = { {  0.00f, 0.0f, -0.70f },
+            {  0.04f, 0.0f, -0.69f },
+            {  0.09f, 0.0f, -0.65f },
+            {  0.13f, 0.0f, -0.61f },
+            {  0.16f, 0.0f, -0.54f },
+            {  0.17f, 0.0f, -0.46f },
+            {  0.17f, 0.0f, -0.35f },
+            {  0.16f, 0.0f, -0.25f },
+            {  0.15f, 0.0f, -0.14f },
+            {  0.13f, 0.0f,  0.00f },
+            {  0.00f, 0.0f,  0.00f },
+            { -0.13f, 0.0f,  0.00f },
+            { -0.15f, 0.0f, -0.14f },
+            { -0.16f, 0.0f, -0.25f },
+            { -0.17f, 0.0f, -0.35f },
+            { -0.17f, 0.0f, -0.46f },
+            { -0.16f, 0.0f, -0.54f },
+            { -0.13f, 0.0f, -0.61f },
+            { -0.09f, 0.0f, -0.65f },
+            { -0.04f, 0.0f, -0.69f },
+            { -0.00f, 0.0f, -0.70f } };
+  float heel[][3] = { {  0.00f, 0.0f,  0.06f },
+            {  0.13f, 0.0f,  0.06f },
+            {  0.14f, 0.0f,  0.15f },
+            {  0.14f, 0.0f,  0.21f },
+            {  0.13f, 0.0f,  0.25f },
+            {  0.11f, 0.0f,  0.28f },
+            {  0.09f, 0.0f,  0.29f },
+            {  0.04f, 0.0f,  0.30f },
+            {  0.00f, 0.0f,  0.30f },
+            { -0.04f, 0.0f,  0.30f },
+            { -0.09f, 0.0f,  0.29f },
+            { -0.11f, 0.0f,  0.28f },
+            { -0.13f, 0.0f,  0.25f },
+            { -0.14f, 0.0f,  0.21f },
+            { -0.14f, 0.0f,  0.15f },
+            { -0.13f, 0.0f,  0.06f },
+            { -0.00f, 0.0f,  0.06f } };
 }
 
 void FootPrintGeometryOverride::fillFootprintSolidIndices(int numIndex, unsigned int * indices)
 {
-	int primitiveIndex = 0;
-	int startIndex = 0;
+  int primitiveIndex = 0;
+  int startIndex = 0;
 
-	for (int i = 0; i < numIndex; )
-	{
-		if (i < (heelCount - 2) * 3)
-		{
-			startIndex = 0;
-			primitiveIndex = i / 3;
-		}
-		else
-		{
-			startIndex = heelCount;
-			primitiveIndex = i / 3 - heelCount + 2;
-		}
-		indices[i++] = startIndex;
-		indices[i++] = startIndex + primitiveIndex + 1;
-		indices[i++] = startIndex + primitiveIndex + 2;
-	}
+  for (int i = 0; i < numIndex; )
+  {
+    if (i < (heelCount - 2) * 3)
+    {
+      startIndex = 0;
+      primitiveIndex = i / 3;
+    }
+    else
+    {
+      startIndex = heelCount;
+      primitiveIndex = i / 3 - heelCount + 2;
+    }
+    indices[i++] = startIndex;
+    indices[i++] = startIndex + primitiveIndex + 1;
+    indices[i++] = startIndex + primitiveIndex + 2;
+  }
 }
 
 void FootPrintGeometryOverride::fillFootprintWireframeIndices(int numIndex, unsigned int * indices)
 {
-	int primitiveIndex = 0;
-	int startIndex = 0;
-	for (int i = 0; i < numIndex; )
-	{
-		if (i < (heelCount - 1) * 2)
-		{
-			startIndex = 0;
-			primitiveIndex = i / 2;
-		}
-		else
-		{
-			startIndex = heelCount;
-			primitiveIndex = i / 2 - heelCount + 1;
-		}
-		indices[i++] = startIndex + primitiveIndex;
-		indices[i++] = startIndex + primitiveIndex + 1;
-	}
+  int primitiveIndex = 0;
+  int startIndex = 0;
+  for (int i = 0; i < numIndex; )
+  {
+    if (i < (heelCount - 1) * 2)
+    {
+      startIndex = 0;
+      primitiveIndex = i / 2;
+    }
+    else
+    {
+      startIndex = heelCount;
+      primitiveIndex = i / 2 - heelCount + 1;
+    }
+    indices[i++] = startIndex + primitiveIndex;
+    indices[i++] = startIndex + primitiveIndex + 1;
+  }
 }
 
 void FootPrintGeometryOverride::fillFootPrintVertices(float * vertices, float outputSize)
 {
-	int verticesPointerOffset = 0;
+  int verticesPointerOffset = 0;
 
-	// We concatenate the heel and sole positions into a single vertex buffer.
-	// The index buffers will decide which positions will be selected for each render items.
-	for (int currentVertex = 0; currentVertex < soleCount + heelCount; ++currentVertex)
-	{
-		if (vertices)
-		{
-			if (currentVertex < heelCount)
-			{
-				int heelVtx = currentVertex;
-				vertices[verticesPointerOffset++] = heel[heelVtx][0] * outputSize;
-				vertices[verticesPointerOffset++] = heel[heelVtx][1] * outputSize;
-				vertices[verticesPointerOffset++] = heel[heelVtx][2] * outputSize;
-			}
-			else
-			{
-				int soleVtx = currentVertex - heelCount;
-				vertices[verticesPointerOffset++] = sole[soleVtx][0] * outputSize;
-				vertices[verticesPointerOffset++] = sole[soleVtx][1] * outputSize;
-				vertices[verticesPointerOffset++] = sole[soleVtx][2] * outputSize;
-			}
-		}
-	}
+  // We concatenate the heel and sole positions into a single vertex buffer.
+  // The index buffers will decide which positions will be selected for each render items.
+  for (int currentVertex = 0; currentVertex < soleCount + heelCount; ++currentVertex)
+  {
+    if (vertices)
+    {
+      if (currentVertex < heelCount)
+      {
+        int heelVtx = currentVertex;
+        vertices[verticesPointerOffset++] = heel[heelVtx][0] * outputSize;
+        vertices[verticesPointerOffset++] = heel[heelVtx][1] * outputSize;
+        vertices[verticesPointerOffset++] = heel[heelVtx][2] * outputSize;
+      }
+      else
+      {
+        int soleVtx = currentVertex - heelCount;
+        vertices[verticesPointerOffset++] = sole[soleVtx][0] * outputSize;
+        vertices[verticesPointerOffset++] = sole[soleVtx][1] * outputSize;
+        vertices[verticesPointerOffset++] = sole[soleVtx][2] * outputSize;
+      }
+    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -889,29 +889,29 @@ void FootPrintGeometryOverride::fillFootPrintVertices(float * vertices, float ou
 // Return true if internal tracing is desired.
 bool FootPrintGeometryOverride::traceCallSequence() const
 {
-	/*
-	Tracing will look something like the following when in shaded mode (on selection change):
+  /*
+  Tracing will look something like the following when in shaded mode (on selection change):
 
-		FootPrintGeometryOverride: Geometry override DG update: footPrint1
-		FootPrintGeometryOverride: Start geometry override render item update: |transform1|footPrint1
-		FootPrintGeometryOverride: - Call API to update render items
-		FootPrintGeometryOverride: End geometry override render item update: |transform1|footPrint1
-		FootPrintGeometryOverride: End geometry override clean up: footPrint1
+    FootPrintGeometryOverride: Geometry override DG update: footPrint1
+    FootPrintGeometryOverride: Start geometry override render item update: |transform1|footPrint1
+    FootPrintGeometryOverride: - Call API to update render items
+    FootPrintGeometryOverride: End geometry override render item update: |transform1|footPrint1
+    FootPrintGeometryOverride: End geometry override clean up: footPrint1
 
-	This is based on the existing stream and indexing dirty flags being used
-	which attempts to minimize the amount of render item, vertex buffer and indexing update.
-	*/
-	return false;
+  This is based on the existing stream and indexing dirty flags being used
+  which attempts to minimize the amount of render item, vertex buffer and indexing update.
+  */
+  return false;
 }
 
 inline void FootPrintGeometryOverride::handleTraceMessage(const MString & message) const
 {
-	MGlobal::displayInfo(gPluginNodeMessagePrefix + message);
+  MGlobal::displayInfo(gPluginNodeMessagePrefix + message);
 
-	// Some simple custom message formatting.
-	fputs(gPluginNodeMessagePrefix, stderr);
-	fputs(message.asChar(), stderr);
-	fputs("\n", stderr);
+  // Some simple custom message formatting.
+  fputs(gPluginNodeMessagePrefix, stderr);
+  fputs(message.asChar(), stderr);
+  fputs("\n", stderr);
 }
 
 //---------------------------------------------------------------------------
@@ -922,47 +922,47 @@ inline void FootPrintGeometryOverride::handleTraceMessage(const MString & messag
 
 MStatus FootPrintNode::initialize()
 {
-	// Setup the FootPrintNode's attributes
-	// Check the documentation in "class FootPrintNode" for detail
+  // Setup the FootPrintNode's attributes
+  // Check the documentation in "class FootPrintNode" for detail
 
-	MFnUnitAttribute unitFn;
-	MStatus			 stat;
+  MFnUnitAttribute unitFn;
+  MStatus			 stat;
 
-	outputSize = unitFn.create("outputSize", "osz", MFnUnitAttribute::kDistance);
-	unitFn.setDefault(1.0);
-	unitFn.setWritable(false);
-	stat = addAttribute(outputSize);
+  outputSize = unitFn.create("outputSize", "osz", MFnUnitAttribute::kDistance);
+  unitFn.setDefault(1.0);
+  unitFn.setWritable(false);
+  stat = addAttribute(outputSize);
 
-	if (!stat) {
-		stat.perror("addAttribute");
-		return stat;
-	}
+  if (!stat) {
+    stat.perror("addAttribute");
+    return stat;
+  }
 
-	inputSize = unitFn.create("size", "sz", MFnUnitAttribute::kDistance);
-	unitFn.setDefault(1.0);
-	stat = addAttribute(inputSize);
+  inputSize = unitFn.create("size", "sz", MFnUnitAttribute::kDistance);
+  unitFn.setDefault(1.0);
+  stat = addAttribute(inputSize);
 
-	if (!stat) {
-		stat.perror("addAttribute");
-		return stat;
-	}
+  if (!stat) {
+    stat.perror("addAttribute");
+    return stat;
+  }
 
 
-	MFnNumericAttribute attrFn;
-	geometryChanging = attrFn.create("geometryChanging", "gcg", MFnNumericData::kBoolean, true);
-	attrFn.setStorable(false);
-	attrFn.setHidden(true);
-	attrFn.setConnectable(false);
-	stat = addAttribute(geometryChanging);
-	if (!stat) {
-		stat.perror("addAttribute");
-		return stat;
-	}
+  MFnNumericAttribute attrFn;
+  geometryChanging = attrFn.create("geometryChanging", "gcg", MFnNumericData::kBoolean, true);
+  attrFn.setStorable(false);
+  attrFn.setHidden(true);
+  attrFn.setConnectable(false);
+  stat = addAttribute(geometryChanging);
+  if (!stat) {
+    stat.perror("addAttribute");
+    return stat;
+  }
 
-	attributeAffects(inputSize, outputSize);
-	attributeAffects(inputSize, geometryChanging);
+  attributeAffects(inputSize, outputSize);
+  attributeAffects(inputSize, geometryChanging);
 
-	return MS::kSuccess;
+  return MS::kSuccess;
 }
 
 // MStatus initializePlugin(MObject obj)

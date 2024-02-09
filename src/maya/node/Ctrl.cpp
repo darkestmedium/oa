@@ -323,14 +323,14 @@ void Ctrl::postConstructor() {
 MBoundingBox Ctrl::boundingBox() const {
   // Get the size
   CtrlUserData data;
-  data.get_plugs(self_object);
-  data.get_bbox(self_object, self_path, data.matLocal);
+  data.getPlugs(self_object);
+  data.getBbox(self_object, self_path, data.matLocal);
 
   return data.bbox;
 }
 
 
-void CtrlUserData::get_plugs(const MObject& object) {
+void CtrlUserData::getPlugs(const MObject& object) {
   /* Get all the necessary data from the attributes of the locator.
 
   Args:
@@ -371,7 +371,7 @@ void CtrlUserData::get_plugs(const MObject& object) {
 }
 
 
-void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix) {
+void CtrlUserData::getBbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix) {
   /* Gets the bounding box from the shapesDefinition.h file
 
   Args:
@@ -460,7 +460,7 @@ void CtrlUserData::get_bbox(const MObject& object, const MDagPath& dp_object, MM
 }
 
 
-void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, MMatrix matrix) {
+void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MMatrix matrix) {
   /* Get the points for each line and triangle used for drawing the shape.
 
   Do not reorder the triangle append order since it will flip normals.
@@ -563,7 +563,7 @@ void CtrlUserData::get_shape(const MObject& object, const MDagPath& dp_object, M
 }
 
 
-void CtrlUserData::get_text(const MObject& object) {
+void CtrlUserData::getText(const MObject& object) {
   draw_solver_mode = MPlug(object, Ctrl::attr_draw_solver_mode).asBool();
   pos_solver_mode = MPoint(
     MPlug(object, Ctrl::attr_solver_mode_positionX).asFloat(),
@@ -609,8 +609,8 @@ MBoundingBox CtrlDrawOverride::boundingBox(const MDagPath& objPath, const MDagPa
   CtrlUserData data;
   MObject node = objPath.node();
 
-  data.get_plugs(node);
-  data.get_bbox(node, objPath, data.matLocal);
+  data.getPlugs(node);
+  data.getBbox(node, objPath, data.matLocal);
 
   return data.bbox;
 }
@@ -659,9 +659,9 @@ MUserData* CtrlDrawOverride::prepareForDraw(const MDagPath& objPath, const MDagP
 
   if (!data) {data=new CtrlUserData;}
 
-  data->get_plugs(object);
-  data->get_shape(object, objPath, data->matLocal);
-  data->get_text(object);
+  data->getPlugs(object);
+  data->getShape(object, objPath, data->matLocal);
+  data->getText(object);
 
   data->colWireframe = MHWRender::MGeometryUtilities::wireframeColor(objPath);
   data->colShape = MColor(data->colWireframe.r, data->colWireframe.g, data->colWireframe.b, data->fillShapeOpacity);

@@ -8,7 +8,9 @@
 // #include "node/ShapeNode.hpp"
 #include "node/ShakeNode.hpp"
 #include "node/ShakeNodeRot.hpp"
-#include "node/ShakeCommand.hpp"
+#include "node/ShakeCmd.hpp"
+#include "node/Speedometer.hpp"
+#include "node/SpeedometerCmd.hpp"
 
 // Solvers
 #include "solve/Ik2bSolver.hpp"
@@ -29,7 +31,6 @@
 static MCallbackIdArray callbackIds;
 static MCallbackId afterNewCallbackId;
 static MCallbackId afterOpenCallbackId;
-
 static MCallbackId afterSaveSetMetaDataNodeCbId;
 
 
@@ -49,118 +50,190 @@ static void onSceneSaved(void* clientData) {
 
 
 MStatus initializePlugin(MObject obj) {
-  // Plugin variables
-  const char* author = "Lukasz Biernat";
-  const char* version = "0.0.1";
-  const char* requiredApiVersion = "Any";
+  // // Plugin variables
+  // const char* author = "Darkest Medium";
+  // const char* version = "0.0.1";
+  // const char* requiredApiVersion = "Any";
 
   MStatus status;
-  MFnPlugin fnPlugin(obj, author, version, requiredApiVersion);
+  // MFnPlugin fnPlugin(obj, author, version, requiredApiVersion);
+  MFnPlugin fnPlugin(
+    obj,
+    "Darkest Medium",
+    "0.0.1",
+    "Any"
+  );
 
 
-  // Register SpaceSwitchNode
-  status = fnPlugin.registerNode(
-    SpaceSwitchNode::typeName,
-    SpaceSwitchNode::typeId,
-    SpaceSwitchNode::creator,
-    SpaceSwitchNode::initialize,
-    MPxNode::kDependNode
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  // Register SpaceSwitch command
-  status = fnPlugin.registerCommand(
-    SpaceSwitchCmd::command_name,
-    SpaceSwitchCmd::creator,
-    SpaceSwitchCmd::syntaxCreator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-
-  // Register Controller node
-  status = fnPlugin.registerTransform(
-    ComponentNode::typeName,
-    ComponentNode::typeId, 
-    &ComponentNode::creator, 
-    &ComponentNode::initialize,
-    &MPxTransformationMatrix::creator,
-    MPxTransformationMatrix::baseTransformationMatrixId,
-    &ComponentNode::typeDrawDb
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  status = fnPlugin.registerCommand(
-    ComponentCmd::command_name,
-    ComponentCmd::creator,
-    ComponentCmd::syntaxCreator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-
-  status = fnPlugin.registerTransform(
-    Ctrl::typeName,
-    Ctrl::typeId, 
-    &Ctrl::creator, 
-    &Ctrl::initialize,
-    &MPxTransformationMatrix::creator,
-    MPxTransformationMatrix::baseTransformationMatrixId,
-    &Ctrl::typeDrawDb
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
-    Ctrl::typeDrawDb,
-    Ctrl::typeDrawId,
-    CtrlDrawOverride::creator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  { // Component
+    status = fnPlugin.registerTransform(
+      ComponentNode::typeName,
+      ComponentNode::typeId, 
+      &ComponentNode::creator, 
+      &ComponentNode::initialize,
+      &MPxTransformationMatrix::creator,
+      MPxTransformationMatrix::baseTransformationMatrixId,
+      &ComponentNode::typeDrawDb
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      ComponentCmd::command_name,
+      ComponentCmd::creator,
+      ComponentCmd::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
 
 
-  // Register Controller command
-  status = fnPlugin.registerCommand(
-    CtrlCommand::commandName,
-    CtrlCommand::creator,
-    CtrlCommand::syntaxCreator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  { // Ctrl
+    status = fnPlugin.registerTransform(
+      Ctrl::typeName,
+      Ctrl::typeId, 
+      &Ctrl::creator, 
+      &Ctrl::initialize,
+      &MPxTransformationMatrix::creator,
+      MPxTransformationMatrix::baseTransformationMatrixId,
+      &Ctrl::typeDrawDb
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+      Ctrl::typeDrawDb,
+      Ctrl::typeDrawId,
+      CtrlDrawOverride::creator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      CtrlCommand::commandName,
+      CtrlCommand::creator,
+      CtrlCommand::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
 
-  // Register Ik2bSolver node
-  status = fnPlugin.registerNode(
-    Ik2bSolver::typeName,
-    Ik2bSolver::typeId,
-    Ik2bSolver::creator,
-    Ik2bSolver::initialize,
-    MPxNode::kDependNode
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  // Register ik command
-  status = fnPlugin.registerCommand(
-    IkCommand::commandName,
-    IkCommand::creator,
-    IkCommand::syntaxCreator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
 
-  // Register MetaData node
-  status = fnPlugin.registerTransform(
-    MetaDataNode::type_name,
-    MetaDataNode::type_id, 
-    &MetaDataNode::creator, 
-    &MetaDataNode::initialize,
-    &MPxTransformationMatrix::creator,
-    MPxTransformationMatrix::baseTransformationMatrixId,
-    &MetaDataNode::type_drawdb
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  // Register MetaData draw override
-  status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
-    MetaDataNode::type_drawdb,
-    MetaDataNode::type_drawid,
-    MetaDataDrawOverride::creator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-  // Register MetaData command
-  status = fnPlugin.registerCommand(
-    MetaDataCmd::commandName,
-    MetaDataCmd::creator,
-    MetaDataCmd::syntaxCreator
-  );
-  CHECK_MSTATUS_AND_RETURN_IT(status);
+  { // SpaceSwitchNode
+    status = fnPlugin.registerNode(
+      SpaceSwitchNode::typeName,
+      SpaceSwitchNode::typeId,
+      SpaceSwitchNode::creator,
+      SpaceSwitchNode::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      SpaceSwitchCmd::command_name,
+      SpaceSwitchCmd::creator,
+      SpaceSwitchCmd::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
+
+
+  { // Ik2bSolver
+    status = fnPlugin.registerNode(
+      Ik2bSolver::typeName,
+      Ik2bSolver::typeId,
+      Ik2bSolver::creator,
+      Ik2bSolver::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      IkCommand::commandName,
+      IkCommand::creator,
+      IkCommand::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
+
+
+  { // MetaDataNode
+    status = fnPlugin.registerTransform(
+      MetaDataNode::type_name,
+      MetaDataNode::type_id, 
+      &MetaDataNode::creator, 
+      &MetaDataNode::initialize,
+      &MPxTransformationMatrix::creator,
+      MPxTransformationMatrix::baseTransformationMatrixId,
+      &MetaDataNode::type_drawdb
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+      MetaDataNode::type_drawdb,
+      MetaDataNode::type_drawid,
+      MetaDataDrawOverride::creator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      MetaDataCmd::commandName,
+      MetaDataCmd::creator,
+      MetaDataCmd::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
+
+
+  { // ShakeNode
+    status = fnPlugin.registerNode(
+      ShakeNode::typeName,
+      ShakeNode::typeId,
+      ShakeNode::creator,
+      ShakeNode::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerNode(
+      ShakeNodeRot::typeName,
+      ShakeNodeRot::typeId,
+      ShakeNodeRot::creator,
+      ShakeNodeRot::initialize,
+      MPxNode::kDependNode
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      ShakeCmd::commandName,
+      ShakeCmd::creator,
+      ShakeCmd::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    // // Add main menu items
+    // if (MGlobal::mayaState() == MGlobal::kInteractive)
+    // {
+    //   MGlobal::executePythonCommandOnIdle("from shakeNodeMainMenu import ShakeNodeMainMenu");
+    //   MGlobal::executePythonCommandOnIdle("ShakeNodeMainMenu().createMenuItems()");
+    // }
+  }
+
+  
+  { // Speedometer
+    status = fnPlugin.registerNode( 
+      Speedometer::typeName,
+      Speedometer::typeId,
+      Speedometer::creator,
+      Speedometer::initialize,
+      MPxLocatorNode::kLocatorNode,
+      &Speedometer::drawDbClassification
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+      Speedometer::drawDbClassification,
+      Speedometer::drawRegistrationId,
+      SpeedometerDrawOverride::creator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    status = fnPlugin.registerCommand(
+      SpeedometerCmd::commandName,
+      SpeedometerCmd::creator,
+      SpeedometerCmd::syntaxCreator
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    // // Add main menu items
+    // if (MGlobal::mayaState() == MGlobal::kInteractive) {
+    //   MGlobal::executePythonCommandOnIdle("from speedLocatorMainMenu import SpeedometerMainMenu");
+    //   MGlobal::executePythonCommandOnIdle("SpeedometerMainMenu().createMenuItems()");
+    // }
+  }
+
 
   // Register TwistSolver node
   status = fnPlugin.registerNode(
@@ -173,43 +246,6 @@ MStatus initializePlugin(MObject obj) {
   CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
-  // Shake Node
-  {
-    // Register shakeNode linear
-    status = fnPlugin.registerNode(
-      ShakeNode::typeName,
-      ShakeNode::typeId,
-      ShakeNode::creator,
-      ShakeNode::initialize,
-      MPxNode::kDependNode
-    );
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-
-    // Register shakeNode angular
-    status = fnPlugin.registerNode(
-      ShakeNodeRot::typeName,
-      ShakeNodeRot::typeId,
-      ShakeNodeRot::creator,
-      ShakeNodeRot::initialize,
-      MPxNode::kDependNode
-    );
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-
-    // Register shakeNode command
-    status = fnPlugin.registerCommand(
-      ShakeCommand::commandName,
-      ShakeCommand::creator,
-      ShakeCommand::syntaxCreator
-    );
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-
-    // // Add main menu items
-    // if (MGlobal::mayaState() == MGlobal::kInteractive)
-    // {
-    //   MGlobal::executePythonCommandOnIdle("from shakeNodeMainMenu import ShakeNodeMainMenu");
-    //   MGlobal::executePythonCommandOnIdle("ShakeNodeMainMenu().createMenuItems()");
-    // }
-  }
 
   // // Register FootRoll node
   // status = fnPlugin.registerNode(
@@ -220,7 +256,6 @@ MStatus initializePlugin(MObject obj) {
   // 	MPxNode::kDependNode
   // );
   // CHECK_MSTATUS_AND_RETURN_IT(status);
-
 
 
   // TEMP
@@ -269,6 +304,7 @@ MStatus initializePlugin(MObject obj) {
     // MGlobal::executePythonCommandOnIdle("CtrlMainMenu().createMenuItems()");
   }
 
+
   return status;
 }
 
@@ -281,38 +317,29 @@ MStatus uninitializePlugin(MObject obj) {
   MMessage::removeCallbacks(callbackIds);
 
 
-  // delete Globals;
-  // MHWRender::MDrawRegistry::deregisterGeometryOverrideCreator(
-  //   FootPrintNode::drawDbClassification,
-  //   FootPrintNode::drawRegistrantId
-  // );
-  // fnPlugin.deregisterNode(FootPrintNode::id);
+  { // Component
+    fnPlugin.deregisterCommand(ComponentCmd::command_name);
+    fnPlugin.deregisterNode(ComponentNode::typeId);
+  }
 
 
+  { // Ctrl
+    fnPlugin.deregisterCommand(CtrlCommand::commandName);
+    fnPlugin.deregisterNode(Ctrl::typeId);
+    MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(Ctrl::typeDrawDb, Ctrl::typeDrawId);
+  }
 
 
+  { // SpaceSwitchNode
+    fnPlugin.deregisterCommand(SpaceSwitchCmd::command_name);
+    fnPlugin.deregisterNode(SpaceSwitchNode::typeId);
+  }
 
 
-
-  // Deregister TwistSolver
-  status = fnPlugin.deregisterNode(TwistSolver::typeId);
-  CHECK_MSTATUS_AND_RETURN_IT(status);
-
-
-  // Shake Node
-  {
-    // Deregister shakeNode command
-    status = fnPlugin.deregisterCommand(ShakeCommand::commandName);
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-
-    // Deregister shakeNode angular
-    status = fnPlugin.deregisterNode(ShakeNodeRot::typeId);
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-
-    // Deregister shakeNode linear
-    status = fnPlugin.deregisterNode(ShakeNode::typeId);
-    CHECK_MSTATUS_AND_RETURN_IT(status);
-
+  { // ShakeNode
+    fnPlugin.deregisterCommand(ShakeCmd::commandName);
+    fnPlugin.deregisterNode(ShakeNodeRot::typeId);
+    fnPlugin.deregisterNode(ShakeNode::typeId);
     // // Remove main menu items
     // if (MGlobal::mayaState() == MGlobal::kInteractive) {
     //   MGlobal::executePythonCommandOnIdle("ShakeNodeMainMenu().deleteMenuItems()");
@@ -320,9 +347,20 @@ MStatus uninitializePlugin(MObject obj) {
   }
 
 
+  { // Speedometer
+    fnPlugin.deregisterCommand(SpeedometerCmd::commandName);
+    MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+      Speedometer::drawRegistrationId,
+      Speedometer::drawDbClassification
+    );
+    fnPlugin.deregisterNode(Speedometer::typeId);
+    // // Remove main menu items
+    // if (MGlobal::mayaState() == MGlobal::kInteractive) {
+    //   MGlobal::executePythonCommandOnIdle("SpeedometerMainMenu().deleteMenuItems()");
+    // }
+  }
 
-  // Deregister Footroll Node
-  // fnPlugin.deregisterNode(FootRollSolver::typeId);
+
 
   // Deregister MetaData command
   fnPlugin.deregisterCommand(IkCommand::commandName);
@@ -342,25 +380,26 @@ MStatus uninitializePlugin(MObject obj) {
   // Deregister Ik2bSolver
   fnPlugin.deregisterNode(Ik2bSolver::typeId);
 
-  // Deregister Controller draw override
-  fnPlugin.deregisterCommand(CtrlCommand::commandName);
-  fnPlugin.deregisterNode(Ctrl::typeId);
-  MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
-    Ctrl::typeDrawDb,
-    Ctrl::typeDrawId
-  );
+  // Deregister TwistSolver
+  fnPlugin.deregisterNode(TwistSolver::typeId);
 
-  fnPlugin.deregisterCommand(ComponentCmd::command_name);
-  fnPlugin.deregisterNode(ComponentNode::typeId);
+  // Deregister Footroll Node
+  // fnPlugin.deregisterNode(FootRollSolver::typeId);
 
-  fnPlugin.deregisterCommand(SpaceSwitchCmd::command_name);
-  fnPlugin.deregisterNode(SpaceSwitchNode::typeId);
 
   // // Deletes the maya main menu items
   // if (MGlobal::mayaState() == MGlobal::kInteractive)
   // {
   // MGlobal::executePythonCommandOnIdle("CtrlMainMenu().deleteMenuItems()");
   // }
+
+
+  // delete Globals;
+  // MHWRender::MDrawRegistry::deregisterGeometryOverrideCreator(
+  //   FootPrintNode::drawDbClassification,
+  //   FootPrintNode::drawRegistrantId
+  // );
+  // fnPlugin.deregisterNode(FootPrintNode::id);
 
   return status;
 }

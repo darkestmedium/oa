@@ -12,15 +12,20 @@ set(MAYA_FILES
   node/MetaDataCmd.cpp
   node/MetaDataNode.hpp
   node/MetaDataNode.cpp
-  # Shake Node
+  # ShakeNode
   node/PerlinNoise.hpp
   node/PerlinNoise.cpp
   node/ShakeNode.hpp
   node/ShakeNode.cpp
   node/ShakeNodeRot.hpp
   node/ShakeNodeRot.cpp
-  node/ShakeCommand.hpp
-  node/ShakeCommand.cpp
+  node/ShakeCmd.hpp
+  node/ShakeCmd.cpp
+  # Speedometer
+  node/Speedometer.hpp
+  node/Speedometer.cpp
+  node/SpeedometerCmd.hpp
+  node/SpeedometerCmd.cpp
 # Solvers
   solve/Ik2bSolver.hpp
   solve/Ik2bSolver.cpp

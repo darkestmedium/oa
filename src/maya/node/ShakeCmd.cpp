@@ -1,23 +1,23 @@
-#include "ShakeCommand.hpp"
+#include "ShakeCmd.hpp"
 
 
 
 // Public Data
-const char* ShakeCommand::commandName = "shake";
+const char* ShakeCmd::commandName = "shake";
 
 // Command's Flags
-const char* ShakeCommand::nameFlagShort = "-n";
-const char* ShakeCommand::nameFlagLong = "-name";
+const char* ShakeCmd::nameFlagShort = "-n";
+const char* ShakeCmd::nameFlagLong = "-name";
 
-const char* ShakeCommand::attributeFlagShort = "-a";
-const char* ShakeCommand::attributeFlagLong = "-attribute";
+const char* ShakeCmd::attributeFlagShort = "-a";
+const char* ShakeCmd::attributeFlagLong = "-attribute";
 
-const char* ShakeCommand::helpFlagShort = "-h";
-const char* ShakeCommand::helpFlagLong = "-help";
+const char* ShakeCmd::helpFlagShort = "-h";
+const char* ShakeCmd::helpFlagLong = "-help";
 
 
 
-MSyntax ShakeCommand::syntaxCreator() 
+MSyntax ShakeCmd::syntaxCreator() 
 {
   /* Creates the command's syntax object and returns it.
 
@@ -39,7 +39,7 @@ MSyntax ShakeCommand::syntaxCreator()
 }
 
 
-void ShakeCommand::displayHelp() 
+void ShakeCmd::displayHelp() 
 {
   /* Displays help for the command. */
   MString helpStr;
@@ -51,8 +51,7 @@ void ShakeCommand::displayHelp()
 }
 
 
-MStatus ShakeCommand::gatherFlagArguments(const MArgList& argList)
-{
+MStatus ShakeCmd::gatherFlagArguments(const MArgList& argList) {
   /* Parses the commands's flag arguments.
 
   Args:
@@ -68,20 +67,17 @@ MStatus ShakeCommand::gatherFlagArguments(const MArgList& argList)
   MArgDatabase argData(syntax(), argList);
   argData.getObjects(_selList);
 
-  if (argData.isFlagSet(nameFlagShort))
-  {
+  if (argData.isFlagSet(nameFlagShort)) {
     _shakeName = argData.flagArgumentString(nameFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
 
-  if (argData.isFlagSet(attributeFlagShort))
-  {
+  if (argData.isFlagSet(attributeFlagShort)) {
     _shakeAttribute = argData.flagArgumentString(attributeFlagShort, 0, &status);
     CHECK_MSTATUS_AND_RETURN_IT(status);
   }
 
-  if (argData.isFlagSet(helpFlagShort))
-  {
+  if (argData.isFlagSet(helpFlagShort)) {
     displayHelp();
     return MS::kSuccess;
   }
@@ -90,8 +86,7 @@ MStatus ShakeCommand::gatherFlagArguments(const MArgList& argList)
 }
 
 
-MStatus ShakeCommand::_getTime1Output()
-{
+MStatus ShakeCmd::_getTime1Output() {
   /* Gets the scene's default time1 output plug.
 
   Returns:
@@ -115,8 +110,7 @@ MStatus ShakeCommand::_getTime1Output()
 }
 
 
-MStatus ShakeCommand::_validateNodes()
-{
+MStatus ShakeCmd::_validateNodes() {
   /* Checks if we have at least one node.
 
   Returns:
@@ -125,8 +119,7 @@ MStatus ShakeCommand::_validateNodes()
 
   */
   MStatus status;
-  if (_selList.length() == 0)
-  {
+  if (_selList.length() == 0) {
     return MS::kFailure;
   }
 
@@ -134,8 +127,7 @@ MStatus ShakeCommand::_validateNodes()
 }
 
 
-MStatus ShakeCommand::_createShakeNode(MString name, MString output="angular")
-{
+MStatus ShakeCmd::_createShakeNode(MString name, MString output="angular") {
   /* Creates the specified shakeNode.
 
   Args:
@@ -150,13 +142,11 @@ MStatus ShakeCommand::_createShakeNode(MString name, MString output="angular")
   */
   MStatus status;
 
-  if (output == "angular")
-  { 
+  if (output == "angular") { 
     _shakeObj = _dgMod.createNode("shakeNodeRot");
     _dgMod.renameNode(_shakeObj, name);
   }
-  else if (output == "linear")
-  {
+  else if (output == "linear") {
     _shakeObj = _dgMod.createNode("shakeNode");
     _dgMod.renameNode(_shakeObj, name);
   }
@@ -170,7 +160,7 @@ MStatus ShakeCommand::_createShakeNode(MString name, MString output="angular")
 }
 
 
-MStatus ShakeCommand::_setupShake()
+MStatus ShakeCmd::_setupShake()
 {
   /* Core function for creating and setting up the shake and plugs.
 
@@ -227,7 +217,7 @@ MStatus ShakeCommand::_setupShake()
 }
 
 
-MStatus ShakeCommand::doIt(const MArgList& argList)
+MStatus ShakeCmd::doIt(const MArgList& argList)
 {
   /* Command's doIt method.
 
@@ -276,7 +266,7 @@ MStatus ShakeCommand::doIt(const MArgList& argList)
 }
 
 
-MStatus ShakeCommand::redoIt()
+MStatus ShakeCmd::redoIt()
 {
   /* Command's redoIt method.
 
@@ -304,7 +294,7 @@ MStatus ShakeCommand::redoIt()
 }
 
 
-MStatus ShakeCommand::undoIt() 
+MStatus ShakeCmd::undoIt() 
 {
   /* Command's undoIt method.
 
