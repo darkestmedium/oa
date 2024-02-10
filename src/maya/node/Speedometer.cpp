@@ -6,28 +6,38 @@
 // Class attributes
 const MString Speedometer::typeName("speedometer");
 const MTypeId Speedometer::typeId(0x0066671);
-const MString Speedometer::drawDbClassification("drawdb/geometry/speedometer");
-const MString Speedometer::drawRegistrationId("speedometerPlugin");
+const MString Speedometer::typeDrawDb("drawdb/geometry/animation/speedometer");
+const MString Speedometer::typeDrawId("speedometerPlugin");
 
-// Nodes' Input Attributes
+// Node's Input Attributes
 MObject Speedometer::localPosition, Speedometer::localPositionX, Speedometer::localPositionY, Speedometer::localPositionZ;
 MObject Speedometer::localRotate, Speedometer::localRotateX, Speedometer::localRotateY, Speedometer::localRotateZ;
 MObject Speedometer::localScale, Speedometer::localScaleX, Speedometer::localScaleY, Speedometer::localScaleZ;
+MObject Speedometer::textPosition, Speedometer::textPositionX, Speedometer::textPositionY, Speedometer::textPositionZ;
 
-Attribute Speedometer::attrInTransform;
+MObject Speedometer::attrIndxShape;
+MObject Speedometer::attrFillShape;
+MObject Speedometer::attrFillShapeOpacity;
+MObject Speedometer::attrWidthLine;
+MObject Speedometer::attrInDrawLine;
+
+Attribute Speedometer::attrInLineMatrix;
+Attribute Speedometer::attrOutLineMatrix;
+
+MObject Speedometer::attrText;
+MObject Speedometer::attrTextSize;
+MObject Speedometer::attrXRay;
+
+// Attribute Speedometer::attrInTransform;
 MObject Speedometer::attrInTime;
 
-MObject Speedometer::textOffsetAttr;
-MObject Speedometer::attrShapeIndx;
-MObject Speedometer::textAttr;
-MObject Speedometer::textSizeAttr;
-MObject Speedometer::precisionAttr;
-MObject Speedometer::unitTypeAttr;
-MObject Speedometer::lineWidthAttr;
+MObject Speedometer::attrPrecision;
+MObject Speedometer::attrUnitType;
 
 // Nodes's Output Attributes
 MObject Speedometer::updateAttr;
 MObject Speedometer::outputAttr;
+
 
 
 
@@ -41,105 +51,163 @@ MStatus Speedometer::initialize() {
       during the operation.
 
   */
-  MFnUnitAttribute fnUnit;
+  MFnUnitAttribute    fnUnit;
   MFnNumericAttribute fnNum;
-  MFnEnumAttribute fnEnum;
-  MFnMatrixAttribute fnMat;
-  MFnTypedAttribute tAttr;
-  MFnUnitAttribute uAttr;
+  MFnEnumAttribute    fnEnum;
+  MFnMatrixAttribute  fnMat;
+  MFnTypedAttribute   fnType;
 
-  localPositionX = fnNum.create("localPositionX", "lpx", MFnNumericData::kFloat);
-  localPositionY = fnNum.create("localPositionY", "lpy", MFnNumericData::kFloat);
-  localPositionZ = fnNum.create("localPositionZ", "lpz", MFnNumericData::kFloat);
-  localPosition = fnNum.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+  { // Local Transforms
+    localPositionX = fnNum.create("localPositionX", "lpx", MFnNumericData::kFloat);
+    localPositionY = fnNum.create("localPositionY", "lpy", MFnNumericData::kFloat);
+    localPositionZ = fnNum.create("localPositionZ", "lpz", MFnNumericData::kFloat);
+    localPosition = fnNum.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  localRotateX = fnUnit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
-  localRotateY = fnUnit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
-  localRotateZ = fnUnit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
-  localRotate = fnNum.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    localRotateX = fnUnit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
+    localRotateY = fnUnit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
+    localRotateZ = fnUnit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
+    localRotate = fnNum.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  localScaleX = fnNum.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
-  localScaleY = fnNum.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
-  localScaleZ = fnNum.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
-  localScale = fnNum.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    localScaleX = fnNum.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
+    localScaleY = fnNum.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
+    localScaleZ = fnNum.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
+    localScale = fnNum.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+  }
 
-  createAttribute(attrInTransform, "inTransform", DefaultValue<MMatrix>());
+  { // Shape
+    attrIndxShape = fnEnum.create("shape", "shp");
+    fnEnum.addField("Cube", 0);
+    fnEnum.addField("Square", 1);
+    fnEnum.addField("Cylinder", 2);
+    fnEnum.addField("Cone", 3);
+    fnEnum.addField("Circle", 4);
+    fnEnum.addField("Sphere", 5);
+    fnEnum.addField("Dome", 6);
+    fnEnum.addField("Diamond", 7);
+    fnEnum.addField("Pyramid", 8);
+    fnEnum.addField("Triangle", 9);
+    fnEnum.addField("Prism", 10);
+    fnEnum.addField("Locator", 11);
+    fnEnum.addField("Frame", 12);
+    fnEnum.addField("Arrow", 13);
+    fnEnum.addField("Arrow2Way", 14);
+    fnEnum.addField("Circle4Arrows", 15);
+    fnEnum.addField("Hip", 16);
+    fnEnum.addField("CircleHalfDouble", 17);
+    fnEnum.addField("PinRound", 18);
+    fnEnum.addField("Clavicle", 19);
+    fnEnum.addField("Pointer2Way", 20);
+    fnEnum.addField("Pointer2WayArc", 21);
+    fnEnum.addField("Cross", 22);
+    fnEnum.addField("CrossShort", 23);
+    fnEnum.addField("None", 24);
+    fnEnum.setKeyable(false);
+    fnEnum.setStorable(true);
+    fnEnum.setChannelBox(true);
 
-  attrInTime = uAttr.create("inTime", "itm", MFnUnitAttribute::kTime);
-  uAttr.setKeyable(true);
-  uAttr.setReadable(false);
+    attrFillShape = fnNum.create("fillShape", "fp", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  textOffsetAttr = fnNum.createPoint("textOffset", "tof");
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
-  fnNum.setReadable(false);
+    attrFillShapeOpacity = fnNum.create("fillShapeOpacity", "fso", MFnNumericData::kFloat, 0.1);
+    fnNum.setMin(0.01);
+    fnNum.setMax(1);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+  
+    attrWidthLine = fnNum.create("lineWidth", "lw", MFnNumericData::kDouble);
+    fnNum.setMin(0.5);
+    fnNum.setDefault(1.0);
+    fnNum.setMax(5);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  textAttr = tAttr.create("text", "txt", MFnData::kString);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
-  fnNum.setReadable(false);
+    attrInDrawLine = fnNum.create("drawLine", "dl", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  textSizeAttr = fnNum.create("textSize", "txts", MFnNumericData::kInt, 12);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
-  fnNum.setReadable(false);
-  fnNum.setMin(9);
-  fnNum.setMax(24);
+    createAttribute(attrInLineMatrix, "drawLineTo", DefaultValue<MMatrix>());
 
-  precisionAttr = fnNum.create("precision", "prec", MFnNumericData::kInt, 2);
-  fnNum.setMin(0);
-  fnNum.setMax(6);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
-  fnNum.setReadable(false);
+    attrXRay = fnNum.create("xRay", "xr", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+  }
 
-  unitTypeAttr = fnEnum.create("unitType", "utyp");
-  fnEnum.addField("km/h", 0);
-  fnEnum.addField("mi/h", 1);
-  fnEnum.addField("m/s", 2);
-  fnEnum.setKeyable(false);
-  fnEnum.setChannelBox(true);
 
-  attrShapeIndx = fnEnum.create("shape", "shp");
-  fnEnum.addField("Locator", 0);
-  fnEnum.addField("Square", 1);
-  fnEnum.addField("Cube", 2);
-  fnEnum.addField("Circle", 3);
-  fnEnum.addField("None", 4);
-  fnEnum.setKeyable(false);
-  fnEnum.setChannelBox(true);
+  // createAttribute(attrInTransform, "inTransform", DefaultValue<MMatrix>());
 
-  lineWidthAttr = fnNum.create("lineWidth", "lw", MFnNumericData::kDouble);
-  fnNum.setMin(0.5);
-  fnNum.setDefault(1.0);
-  fnNum.setMax(5);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+  { // Text
+    attrText = fnType.create("text", "txt", MFnData::kString);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+    fnNum.setReadable(false);
+
+    textPositionX = fnNum.create("textPositionX", "tpx", MFnNumericData::kDouble, 0.0);
+    textPositionY = fnNum.create("textPositionY", "tpy", MFnNumericData::kDouble, 0.0);
+    textPositionZ = fnNum.create("textPositionZ", "tpz", MFnNumericData::kDouble, 0.0);
+    textPosition = fnNum.create("textPosition", "tp", textPositionX, textPositionY, textPositionZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+
+    attrPrecision = fnNum.create("precision", "prec", MFnNumericData::kInt, 2);
+    fnNum.setMin(0);
+    fnNum.setMax(6);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+    fnNum.setReadable(false);
+
+    attrTextSize = fnNum.create("textSize", "txts", MFnNumericData::kInt, 12);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+    fnNum.setReadable(false);
+    fnNum.setMin(9);
+    fnNum.setMax(24);
+
+    attrUnitType = fnEnum.create("unitType", "utyp");
+    fnEnum.addField("km/h", 0);
+    fnEnum.addField("mi/h", 1);
+    fnEnum.addField("m/s", 2);
+    fnEnum.setKeyable(false);
+    fnEnum.setChannelBox(true);
+  }
+
+
+  attrInTime = fnUnit.create("inTime", "itm", MFnUnitAttribute::kTime);
+  fnUnit.setKeyable(true);
+  fnUnit.setReadable(false);
 
   updateAttr = fnNum.create("update", "upt", MFnNumericData::kDouble, 0.0);
   fnNum.setWritable(false);
 
-  outputAttr = tAttr.create("output", "out", MFnData::kString);
-  tAttr.setWritable(false);
+  outputAttr = fnType.create("output", "out", MFnData::kString);
+  fnType.setWritable(false);
 
   // Add attributes
   addAttributes(
     localPosition, localRotate, localScale,
-    attrInTransform, attrInTime, textAttr, precisionAttr, unitTypeAttr,
-    textOffsetAttr, textSizeAttr, attrShapeIndx, lineWidthAttr,
+    attrText, textPosition, attrPrecision, attrTextSize, attrUnitType,
+    attrIndxShape, attrFillShape, attrFillShapeOpacity, attrWidthLine, attrXRay,
+    attrInDrawLine, attrInLineMatrix,
+    attrInTime,
     updateAttr, outputAttr
   );
 
@@ -156,14 +224,16 @@ MStatus Speedometer::setDependentsDirty(const MPlug& plugBeingDirtied, MPlugArra
       to this list.
 
   */
-  if ( plugBeingDirtied == attrInTransform
-    || plugBeingDirtied == attrInTime
-    || plugBeingDirtied == textAttr
-    || plugBeingDirtied == precisionAttr
-    || plugBeingDirtied == unitTypeAttr
+  if ( 
+    // plugBeingDirtied == attrInTransform
+    // || plugBeingDirtied == attrInTime
+       plugBeingDirtied == attrInTime
+    || plugBeingDirtied == attrText
+    || plugBeingDirtied == attrPrecision
+    || plugBeingDirtied == attrUnitType
   )	{
-    affectedPlugs.append(MPlug(objSelf, outputAttr));
-    affectedPlugs.append(MPlug(objSelf, updateAttr));
+    affectedPlugs.append(MPlug(selfObject, outputAttr));
+    affectedPlugs.append(MPlug(selfObject, updateAttr));
   }
 
   return MS::kSuccess;
@@ -180,11 +250,10 @@ MBoundingBox Speedometer::boundingBox() const {
 
   */
   SpeedometerData data;
+  data.getPlugs(selfObject);
+  data.getBbox(selfObject, data.matLocal);
 
-  data.getPlugs(objSelf);
-  data.getBBox(objSelf, data.matrix);
-
-  return data.bBox;
+  return data.bbox;
 }
 
 
@@ -252,32 +321,32 @@ double Speedometer::getNumericFPS() {
 void Speedometer::getSelfPosition() {
   /* Get the world position of this node. */
   // MDagPath thisPath;
-  // MDagPath::getAPathTo(objSelf, thisPath);
-  MMatrix matrix = dpShape.inclusiveMatrix();
+  // MDagPath::getAPathTo(selfObject, thisPath);
+  MMatrix matrix = selfPath.inclusiveMatrix();
   posCurrent = MPoint(matrix[3][0], matrix[3][1], matrix[3][2]);
 }
 
 
-void Speedometer::setDisplayUnits(unsigned int unitTypeIndex) {
+void Speedometer::setDisplayUnits(unsigned int indxUnitType) {
   /* Sets the display unit for speed.
 
   Args:
-    unitTypeIndex (unsigned int): 0 is km/s, 1 is m/s
+    indxUnitType (unsigned int): 0 is km/s, 1 is m/s
 
   */
-  if (unitTypeIndex == 0) {  // km/h
+  if (indxUnitType == 0) {  // km/h
     if (speed != 0) {
       speed = speed * 3600 / 100000;
     }
     dispUnit = "km/h";
   }	
-  else if (unitTypeIndex == 1)	{
+  else if (indxUnitType == 1)	{
     if (speed != 0) {
       speed = speed * 3600 / 160000;
     }
     dispUnit = "mi/s";
   }
-  else if (unitTypeIndex == 2)	{
+  else if (indxUnitType == 2)	{
     if (speed != 0) {
       speed = speed / 100;
     }
@@ -316,7 +385,7 @@ double Speedometer::calculateSpeed(double distance, double timePassed) {
     double: The speed in generic units
 
   */ 
-  if (distance != 0 && timePassed != 0) 	{
+  if (distance != 0 && timePassed != 0) {
     return (distance / timePassed) * getNumericFPS();
   }	else {
     return distance;
@@ -331,13 +400,13 @@ MStatus Speedometer::parseDataBlock(MDataBlock& dataBlock) {
   // Ask for time value to force refresh on the node
   timeCurrent = dataBlock.inputValue(attrInTime, &status).asTime();
 
-  matTransform = dataBlock.inputValue(attrInTransform).asMatrix();
+  // matTransform = dataBlock.inputValue(attrInTransform).asMatrix();
   // posCurrent = MPoint(matTransform[3][0], matTransform[3][1], matTransform[3][2]);
 
   // Additional attributes
-  unitTypeIndex = dataBlock.inputValue(unitTypeAttr).asShort();
-  text = dataBlock.inputValue(textAttr).asString().asChar();
-  precision = dataBlock.inputValue(precisionAttr).asInt();
+  indxUnitType = dataBlock.inputValue(attrUnitType).asShort();
+  text = dataBlock.inputValue(attrText).asString().asChar();
+  precision = dataBlock.inputValue(attrPrecision).asInt();
 
   return MS::kSuccess;
 }
@@ -345,22 +414,18 @@ MStatus Speedometer::parseDataBlock(MDataBlock& dataBlock) {
 
 MStatus Speedometer::getSpeed() {
 
-  getSelfPosition();
+  // getSelfPosition();
+  posCurrent = MPoint(getTranslation(MSpace::kWorld));
 
   double distance = posCached.distanceTo(posCurrent);
   double timePassed = abs((timeCurrent - timeCached).value());
 
   speed = calculateSpeed(distance, timePassed);
 
-  setDisplayUnits(unitTypeIndex);
+  setDisplayUnits(indxUnitType);
 
   strSpeed = prd(speed, precision);
   strSpeed = text + " " + strSpeed + " " + dispUnit;
-
-  // MGlobal::displayWarning(std::to_string(distance).c_str());
-  // MGlobal::displayWarning(std::to_string(timePassed).c_str());
-  // MGlobal::displayWarning(std::to_string(speed).c_str());
-  // MGlobal::displayWarning(strSpeed.c_str());
 
   return MStatus::kSuccess;
 }
@@ -427,9 +492,9 @@ MStatus Speedometer::compute(const MPlug& plug, MDataBlock& dataBlock) {
   MStatus status;
 
   // if (plug != outputAttr || plug != updateAttr) {return MS::kUnknownParameter;}
-  if (!shouldCompute(plug, attrInTransform, attrInTime, textAttr, precisionAttr, unitTypeAttr)) {
-    return MS::kUnknownParameter;
-  }
+  // if (!shouldCompute(plug, attrInTime, attrInText, attrPrecision, attrUnitType)) {
+  //   return MS::kUnknownParameter;
+  // }
 
   CHECK_MSTATUS_AND_RETURN_IT(parseDataBlock(dataBlock));
 
@@ -461,7 +526,7 @@ void Speedometer::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisab
       be monitored for change.
 
   */
-  MPxLocatorNode::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
+  MPxTransform::getCacheSetup(evalNode, disablingInfo, cacheSetupInfo, monitoredAttributes);
   assert(!disablingInfo.getCacheDisabled());
   cacheSetupInfo.setPreference(MNodeCacheSetupInfo::kWantToCacheByDefault, true);
 }
@@ -478,36 +543,28 @@ void Speedometer::postConstructor() {
   member function.
 
   */
-  objSelf = thisMObject();
-  MDagPath::getAPathTo(objSelf, dpShape);
-  MFnDagNode fnShape(dpShape);
+  selfObject = thisMObject();
+  MDagPath::getAPathTo(selfObject, selfPath);
 
-  MObject objTransform = fnShape.parent(0);
-  MDagPath dpTransform;
-  MDagPath::getAPathTo(objTransform, dpTransform);
-  MFnDagNode fnTransform(dpTransform);
+  MFnDependencyNode fnThis(selfObject);
 
-  // MGlobal::displayWarning("Shape name " + fnShape.name());
-  // MGlobal::displayWarning("Transform name " + fnTransform.name());
+  // fnShape.setName(Speedometer::typeName);
 
-  fnShape.setName(Speedometer::typeName + "Shape");
+  MPlug plugOverrideEnabled = fnThis.findPlug("overrideEnabled", false);
+  plugOverrideEnabled.setValue(1);
+  MPlug plugOverrideRGBColors = fnThis.findPlug("overrideRGBColors", false);
+  plugOverrideRGBColors.setValue(1);
 
-  MPlug overrideEnabledPlug = fnShape.findPlug("overrideEnabled", false);
-  overrideEnabledPlug.setBool(1);
+  MPlug plugOverrideColorR = fnThis.findPlug("overrideColorR", false);
+  plugOverrideColorR.setValue(1.0);
+  MPlug plugOverrideColorG = fnThis.findPlug("overrideColorG", false);
+  plugOverrideColorG.setValue(1.0);
+  MPlug plugOverrideColorB = fnThis.findPlug("overrideColorB", false);
+  plugOverrideColorB.setValue(0.0);
 
-  MPlug overrideRGBColorsPlug = fnShape.findPlug("overrideRGBColors", false);
-  overrideRGBColorsPlug.setBool(1);
+  LMScene::connectSceneTime(selfObject, "inTime", modDg);
 
-  MPlug overrideColorRPlug = fnShape.findPlug("overrideColorR", false);
-  overrideColorRPlug.setFloat(1.0);
-  MPlug overrideColorGPlug = fnShape.findPlug("overrideColorG", false);
-  overrideColorGPlug.setFloat(1.0);
-  MPlug overrideColorBPlug = fnShape.findPlug("overrideColorB", false);
-  overrideColorBPlug.setFloat(0.0);
-
-  // LMScene::connectSceneTime(objSelf, "inTime", modDg);
-
-  // modDg.doIt();
+  modDg.doIt();
 }
 
 
@@ -520,69 +577,140 @@ void Speedometer::postConstructor() {
 
 
 
-void SpeedometerData::getPlugs(const MObject& obj)
-{
+void SpeedometerData::getPlugs(const MObject& object) {
   /* Get all the necessary data from the attributes of the locator.
 
   Args:
-    obj (MObject&): Object passed to query the attrbutes from
+    object (MObject&): Object passed to query the attrbutes from
 
   */
-  float tx = MPlug(obj, Speedometer::localPositionX).asFloat();
-  float ty = MPlug(obj, Speedometer::localPositionY).asFloat();
-  float tz = MPlug(obj, Speedometer::localPositionZ).asFloat();
+  float tx = MPlug(object, Speedometer::localPositionX).asFloat();
+  float ty = MPlug(object, Speedometer::localPositionY).asFloat();
+  float tz = MPlug(object, Speedometer::localPositionZ).asFloat();
 
-  float sx = MPlug(obj, Speedometer::localScaleX).asFloat();
-  float sy = MPlug(obj, Speedometer::localScaleY).asFloat();
-  float sz = MPlug(obj, Speedometer::localScaleZ).asFloat();
+  float rx = MPlug(object, Speedometer::localRotateX).asFloat();
+  float ry = MPlug(object, Speedometer::localRotateY).asFloat();
+  float rz = MPlug(object, Speedometer::localRotateZ).asFloat();
 
-  MMatrix newMatrix;
-  this->matrix = newMatrix;
-  this->matrix[0][0] *= sx;
-  this->matrix[0][1] *= sx;
-  this->matrix[0][2] *= sx;
+  float sx = MPlug(object, Speedometer::localScaleX).asFloat();
+  float sy = MPlug(object, Speedometer::localScaleY).asFloat();
+  float sz = MPlug(object, Speedometer::localScaleZ).asFloat();
 
-  this->matrix[1][0] *= sy;
-  this->matrix[1][1] *= sy;
-  this->matrix[1][2] *= sy;
+  this->matLocal = MEulerRotation(rx, ry, rz).asMatrix();
+  this->matLocal[3][0] = tx; this->matLocal[3][1] = ty;	this->matLocal[3][2] = tz;
+  this->matLocal[0][0] *= sx; this->matLocal[0][1] *= sx;	this->matLocal[0][2] *= sx;
+  this->matLocal[1][0] *= sy; this->matLocal[1][1] *= sy;	this->matLocal[1][2] *= sy;
+  this->matLocal[2][0] *= sz; this->matLocal[2][1] *= sz;	this->matLocal[2][2] *= sz;
 
-  this->matrix[2][0] *= sz;
-  this->matrix[2][1] *= sz;
-  this->matrix[2][2] *= sz;
+  float textPositionX = MPlug(object, Speedometer::textPositionX).asFloat();
+  float textPositionY = MPlug(object, Speedometer::textPositionY).asFloat();
+  float textPositionZ = MPlug(object, Speedometer::textPositionZ).asFloat();
+  posText = MPoint(textPositionX+tx, textPositionY+ty, textPositionZ+tz);
 
-  this->matrix[3][0] = tx;
-  this->matrix[3][1] = ty;
-  this->matrix[3][2] = tz;
+  indxShape =         MPlug(object, Speedometer::attrIndxShape).asShort();
+  bFillShape =        MPlug(object, Speedometer::attrFillShape).asBool();
+  fillShapeOpacity =  MPlug(object, Speedometer::attrFillShapeOpacity).asFloat();
+  widthLine =         MPlug(object, Speedometer::attrWidthLine).asFloat();
+  bDrawline =         MPlug(object, Speedometer::attrInDrawLine).asBool();
+  bXRay =             MPlug(object, Speedometer::attrXRay).asBool();
+  textToDraw =        MPlug(object, Speedometer::outputAttr).asString();
+  sizeText =          MPlug(object, Speedometer::attrTextSize).asInt();
 
-  MPlug textOffsetPlug(obj, Speedometer::textOffsetAttr);
-  double textOffsetX = textOffsetPlug.child(0).asDouble();
-  double textOffsetY = textOffsetPlug.child(1).asDouble();
-  double textOffsetZ = textOffsetPlug.child(2).asDouble();
-  this->_textOffset = MPoint(textOffsetX + tx, textOffsetY + ty, textOffsetZ + tz);
-
-  this->_textSize = MPlug(obj, Speedometer::textSizeAttr).asInt();
-
-  this->_lineWidth = MPlug(obj, Speedometer::lineWidthAttr).asFloat();
-
-  this->__drawText = MPlug(obj, Speedometer::outputAttr).asString();
+  matPv = MDataHandle(MPlug(object, Speedometer::attrInLineMatrix).asMDataHandle()).asMatrix();
+  posDrawPvTo = MPoint(matPv[3][0], matPv[3][1], matPv[3][2]);
 }
 
 
-void SpeedometerData::getBBox(const MObject& obj, MMatrix matrix) {
-  /* Gets the bounding box from the shapesDefinition.h file.
+
+void SpeedometerData::getBbox(const MObject& object, MMatrix matrix) {
+  /* Gets the bounding box from the shapesDefinition.h file
 
   Args:
-    obj (MObject&): Object passed to query the attrbutes from.
-    matrix (MMatrix): Matrix used to transform the bounding box.
+    obj (MObject &): Object passed to query the attrbutes from
+    matrix (MMatrix): Matrix used to transform the bounding box
 
   */
-  unsigned int shapeIndex = MPlug(obj, Speedometer::attrShapeIndx).asInt();
+  indxShape = MPlug(object, Speedometer::attrIndxShape).asShort();
+  switch(indxShape) {
+    case 0: // Cube
+      this->bbox = populateBoundingBox(bboxCube);
+      break;
+    case 1: // Square
+      this->bbox = populateBoundingBox(bboxSquare);
+      break;
+    case 2: // Cylinder
+      this->bbox = populateBoundingBox(bboxCylinder);
+      break;
+    case 3: // Cone
+      this->bbox = populateBoundingBox(bboxCone);
+      break;
+    case 4: // Circle
+      this->bbox = populateBoundingBox(bboxCircle);
+      break;
+    case 5: // Sphere
+      this->bbox = populateBoundingBox(bboxSphere);
+      break;
+    case 6: // Dome
+      this->bbox = populateBoundingBox(bboxCircle);
+      break;
+    case 7: // Diamond
+      this->bbox = populateBoundingBox(bboxDiamond);
+      break;
+    case 8: // Pyramid
+      this->bbox = populateBoundingBox(bboxPyramid);
+      break;
+    case 9: // Triangle
+      this->bbox = populateBoundingBox(bboxTriangle);
+      break;
+    case 10: // Prism
+      this->bbox = populateBoundingBox(bboxPrism);
+      break;
+    case 11: // Locator
+      this->bbox = populateBoundingBox(bboxLocator);
+      break;
+    case 12: // Frame
+      this->bbox = populateBoundingBox(bboxFrame);
+      break;
+    case 13: // Arrow
+      this->bbox = populateBoundingBox(bboxArrow);
+      break;
+    case 14: // Arrow2Way
+      this->bbox = populateBoundingBox(bboxArrow2Way);
+      break;
+    case 15: // Circle4Arrows
+      this->bbox = populateBoundingBox(bboxCircle4Arrows);
+      break;
+    case 16: // Hip
+      this->bbox = populateBoundingBox(bboxHip);
+      break;
+    case 17: // CircleHalfDouble
+      this->bbox = populateBoundingBox(bboxCircleHalfDouble);
+      break;
+    case 18: // PinRound
+      this->bbox = populateBoundingBox(bboxPinRound);
+      break;
+    case 19: // Clavicle
+      this->bbox = populateBoundingBox(bboxClavicle);
+      break;
+    case 20: // Pointer2Way
+      this->bbox = populateBoundingBox(bboxPointer2Way);
+      break;
+    case 21: // Pointer2WayArc
+      this->bbox = populateBoundingBox(bboxPointer2WayArc);
+      break;
+    case 22: // Cross
+      this->bbox = populateBoundingBox(bboxCross);
+      break;
+    case 23: // CrossShort
+      this->bbox = populateBoundingBox(bboxCrossShort);
+      break;
+  }
 
-  this->bBox.transformUsing(matrix);
+  this->bbox.transformUsing(matrix);
 }
 
 
-void SpeedometerData::getShpae(const MObject& obj, MMatrix matrix) {
+void SpeedometerData::getShape(const MObject& object,  const MDagPath& dpObject, MMatrix matrix) {
   /* Get the points for each line used for drawing the shape
 
   Args:
@@ -591,14 +719,114 @@ void SpeedometerData::getShpae(const MObject& obj, MMatrix matrix) {
 
   */
   MStatus status;
+  indxShape = MPlug(object, Speedometer::attrIndxShape).asShort();
 
-  unsigned int shapeIndex = MPlug(obj, Speedometer::attrShapeIndx).asInt();
+  this->arrayVertecies.clear();
+  this->arrayEdges.clear();
+  this->arrayTriangles.clear();
+  this->arrayLine.clear();  // for pole vector line only
 
-  this->fTransformedList.clear();
-  this->fLineList.clear();
+  switch(indxShape) {
+    case 0:  // Cube
+      populateVertexBuffer(pointsCube, idxEdgesCube, idxTrianglesCube, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 1:  // Square
+      populateVertexBuffer(pointsSquare, idxEdgesSquare, idxTrianglesSquare, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 2:  // Cylinder
+      populateVertexBuffer(pointsCylinder, idxEdgesCylinder, idxTrianglesCylinder, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 3:  // Cone
+      populateVertexBuffer(pointsCone, idxEdgesCone, idxTrianglesCone, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 4:  // Circle
+      populateVertexBuffer(pointsCircle, idxEdgesCircle, idxTrianglesCircle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 5:  // Sphere
+      populateVertexBuffer(pointsSphere, idxEdgesSphere, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 6:  // Dome
+      populateVertexBuffer(pointsDome, idxEdgesDome, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 7:  // Diamond
+      populateVertexBuffer(pointsDiamond, idxEdgesDiamond, idxTrianglesDiamond, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 8:  // Pyramid
+      populateVertexBuffer(pointsPyramid, idxEdgesPyramid, idxTrianglesPyramid, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 9:  // Triangle
+      populateVertexBuffer(pointsTriangle, idxEdgesTriangle, idxTrianglesTriangle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 10:  // Prism
+      populateVertexBuffer(pointsPrism, idxEdgesPrism, idxTrianglesPrism, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 11:  // Locator
+      populateVertexBuffer(pointsLocator, idxEdgesLocator, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 12:  // Frame
+      populateVertexBuffer(pointsFrame, idxEdgesFrame, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 13:  // Arrow
+      populateVertexBuffer(pointsArrow, idxEdgesArrow, idxTrianglesArrow, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 14:  // Arrow2Way
+      populateVertexBuffer(pointsArrow2Way, idxEdgesArrow2Way, idxTrianglesArrow2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 15:  // Circle4Arrows
+      populateVertexBuffer(pointsCircle4Arrows, idxEdgesCircle4Arrows, idxTrianglesCircle4Arrows, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 16:  // Hip
+      populateVertexBuffer(pointsHip, idxEdgesHip, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 17:  // CircleHalfDouble
+      populateVertexBuffer(pointsCircleHalfDouble, idxEdgesCircleHalfDouble, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 18:  // PinRound
+      populateVertexBuffer(pointsPinRound, idxEdgesPinRound, idxTrianglesPinRound, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 19:  // Clavicle
+      populateVertexBuffer(pointsClavicle, idxEdgesClavicle, arrayVertecies, arrayEdges, matrix);
+      break;
+    case 20:  // Pointer2Way
+      populateVertexBuffer(pointsPointer2Way, idxEdgesPointer2Way, idxTrianglesPointer2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 21:  // Pointer2WayArc
+      populateVertexBuffer(pointsPointer2WayArc, idxEdgesPointer2WayArc, idxTrianglesPointer2WayArc, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 22:  // Cross
+      populateVertexBuffer(pointsCross, idxEdgesCross, idxTrianglesCross, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+    case 23:  // CrossShort
+      populateVertexBuffer(pointsCrossShort, idxEdgesCrossShort, idxTrianglesCrossShort, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      break;
+  };
 
+  // Draw line for pole vectors
+  if (bDrawline) { 
+    // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attrInLineMatrix).asMDataHandle()).asMatrix();
+    arrayLine.append(MPoint() * matrix);
+    arrayLine.append(MPoint(posDrawPvTo[0], posDrawPvTo[1], posDrawPvTo[2]) * dpObject.inclusiveMatrixInverse());
+  }
 }
 
+
+// void SpeedometerData::getText(const MObject& object) {
+//   bDrawSolverMode = MPlug(object, Ctrl::attrDrawSolverMode).asBool();
+//   posSolverMode = MPoint(
+//     MPlug(object, Ctrl::attrSolverModePositionX).asFloat(),
+//     MPlug(object, Ctrl::attrSolverModePositionY).asFloat(),
+//     MPlug(object, Ctrl::attrSolverModePositionZ).asFloat()
+//   );
+//   fkIk = MPlug(object, Ctrl::attrInFkIk).asDouble();
+//   if (fkIk == 0.0) {
+//     strSolverMode = MString("Fk");
+//   } else if (fkIk > 0.0 && fkIk < 100.0) {
+//     MString strFkIk = LMText::doublePrecision(MPlug(object, Ctrl::attrInFkIk).asDouble(), 0).c_str();
+//     strSolverMode = MString("FkIk " + strFkIk);
+//   } else if (fkIk == 100.0) {
+//     strSolverMode = MString("Ik");
+//   }
+// }
 
 
 
@@ -635,9 +863,9 @@ MBoundingBox SpeedometerDrawOverride::boundingBox(const MDagPath& objPath, const
   MObject node = objPath.node();
 
   data.getPlugs(node);
-  data.getBBox(node, data.matrix);
+  data.getBbox(node, data.matLocal);
 
-  return data.bBox;
+  return data.bbox;
 }
 
 
@@ -681,15 +909,33 @@ MUserData* SpeedometerDrawOverride::prepareForDraw(const MDagPath& objPath, cons
   MStatus status;
 
   SpeedometerData* data = dynamic_cast<SpeedometerData*>(oldData);
-  MObject oNode = objPath.node(&status);
+  MObject object = objPath.node(&status);
 
   if (!data) {data = new SpeedometerData;}
 
-  data->getPlugs(oNode);
-  data->getShpae(oNode, data->matrix);
+  data->getPlugs(object);
+  data->getShape(object, objPath, data->matLocal);
+  // data->getText(object);
 
-  data->_wfColor = MHWRender::MGeometryUtilities::wireframeColor(objPath);
+  data->colWireframe = MHWRender::MGeometryUtilities::wireframeColor(objPath);
+  data->colShape = MColor(data->colWireframe.r, data->colWireframe.g, data->colWireframe.b, data->fillShapeOpacity);
 
+
+  // If XRay Joints Draw in XRay Mode
+  if (frameContext.getDisplayStyle() & MHWRender::MFrameContext::kXrayJoint) {data->bXRayJoint = true;}
+  else {data->bXRayJoint = false;}
+
+  switch (MHWRender::MGeometryUtilities::displayStatus(objPath)) {
+    case MHWRender::kLead:
+    case MHWRender::kActive:
+    case MHWRender::kHilite:
+    case MHWRender::kActiveComponent:
+      data->prioDepth = MHWRender::MRenderItem::sActiveWireDepthPriority;
+      break;
+    default:
+      data->prioDepth = MHWRender::MRenderItem::sDormantFilledDepthPriority;
+      break;
+  }
   return data;
 }
 
@@ -711,28 +957,45 @@ void SpeedometerDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender:
     data (MUserData*): Data cached by prepareForDraw().
 
   */
-  SpeedometerData* pSpeedometerData = (SpeedometerData*)data;
-  if (!pSpeedometerData) {return;}
+  SpeedometerData* pTransformData = (SpeedometerData*)data;
+  if (!pTransformData) {return;}
 
   drawManager.beginDrawable();
 
   drawManager.setDepthPriority(MHWRender::MRenderItem::sDormantFilledDepthPriority);
 
-  // Draw the outline
-  drawManager.setColor(pSpeedometerData->_wfColor);
-  drawManager.setLineWidth(pSpeedometerData->_lineWidth);
-  drawManager.mesh(MHWRender::MUIDrawManager::kLines,	pSpeedometerData->fLineList);
+  // If XRay Joints Draw in XRay Mode
+  if (pTransformData->bXRayJoint) {
+    if (pTransformData->bXRay) {drawManager.beginDrawInXray();}
+  }
+
+  // Draw edges
+  drawManager.setColor(pTransformData->colWireframe);
+  drawManager.setLineWidth(pTransformData->widthLine);
+  drawManager.mesh(MHWRender::MUIDrawManager::kLines, pTransformData->arrayEdges);
 
   // Draw text
-  drawManager.setFontSize(pSpeedometerData->_textSize);
-  drawManager.text(
-    pSpeedometerData->_textOffset,
-    pSpeedometerData->__drawText,
-    MUIDrawManager::kCenter,
-    NULL,
-    NULL,
-    false
-  );
+  drawManager.setFontSize(pTransformData->sizeText);
+  drawManager.setFontWeight(MHWRender::MUIDrawManager::kWeightLight);
+  drawManager.text(pTransformData->posText, pTransformData->textToDraw, drawManager.kCenter);
+
+
+  // Draw fill shape
+  if (pTransformData->bFillShape) {
+    drawManager.setColor(pTransformData->colShape);
+    drawManager.mesh(MHWRender::MUIDrawManager::kTriangles, pTransformData->arrayTriangles);
+  }
+
+  if (pTransformData->bDrawline) {
+    drawManager.setColor(pTransformData->colGrey);
+    drawManager.setLineStyle(MHWRender::MUIDrawManager::kShortDashed);
+    drawManager.line(pTransformData->arrayLine[0], pTransformData->arrayLine[1]);
+  }
+
+  // End drawable
+  if (pTransformData->bXRayJoint) {
+    if (pTransformData->bXRay) {drawManager.endDrawInXray();}
+  }
 
   drawManager.endDrawable();
 }

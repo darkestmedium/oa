@@ -1,12 +1,4 @@
-// System includes
-#include <array>
-#include <vector>
-
-
-
-
-using namespace std;
-
+#include "Shapes.hpp"
 
 
 

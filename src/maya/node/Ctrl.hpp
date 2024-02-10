@@ -54,9 +54,11 @@
 #include <maya/MPxDrawOverride.h>
 
 // Open APi
+#include "api/Shapes.hpp"
 #include "api/Utils.hpp"
 #include "api/Text.hpp"
 #include "api/Attribute.hpp"
+
 
 
 
@@ -128,7 +130,6 @@ public:
   static const MString typeDrawId;
 
   // Node attributes
-  // static MObject size;
   static MObject localPosition, localPositionX, localPositionY, localPositionZ;
   static MObject localRotate, localRotateX, localRotateY, localRotateZ;
   static MObject localScale, localScaleX, localScaleY, localScaleZ;
@@ -231,17 +232,17 @@ public:
   // Destructor
   virtual ~CtrlUserData() override {};
 
+  virtual void getBbox(const MObject& object, MMatrix matrix);
   virtual void getPlugs(const MObject& object);
-  virtual void getShape(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
-  virtual void getBbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix);
+  virtual void getShape(const MObject& object, const MDagPath& dpObject, MMatrix matrix);
   virtual void getText(const MObject& object);
 
 
-  MBoundingBox PopulateBoundingBox(const vector<array<float,3>>& bbox) {
+  MBoundingBox populateBoundingBox(const vector<array<float,3>>& bbox) {
     return MBoundingBox(MPoint(bbox[0][0], bbox[0][1], bbox[0][2]), MPoint(bbox[1][0], bbox[1][1], bbox[1][2]));
   }
 
-  void PopulateVertexBuffer(
+  void populateVertexBuffer(
     const vector<array<float,3>>& points,
     const vector<array<int,2>>& idxEdges,
     MPointArray& vertecies,
@@ -259,7 +260,7 @@ public:
     }
   };
 
-  void PopulateVertexBuffer(
+  void populateVertexBuffer(
     const vector<array<float,3>>& points,
     const vector<array<int,2>>& idxEdges,
     const vector<array<int,3>>& idxTriangles,
@@ -335,7 +336,8 @@ private:
     ptrCtrl = status ? dynamic_cast<Ctrl*>(fn_node.userNode()) : NULL;
   };
 
-  Ctrl*   ptrCtrl;    // The node we are rendering
+  Ctrl*       ptrCtrl;    // The node we are rendering
   MCallbackId fModelEditorChangedCbId;
   static void OnModelEditorChanged(void *clientData);
 };
+

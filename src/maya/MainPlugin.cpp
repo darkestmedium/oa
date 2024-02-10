@@ -206,18 +206,19 @@ MStatus initializePlugin(MObject obj) {
 
   
   { // Speedometer
-    status = fnPlugin.registerNode( 
+    status = fnPlugin.registerTransform( 
       Speedometer::typeName,
       Speedometer::typeId,
-      Speedometer::creator,
-      Speedometer::initialize,
-      MPxLocatorNode::kLocatorNode,
-      &Speedometer::drawDbClassification
+      &Speedometer::creator,
+      &Speedometer::initialize,
+      &MPxTransformationMatrix::creator,
+      MPxTransformationMatrix::baseTransformationMatrixId,
+      &Speedometer::typeDrawDb
     );
     CHECK_MSTATUS_AND_RETURN_IT(status);
     status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
-      Speedometer::drawDbClassification,
-      Speedometer::drawRegistrationId,
+      Speedometer::typeDrawDb,
+      Speedometer::typeDrawId,
       SpeedometerDrawOverride::creator
     );
     CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -351,8 +352,8 @@ MStatus uninitializePlugin(MObject obj) {
   { // Speedometer
     fnPlugin.deregisterCommand(SpeedometerCmd::commandName);
     MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
-      Speedometer::drawRegistrationId,
-      Speedometer::drawDbClassification
+      Speedometer::typeDrawDb,
+      Speedometer::typeDrawId
     );
     fnPlugin.deregisterNode(Speedometer::typeId);
     // // Remove main menu items

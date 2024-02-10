@@ -49,6 +49,7 @@
 #include <maya/MPxDrawOverride.h>
 
 // Open APi
+#include "api/Shapes.hpp"
 #include "api/Utils.hpp"
 #include "api/Text.hpp"
 #include "api/Attribute.hpp"
@@ -61,28 +62,37 @@ using namespace std;
 
 
 
-class Speedometer : public MPxLocatorNode {
+class Speedometer : public MPxTransform {
 public:
   // Class attributes
   static const MString typeName;
   static const MTypeId typeId;
-  static const MString drawDbClassification;
-  static const MString drawRegistrationId;
+  static const MString typeDrawDb;
+  static const MString typeDrawId;
 
   // Node's Input Attributes
   static MObject localPosition, localPositionX, localPositionY, localPositionZ;
   static MObject localRotate, localRotateX, localRotateY, localRotateZ;
   static MObject localScale, localScaleX, localScaleY, localScaleZ;
 
-  static MObject attrShapeIndx;
-  static Attribute attrInTransform;
+  static MObject attrIndxShape;
+  static MObject attrFillShape;
+  static MObject attrFillShapeOpacity;
+  static MObject attrWidthLine;
+  static MObject attrInDrawLine;
+
+  static Attribute attrInLineMatrix;
+  static Attribute attrOutLineMatrix;
+
+  static MObject attrText;
+  static MObject textPosition, textPositionX, textPositionY, textPositionZ;
+  static MObject attrTextSize;
+  static MObject attrXRay;
+  static MObject attrPrecision;
+  static MObject attrUnitType;
+
+  // static Attribute attrInTransform;
   static MObject attrInTime;
-  static MObject textOffsetAttr;
-  static MObject textAttr;
-  static MObject textSizeAttr;
-  static MObject precisionAttr;
-  static MObject unitTypeAttr;
-  static MObject lineWidthAttr;
 
   // Nodes's Output Attributes
   static MObject updateAttr;
@@ -90,30 +100,31 @@ public:
 
   // Public Data
   MMatrix matTransform;
-  MPoint posCurrent, posCached;
+  MPoint  posCurrent, posCached;
 
-  unsigned int unitTypeIndex;
-  std::string text;
-  int precision;
-  double speed;
-  std::string strSpeed;
+  unsigned int indxUnitType;
+  string  text;
+  int     precision;
+  double  speed;
+  string  strSpeed;
+  string  dispUnit;
 
-  std::string dispUnit;
-  // MAnimControl animCtl;
+  MTime       timeCurrent, timeCached;
+  MObject     selfObject;
+  MDagPath    selfPath;
   MDGModifier modDg;
 
-  MTime timeCurrent, timeCached;
-  MDagPath dpShape;
-  MObject objSelf;
+  // Use only on dynamic ctrl like fk/ik blending or pole vectors
+  bool      bDrawLine;
 
   // Constructors
   Speedometer() 
-    : MPxLocatorNode()
+    : MPxTransform()
     , posCached(MPoint(0.0, 0.0, 0.0))
     , timeCached(MTime(0.0, MTime::uiUnit()))
   {};
 
-  // Destructorstatic	MObject      geometryChanging;
+  // Destructor
   virtual ~Speedometer() override {};
 
   // Public methods - overrides
@@ -134,12 +145,14 @@ public:
   virtual void getSelfPosition();
   double getNumericFPS();
   double calculateSpeed(double distance, double timePassed);
-  virtual void setDisplayUnits(unsigned int unitTypeIndex);
+  virtual void setDisplayUnits(unsigned int indxUnitType);
   std::string prd(const double number, unsigned int decDigits);
 
   MStatus parseDataBlock(MDataBlock& dataBlock);
   MStatus getSpeed();
   MStatus updateOutput(const MPlug& plug, MDataBlock& dataBlock);
+
+
 };
 
 
@@ -156,31 +169,98 @@ public:
 
 class SpeedometerData : public MUserData {
 public:
-	// Constructors
-	SpeedometerData()
+  MMatrix       matLocal;
+  MBoundingBox  bbox;
+  MMatrix       matPv;
+  MPoint        posDrawPvTo;
+
+  short         indxShape;
+  bool          bFillShape;
+  float         fillShapeOpacity;
+  bool          bXRay;
+  bool          bXRayJoint;
+  unsigned int  prioDepth;
+
+  MPointArray   arrayVertecies;
+  MPointArray   arrayEdges;
+  MPointArray   arrayTriangles;
+  MPointArray   arrayLine;
+
+  float         widthLine;
+  MColor        colWireframe;
+  MColor        colShape;
+  MColor        colGrey;
+
+  MObject       objDrawLineTo;
+  MMatrix       matTo;
+  bool          bDrawline;
+
+  MString       textToDraw;
+  unsigned int  sizeText;
+  MPoint        posText;
+
+
+  // Constructors
+  SpeedometerData()
     : MUserData()
+    , colGrey(0.5, 0.5, 0.5)
   {};
 
-	// Destructor
-	virtual ~SpeedometerData() override {};
+  // Destructor
+  virtual ~SpeedometerData() override {};
 
-	// Public Methods
-	virtual void getPlugs(const MObject& obj);
-	virtual void getBBox(const MObject& obj, MMatrix matrix);
-	virtual void getShpae(const MObject& obj, MMatrix matrix);
+  virtual void getBbox(const MObject& object, MMatrix matrix);
+  virtual void getPlugs(const MObject& object);
+  virtual void getShape(const MObject& object, const MDagPath& dpObject, MMatrix matrix);
+  // virtual void getText(const MObject& object);
 
-	// Public Data
-	MBoundingBox bBox;
-	MMatrix matrix;
+  MBoundingBox populateBoundingBox(const vector<array<float,3>>& bbox) {
+    return MBoundingBox(MPoint(bbox[0][0], bbox[0][1], bbox[0][2]), MPoint(bbox[1][0], bbox[1][1], bbox[1][2]));
+  }
 
-	MPointArray fTransformedList;
-	MPointArray fLineList;
+  void populateVertexBuffer(
+    const vector<array<float,3>>& points,
+    const vector<array<int,2>>& idxEdges,
+    MPointArray& vertecies,
+    MPointArray& edges,
+    MMatrix& matrix
+  ) {
+    // Multiply the points by the matrix first
+    for (int i=0; i<points.size(); i++) {
+      vertecies.append(MPoint(points[i][0], points[i][1], points[i][2]) * matrix);
+    }
+    // Fill edges based on vertecies
+    for (int i=0; i<idxEdges.size(); i++) {
+      edges.append(vertecies[idxEdges[i][0]]);
+      edges.append(vertecies[idxEdges[i][1]]);
+    }
+  };
 
-	float _lineWidth;
-	MColor _wfColor;
-	MString __drawText;
-	MPoint _textOffset;
-	unsigned int _textSize;
+  void populateVertexBuffer(
+    const vector<array<float,3>>& points,
+    const vector<array<int,2>>& idxEdges,
+    const vector<array<int,3>>& idxTriangles,
+    MPointArray& vertecies,
+    MPointArray& edges,
+    MPointArray& triangles,
+    MMatrix& matrix
+  ) {
+    // Multiply the points by the matrix first
+    for (int i=0; i<points.size(); i++) {
+      vertecies.append(MPoint(points[i][0], points[i][1], points[i][2]) * matrix);
+    }
+    // Fill edges based on vertecies
+    for (int i=0; i<idxEdges.size(); i++) {
+      edges.append(vertecies[idxEdges[i][0]]);
+      edges.append(vertecies[idxEdges[i][1]]);
+    }
+    // Fill triangles
+    for (int i=0; i<idxTriangles.size(); i++) {
+      triangles.append(vertecies[idxTriangles[i][0]]);
+      triangles.append(vertecies[idxTriangles[i][1]]);
+      triangles.append(vertecies[idxTriangles[i][2]]);
+    }
+  };
 };
 
 
@@ -188,38 +268,38 @@ public:
 
 class SpeedometerDrawOverride : public MHWRender::MPxDrawOverride {
 public:
-	// Destructor
-	virtual ~SpeedometerDrawOverride() override {};
+  // Destructor
+  virtual ~SpeedometerDrawOverride() override {};
 
-	// Public Methods
-	static MHWRender::MPxDrawOverride* creator(const MObject& obj) {return new SpeedometerDrawOverride(obj);}
-	virtual MHWRender::DrawAPI supportedDrawAPIs() const override {return MHWRender::kAllDevices;}
+  // Public Methods
+  static MHWRender::MPxDrawOverride* creator(const MObject& obj) {return new SpeedometerDrawOverride(obj);}
+  virtual MHWRender::DrawAPI supportedDrawAPIs() const override {return MHWRender::kAllDevices;}
 
-	virtual bool isBounded(const MDagPath& objPath, const MDagPath& cameraPath) const override {return true;}
-	virtual MBoundingBox boundingBox(
-		const MDagPath& objPath,
-		const MDagPath& cameraPath
-	) const override;
+  virtual bool isBounded(const MDagPath& objPath, const MDagPath& cameraPath) const override {return true;}
+  virtual MBoundingBox boundingBox(
+    const MDagPath& objPath,
+    const MDagPath& cameraPath
+  ) const override;
 
-	virtual bool hasUIDrawables() const override {return true;}
-	virtual void addUIDrawables(
-		const MDagPath& objPath,
-		MHWRender::MUIDrawManager& drawManager,
-		const MHWRender::MFrameContext& frameContext,
-		const MUserData* data
-	) override;
+  virtual bool hasUIDrawables() const override {return true;}
+  virtual void addUIDrawables(
+    const MDagPath& objPath,
+    MHWRender::MUIDrawManager& drawManager,
+    const MHWRender::MFrameContext& frameContext,
+    const MUserData* data
+  ) override;
 
-	virtual MUserData* prepareForDraw(
-		const MDagPath& objPath,
-		const MDagPath& cameraPath,
-		const MHWRender::MFrameContext& frameContext,
-		MUserData* oldData
-	) override;
+  virtual MUserData* prepareForDraw(
+    const MDagPath& objPath,
+    const MDagPath& cameraPath,
+    const MHWRender::MFrameContext& frameContext,
+    MUserData* oldData
+  ) override;
 
 
 private:
-	// Constructors
-	SpeedometerDrawOverride(const MObject& obj)
+  // Constructors
+  SpeedometerDrawOverride(const MObject& obj)
     : MHWRender::MPxDrawOverride(obj, nullptr)
   {};
 

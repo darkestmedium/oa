@@ -1,5 +1,5 @@
 #include "Ctrl.hpp"
-#include "Shapes.hpp"
+
 
 
 
@@ -53,116 +53,128 @@ MStatus Ctrl::initialize() {
       during the operation.
 
   */
-  MStatus status;
-  MFnUnitAttribute fnUnit;
+  MFnUnitAttribute    fnUnit;
   MFnNumericAttribute fnNum;
-  MFnEnumAttribute fnEnum;
+  MFnEnumAttribute    fnEnum;
+  MFnMatrixAttribute  fnMat;
+  MFnTypedAttribute   fnType;
   MFnMessageAttribute fnMess;
 
-  localPositionX = fnNum.create("localPositionX", "lpx", MFnNumericData::kFloat);
-  localPositionY = fnNum.create("localPositionY", "lpy", MFnNumericData::kFloat);
-  localPositionZ = fnNum.create("localPositionZ", "lpz", MFnNumericData::kFloat);
-  localPosition = fnNum.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+  { // Local Transforms
+    localPositionX = fnNum.create("localPositionX", "lpx", MFnNumericData::kFloat);
+    localPositionY = fnNum.create("localPositionY", "lpy", MFnNumericData::kFloat);
+    localPositionZ = fnNum.create("localPositionZ", "lpz", MFnNumericData::kFloat);
+    localPosition = fnNum.create("localPosition", "lp", localPositionX, localPositionY, localPositionZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  localRotateX = fnUnit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
-  localRotateY = fnUnit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
-  localRotateZ = fnUnit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
-  localRotate = fnNum.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    localRotateX = fnUnit.create("localRotateX", "lrx", MFnUnitAttribute::kAngle);
+    localRotateY = fnUnit.create("localRotateY", "lry", MFnUnitAttribute::kAngle);
+    localRotateZ = fnUnit.create("localRotateZ", "lrz", MFnUnitAttribute::kAngle);
+    localRotate = fnNum.create("localRotate", "lr", localRotateX, localRotateY, localRotateZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  localScaleX = fnNum.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
-  localScaleY = fnNum.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
-  localScaleZ = fnNum.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
-  localScale = fnNum.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    localScaleX = fnNum.create("localScaleX", "lsx", MFnNumericData::kFloat, 1.0);
+    localScaleY = fnNum.create("localScaleY", "lsy", MFnNumericData::kFloat, 1.0);
+    localScaleZ = fnNum.create("localScaleZ", "lsz", MFnNumericData::kFloat, 1.0);
+    localScale = fnNum.create("localScale", "ls", localScaleX, localScaleY, localScaleZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+  }
 
-  attrIndxShape = fnEnum.create("shape", "shp");
-  fnEnum.addField("Cube", 0);
-  fnEnum.addField("Square", 1);
-  fnEnum.addField("Cylinder", 2);
-  fnEnum.addField("Cone", 3);
-  fnEnum.addField("Circle", 4);
-  fnEnum.addField("Sphere", 5);
-  fnEnum.addField("Dome", 6);
-  fnEnum.addField("Diamond", 7);
-  fnEnum.addField("Pyramid", 8);
-  fnEnum.addField("Triangle", 9);
-  fnEnum.addField("Prism", 10);
-  fnEnum.addField("Locator", 11);
-  fnEnum.addField("Frame", 12);
-  fnEnum.addField("Arrow", 13);
-  fnEnum.addField("Arrow2Way", 14);
-  fnEnum.addField("Circle4Arrows", 15);
-  fnEnum.addField("Hip", 16);
-  fnEnum.addField("CircleHalfDouble", 17);
-  fnEnum.addField("PinRound", 18);
-  fnEnum.addField("Clavicle", 19);
-  fnEnum.addField("Pointer2Way", 20);
-  fnEnum.addField("Pointer2WayArc", 21);
-  fnEnum.addField("Cross", 22);
-  fnEnum.addField("CrossShort", 23);
-  fnEnum.addField("None", 24);
-  fnEnum.setKeyable(false);
-  fnEnum.setStorable(true);
-  fnEnum.setChannelBox(true);
+  { // Shape
+    attrIndxShape = fnEnum.create("shape", "shp");
+    fnEnum.addField("Cube", 0);
+    fnEnum.addField("Square", 1);
+    fnEnum.addField("Cylinder", 2);
+    fnEnum.addField("Cone", 3);
+    fnEnum.addField("Circle", 4);
+    fnEnum.addField("Sphere", 5);
+    fnEnum.addField("Dome", 6);
+    fnEnum.addField("Diamond", 7);
+    fnEnum.addField("Pyramid", 8);
+    fnEnum.addField("Triangle", 9);
+    fnEnum.addField("Prism", 10);
+    fnEnum.addField("Locator", 11);
+    fnEnum.addField("Frame", 12);
+    fnEnum.addField("Arrow", 13);
+    fnEnum.addField("Arrow2Way", 14);
+    fnEnum.addField("Circle4Arrows", 15);
+    fnEnum.addField("Hip", 16);
+    fnEnum.addField("CircleHalfDouble", 17);
+    fnEnum.addField("PinRound", 18);
+    fnEnum.addField("Clavicle", 19);
+    fnEnum.addField("Pointer2Way", 20);
+    fnEnum.addField("Pointer2WayArc", 21);
+    fnEnum.addField("Cross", 22);
+    fnEnum.addField("CrossShort", 23);
+    fnEnum.addField("None", 24);
+    fnEnum.setKeyable(false);
+    fnEnum.setStorable(true);
+    fnEnum.setChannelBox(true);
 
-  attrFillShape = fnNum.create("fillShape", "fp", MFnNumericData::kBoolean, false);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    attrFillShape = fnNum.create("fillShape", "fp", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  attrFillShapeOpacity = fnNum.create("fillShapeOpacity", "fso", MFnNumericData::kFloat, 0.1);
-  fnNum.setMin(0.01);
-  fnNum.setMax(1);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    attrFillShapeOpacity = fnNum.create("fillShapeOpacity", "fso", MFnNumericData::kFloat, 0.1);
+    fnNum.setMin(0.01);
+    fnNum.setMax(1);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+  
+    attrWidthLine = fnNum.create("lineWidth", "lw", MFnNumericData::kDouble);
+    fnNum.setMin(0.5);
+    fnNum.setDefault(1.0);
+    fnNum.setMax(5);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  attrWidthLine = fnNum.create("lineWidth", "lw", MFnNumericData::kFloat, 2.0);
-  fnNum.setMin(0.5);
-  fnNum.setDefault(2.0);
-  fnNum.setMax(5);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    attrInDrawLine = fnNum.create("drawLine", "dl", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  attrInDrawLine = fnNum.create("drawLine", "dl", MFnNumericData::kBoolean, false);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    createAttribute(attrInLineMatrix, "drawLineTo", DefaultValue<MMatrix>());
 
-  createAttribute(attrInLineMatrix, "drawLineTo", DefaultValue<MMatrix>());
+    attrXRay = fnNum.create("xRay", "xr", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+  }
 
-  attrDrawSolverMode = fnNum.create("drawSolverMode", "dsm", MFnNumericData::kBoolean, false);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+  { // Text
+    attrDrawSolverMode = fnNum.create("drawSolverMode", "dsm", MFnNumericData::kBoolean, false);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  attrSolverModePositionX = fnNum.create("solverModePositionX", "smpx", MFnNumericData::kDouble, 0.0);
-  attrSolverModePositionY = fnNum.create("solverModePositionY", "smpy", MFnNumericData::kDouble, 0.0);
-  attrSolverModePositionZ = fnNum.create("solverModePositionZ", "smpz", MFnNumericData::kDouble, 0.0);
-  attrSolverModePosition = fnNum.create("solverModePosition", "smp", attrSolverModePositionX, attrSolverModePositionY, attrSolverModePositionZ);
-  fnNum.setStorable(true);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
+    attrSolverModePositionX = fnNum.create("solverModePositionX", "smpx", MFnNumericData::kDouble, 0.0);
+    attrSolverModePositionY = fnNum.create("solverModePositionY", "smpy", MFnNumericData::kDouble, 0.0);
+    attrSolverModePositionZ = fnNum.create("solverModePositionZ", "smpz", MFnNumericData::kDouble, 0.0);
+    attrSolverModePosition = fnNum.create("solverModePosition", "smp", attrSolverModePositionX, attrSolverModePositionY, attrSolverModePositionZ);
+    fnNum.setStorable(true);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
 
-  attrSolverModeSize = fnNum.create("solverModeSize", "sms", MFnNumericData::kInt, 14);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
-  fnNum.setMin(9);
-  fnNum.setMax(24);
+    attrSolverModeSize = fnNum.create("solverModeSize", "sms", MFnNumericData::kInt, 14);
+    fnNum.setStorable(true);
+    fnNum.setKeyable(false);
+    fnNum.setChannelBox(true);
+    fnNum.setMin(9);
+    fnNum.setMax(24);
+  }
 
   attrInFkIk = fnNum.create("fkIk", "fkIk", MFnNumericData::kDouble);
   fnNum.setStorable(true);
@@ -170,11 +182,6 @@ MStatus Ctrl::initialize() {
   fnNum.setChannelBox(true);
   fnNum.setSoftMin(0.0);
   fnNum.setSoftMax(100.0);
-
-  attrXRay = fnNum.create("xRay", "xr", MFnNumericData::kBoolean, false);
-  fnNum.setStorable(true);
-  fnNum.setKeyable(false);
-  fnNum.setChannelBox(true);
 
   attrComponent = fnMess.create("component", "component");
   fnMess.setWritable(false);
@@ -251,7 +258,6 @@ MStatus Ctrl::compute(const MPlug& plug, MDataBlock& dataBlock) {
   }	else {
     return MS::kUnknownParameter;
   }
-
   return MStatus::kSuccess;
 }
 
@@ -272,7 +278,6 @@ MStatus Ctrl::postEvaluation(const MDGContext& context, const MEvaluationNode& e
     boolHandle.setBool(true);
     boolHandle.setClean();
   }
-
   return MPxTransform::postEvaluation(context, evaluationNode, evalType);
 }
 
@@ -298,19 +303,18 @@ void Ctrl::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInf
 
 
 void Ctrl::postConstructor() {
-  selfObject=thisMObject();
+  selfObject = thisMObject();
   MDagPath::getAPathTo(selfObject, selfPath);
+  MFnDependencyNode fnThis(selfObject);
 
-  MFnDependencyNode fn_this(selfObject);
-
-  fn_this.findPlug("shear", false).setLocked(1);
-  fn_this.findPlug("rotateAxis", false).setLocked(1);
+  fnThis.findPlug("shear", false).setLocked(1);
+  fnThis.findPlug("rotateAxis", false).setLocked(1);
   // Set color
-  fn_this.findPlug("overrideEnabled", false).setBool(1);
-  fn_this.findPlug("overrideRGBColors", false).setBool(1);
-  fn_this.findPlug("overrideColorR", false).setDouble(1.0);
-  fn_this.findPlug("overrideColorG", false).setDouble(1.0);
-  fn_this.findPlug("overrideColorB", false).setDouble(0.25);
+  fnThis.findPlug("overrideEnabled", false).setBool(1);
+  fnThis.findPlug("overrideRGBColors", false).setBool(1);
+  fnThis.findPlug("overrideColorR", false).setDouble(1.0);
+  fnThis.findPlug("overrideColorG", false).setDouble(1.0);
+  fnThis.findPlug("overrideColorB", false).setDouble(0.25);
 
   bDrawLine = MPlug(selfObject, Ctrl::attrInDrawLine).asBool();
 }
@@ -320,7 +324,7 @@ MBoundingBox Ctrl::boundingBox() const {
   // Get the size
   CtrlUserData data;
   data.getPlugs(selfObject);
-  data.getBbox(selfObject, selfPath, data.matLocal);
+  data.getBbox(selfObject, data.matLocal);
 
   return data.bbox;
 }
@@ -351,8 +355,6 @@ void CtrlUserData::getPlugs(const MObject& object) {
   this->matLocal[1][0] *= sy; this->matLocal[1][1] *= sy;	this->matLocal[1][2] *= sy;
   this->matLocal[2][0] *= sz; this->matLocal[2][1] *= sz;	this->matLocal[2][2] *= sz;
 
-  MFnDependencyNode fn_object(object);
-
   indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
   bFillShape = MPlug(object, Ctrl::attrFillShape).asBool();
   fillShapeOpacity = MPlug(object, Ctrl::attrFillShapeOpacity).asFloat();
@@ -366,7 +368,7 @@ void CtrlUserData::getPlugs(const MObject& object) {
 }
 
 
-void CtrlUserData::getBbox(const MObject& object, const MDagPath& dp_object, MMatrix matrix) {
+void CtrlUserData::getBbox(const MObject& object, MMatrix matrix) {
   /* Gets the bounding box from the shapesDefinition.h file
 
   Args:
@@ -377,85 +379,85 @@ void CtrlUserData::getBbox(const MObject& object, const MDagPath& dp_object, MMa
   indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
   switch(indxShape) {
     case 0: // Cube
-      this->bbox = PopulateBoundingBox(bboxCube);
+      this->bbox = populateBoundingBox(bboxCube);
       break;
     case 1: // Square
-      this->bbox = PopulateBoundingBox(bboxSquare);
+      this->bbox = populateBoundingBox(bboxSquare);
       break;
     case 2: // Cylinder
-      this->bbox = PopulateBoundingBox(bboxCylinder);
+      this->bbox = populateBoundingBox(bboxCylinder);
       break;
     case 3: // Cone
-      this->bbox = PopulateBoundingBox(bboxCone);
+      this->bbox = populateBoundingBox(bboxCone);
       break;
     case 4: // Circle
-      this->bbox = PopulateBoundingBox(bboxCircle);
+      this->bbox = populateBoundingBox(bboxCircle);
       break;
     case 5: // Sphere
-      this->bbox = PopulateBoundingBox(bboxSphere);
+      this->bbox = populateBoundingBox(bboxSphere);
       break;
     case 6: // Dome
-      this->bbox = PopulateBoundingBox(bboxCircle);
+      this->bbox = populateBoundingBox(bboxCircle);
       break;
     case 7: // Diamond
-      this->bbox = PopulateBoundingBox(bboxDiamond);
+      this->bbox = populateBoundingBox(bboxDiamond);
       break;
     case 8: // Pyramid
-      this->bbox = PopulateBoundingBox(bboxPyramid);
+      this->bbox = populateBoundingBox(bboxPyramid);
       break;
     case 9: // Triangle
-      this->bbox = PopulateBoundingBox(bboxTriangle);
+      this->bbox = populateBoundingBox(bboxTriangle);
       break;
     case 10: // Prism
-      this->bbox = PopulateBoundingBox(bboxPrism);
+      this->bbox = populateBoundingBox(bboxPrism);
       break;
     case 11: // Locator
-      this->bbox = PopulateBoundingBox(bboxLocator);
+      this->bbox = populateBoundingBox(bboxLocator);
       break;
     case 12: // Frame
-      this->bbox = PopulateBoundingBox(bboxFrame);
+      this->bbox = populateBoundingBox(bboxFrame);
       break;
     case 13: // Arrow
-      this->bbox = PopulateBoundingBox(bboxArrow);
+      this->bbox = populateBoundingBox(bboxArrow);
       break;
     case 14: // Arrow2Way
-      this->bbox = PopulateBoundingBox(bboxArrow2Way);
+      this->bbox = populateBoundingBox(bboxArrow2Way);
       break;
     case 15: // Circle4Arrows
-      this->bbox = PopulateBoundingBox(bboxCircle4Arrows);
+      this->bbox = populateBoundingBox(bboxCircle4Arrows);
       break;
     case 16: // Hip
-      this->bbox = PopulateBoundingBox(bboxHip);
+      this->bbox = populateBoundingBox(bboxHip);
       break;
     case 17: // CircleHalfDouble
-      this->bbox = PopulateBoundingBox(bboxCircleHalfDouble);
+      this->bbox = populateBoundingBox(bboxCircleHalfDouble);
       break;
     case 18: // PinRound
-      this->bbox = PopulateBoundingBox(bboxPinRound);
+      this->bbox = populateBoundingBox(bboxPinRound);
       break;
     case 19: // Clavicle
-      this->bbox = PopulateBoundingBox(bboxClavicle);
+      this->bbox = populateBoundingBox(bboxClavicle);
       break;
     case 20: // Pointer2Way
-      this->bbox = PopulateBoundingBox(bboxPointer2Way);
+      this->bbox = populateBoundingBox(bboxPointer2Way);
       break;
     case 21: // Pointer2WayArc
-      this->bbox = PopulateBoundingBox(bboxPointer2WayArc);
+      this->bbox = populateBoundingBox(bboxPointer2WayArc);
       break;
     case 22: // Cross
-      this->bbox = PopulateBoundingBox(bboxCross);
+      this->bbox = populateBoundingBox(bboxCross);
       break;
     case 23: // CrossShort
-      this->bbox = PopulateBoundingBox(bboxCrossShort);
+      this->bbox = populateBoundingBox(bboxCrossShort);
       break;
   }
 
   this->bbox.transformUsing(matrix);
-  this->bbox.expand(this->posDrawPvTo);
+  // this->bbox.expand(this->posDrawPvTo);
 }
 
 
-void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MMatrix matrix) {
+void CtrlUserData::getShape(const MObject& object, const MDagPath& dpObject, MMatrix matrix) {
   /* Get the points for each line and triangle used for drawing the shape.
 
   Do not reorder the triangle append order since it will flip normals.
@@ -476,76 +478,76 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MM
 
   switch(indxShape) {
     case 0:  // Cube
-      PopulateVertexBuffer(pointsCube, idxEdgesCube, idxTrianglesCube, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCube, idxEdgesCube, idxTrianglesCube, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 1:  // Square
-      PopulateVertexBuffer(pointsSquare, idxEdgesSquare, idxTrianglesSquare, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsSquare, idxEdgesSquare, idxTrianglesSquare, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 2:  // Cylinder
-      PopulateVertexBuffer(pointsCylinder, idxEdgesCylinder, idxTrianglesCylinder, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCylinder, idxEdgesCylinder, idxTrianglesCylinder, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 3:  // Cone
-      PopulateVertexBuffer(pointsCone, idxEdgesCone, idxTrianglesCone, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCone, idxEdgesCone, idxTrianglesCone, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 4:  // Circle
-      PopulateVertexBuffer(pointsCircle, idxEdgesCircle, idxTrianglesCircle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCircle, idxEdgesCircle, idxTrianglesCircle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 5:  // Sphere
-      PopulateVertexBuffer(pointsSphere, idxEdgesSphere, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsSphere, idxEdgesSphere, arrayVertecies, arrayEdges, matrix);
       break;
     case 6:  // Dome
-      PopulateVertexBuffer(pointsDome, idxEdgesDome, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsDome, idxEdgesDome, arrayVertecies, arrayEdges, matrix);
       break;
     case 7:  // Diamond
-      PopulateVertexBuffer(pointsDiamond, idxEdgesDiamond, idxTrianglesDiamond, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsDiamond, idxEdgesDiamond, idxTrianglesDiamond, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 8:  // Pyramid
-      PopulateVertexBuffer(pointsPyramid, idxEdgesPyramid, idxTrianglesPyramid, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsPyramid, idxEdgesPyramid, idxTrianglesPyramid, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 9:  // Triangle
-      PopulateVertexBuffer(pointsTriangle, idxEdgesTriangle, idxTrianglesTriangle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsTriangle, idxEdgesTriangle, idxTrianglesTriangle, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 10:  // Prism
-      PopulateVertexBuffer(pointsPrism, idxEdgesPrism, idxTrianglesPrism, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsPrism, idxEdgesPrism, idxTrianglesPrism, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 11:  // Locator
-      PopulateVertexBuffer(pointsLocator, idxEdgesLocator, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsLocator, idxEdgesLocator, arrayVertecies, arrayEdges, matrix);
       break;
     case 12:  // Frame
-      PopulateVertexBuffer(pointsFrame, idxEdgesFrame, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsFrame, idxEdgesFrame, arrayVertecies, arrayEdges, matrix);
       break;
     case 13:  // Arrow
-      PopulateVertexBuffer(pointsArrow, idxEdgesArrow, idxTrianglesArrow, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsArrow, idxEdgesArrow, idxTrianglesArrow, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 14:  // Arrow2Way
-      PopulateVertexBuffer(pointsArrow2Way, idxEdgesArrow2Way, idxTrianglesArrow2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsArrow2Way, idxEdgesArrow2Way, idxTrianglesArrow2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 15:  // Circle4Arrows
-      PopulateVertexBuffer(pointsCircle4Arrows, idxEdgesCircle4Arrows, idxTrianglesCircle4Arrows, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCircle4Arrows, idxEdgesCircle4Arrows, idxTrianglesCircle4Arrows, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 16:  // Hip
-      PopulateVertexBuffer(pointsHip, idxEdgesHip, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsHip, idxEdgesHip, arrayVertecies, arrayEdges, matrix);
       break;
     case 17:  // CircleHalfDouble
-      PopulateVertexBuffer(pointsCircleHalfDouble, idxEdgesCircleHalfDouble, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsCircleHalfDouble, idxEdgesCircleHalfDouble, arrayVertecies, arrayEdges, matrix);
       break;
     case 18:  // PinRound
-      PopulateVertexBuffer(pointsPinRound, idxEdgesPinRound, idxTrianglesPinRound, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsPinRound, idxEdgesPinRound, idxTrianglesPinRound, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 19:  // Clavicle
-      PopulateVertexBuffer(pointsClavicle, idxEdgesClavicle, arrayVertecies, arrayEdges, matrix);
+      populateVertexBuffer(pointsClavicle, idxEdgesClavicle, arrayVertecies, arrayEdges, matrix);
       break;
     case 20:  // Pointer2Way
-      PopulateVertexBuffer(pointsPointer2Way, idxEdgesPointer2Way, idxTrianglesPointer2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsPointer2Way, idxEdgesPointer2Way, idxTrianglesPointer2Way, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 21:  // Pointer2WayArc
-      PopulateVertexBuffer(pointsPointer2WayArc, idxEdgesPointer2WayArc, idxTrianglesPointer2WayArc, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsPointer2WayArc, idxEdgesPointer2WayArc, idxTrianglesPointer2WayArc, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 22:  // Cross
-      PopulateVertexBuffer(pointsCross, idxEdgesCross, idxTrianglesCross, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCross, idxEdgesCross, idxTrianglesCross, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
     case 23:  // CrossShort
-      PopulateVertexBuffer(pointsCrossShort, idxEdgesCrossShort, idxTrianglesCrossShort, arrayVertecies, arrayEdges, arrayTriangles, matrix);
+      populateVertexBuffer(pointsCrossShort, idxEdgesCrossShort, idxTrianglesCrossShort, arrayVertecies, arrayEdges, arrayTriangles, matrix);
       break;
   };
 
@@ -553,7 +555,7 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dp_object, MM
   if (bDrawline) { 
     // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attrInLineMatrix).asMDataHandle()).asMatrix();
     arrayLine.append(MPoint() * matrix);
-    arrayLine.append(MPoint(posDrawPvTo[0], posDrawPvTo[1], posDrawPvTo[2]) * dp_object.inclusiveMatrixInverse());
+    arrayLine.append(MPoint(posDrawPvTo[0], posDrawPvTo[1], posDrawPvTo[2]) * dpObject.inclusiveMatrixInverse());
   }
 }
 
@@ -605,7 +607,7 @@ MBoundingBox CtrlDrawOverride::boundingBox(const MDagPath& objPath, const MDagPa
   MObject node = objPath.node();
 
   data.getPlugs(node);
-  data.getBbox(node, objPath, data.matLocal);
+  data.getBbox(node, data.matLocal);
 
   return data.bbox;
 }

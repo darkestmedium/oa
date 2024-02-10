@@ -8,11 +8,12 @@ set(NODE_FILES
   CtrlCmd.hpp
   CtrlCmd.cpp
   SpaceSwitchNode.hpp
-  Shapes.hpp
   MetaDataNode.hpp
   MetaDataNode.cpp
   MetaDataCmd.hpp
   MetaDataCmd.cpp
+  # Shapes.hpp
+  # Shapes.cpp
 )
 
 # add_library(oamayanode ${NODE_FILES})

@@ -3,15 +3,17 @@ project(oamayaapi LANGUAGES CXX)
 
 set(API_FILES
   # Api
-  Attribute.h
-  Global.h
-  AnimControl.h
-  Object.h
-  Plugin.h
-  RigUtils.h
-  Scene.h
-  Solve.h
-  Text.h
-  MathUtility.h
-  Utils.h
+  Attribute.hpp
+  Global.hpp
+  AnimControl.hpp
+  Object.hpp
+  Plugin.hpp
+  RigUtils.hpp
+  Scene.hpp
+  Solve.hpp
+  Shapes.hpp
+  # Shapes.cpp
+  Text.hpp
+  MathUtility.hpp
+  Utils.hpp
 )

@@ -1,5 +1,9 @@
 set(MAYA_FILES
+# APi
+  api/Shapes.cpp
 # Nodes
+  # node/Shapes.hpp
+  # node/Shapes.cpp
   node/ComponentNode.hpp
   node/Ctrl.hpp
   node/Ctrl.cpp
@@ -7,7 +11,6 @@ set(MAYA_FILES
   node/CtrlCmd.cpp
   node/ShapeNode.hpp
   node/SpaceSwitchNode.hpp
-  node/Shapes.hpp
   node/MetaDataCmd.hpp
   node/MetaDataCmd.cpp
   node/MetaDataNode.hpp
