@@ -2,8 +2,9 @@ set(MAYA_FILES
 # APi
   api/Shapes.cpp
 # Nodes
-  # node/Shapes.hpp
-  # node/Shapes.cpp
+  # Transform
+  node/TransformShape.hpp
+  node/TransformShape.cpp
   node/ComponentNode.hpp
   node/Ctrl.hpp
   node/Ctrl.cpp

@@ -1,4 +1,6 @@
 // Nodes
+#include "node/TransformShape.hpp"
+
 #include "node/ComponentNode.hpp"
 #include "node/Ctrl.hpp"
 #include "node/CtrlCmd.hpp"
@@ -50,7 +52,7 @@ static void onSceneSaved(void* clientData) {
 
 
 MStatus initializePlugin(MObject obj) {
-  // // Plugin variables
+  // // Plugin variables  // Constructors
   // const char* author = "Darkest Medium";
   // const char* version = "0.0.1";
   // const char* requiredApiVersion = "Any";
@@ -63,6 +65,33 @@ MStatus initializePlugin(MObject obj) {
     "0.0.1",
     "Any"
   );
+
+
+  { // Transform
+    status = fnPlugin.registerTransform(
+      TransformShape::typeName,
+      TransformShape::typeId, 
+      &TransformShape::creator, 
+      &TransformShape::initialize,
+      &MPxTransformationMatrix::creator,
+      MPxTransformationMatrix::baseTransformationMatrixId,
+      &TransformShape::typeDrawDb
+    );
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    // status = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+    //   Transform::typeDrawDb,
+    //   Transform::typeDrawId,
+    //   TransformDrawOverride::creator
+    // );
+    // CHECK_MSTATUS_AND_RETURN_IT(status);
+
+    // status = fnPlugin.registerCommand(
+    //   TransformCmd::commandName,
+    //   TransformCmd::creator,
+    //   TransformCmd::syntaxCreator
+    // );
+    // CHECK_MSTATUS_AND_RETURN_IT(status);
+  }
 
 
   { // Component
@@ -312,11 +341,19 @@ MStatus initializePlugin(MObject obj) {
 
 
 
+
 MStatus uninitializePlugin(MObject obj) {
   MStatus status;
   MFnPlugin fnPlugin(obj);
 
   MMessage::removeCallbacks(callbackIds);
+
+
+  { // Transform
+    // fnPlugin.deregisterCommand(CtrlCmd::commandName);
+    fnPlugin.deregisterNode(TransformShape::typeId);
+    // MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(Transform::typeDrawDb, Ctrl::typeDrawId);
+  }
 
 
   { // Component

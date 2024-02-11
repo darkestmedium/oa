@@ -3,8 +3,11 @@
 #include <vector>
 
 
+
+
 #ifndef SHAPES_HPP
 #define SHAPES_HPP
+
 
 
 
@@ -205,6 +208,8 @@ extern vector<array<float,3>> pointsNew;
 extern vector<array<float,3>> bboxNew;
 extern vector<array<int,2>> idxEdgesNew;
 extern vector<array<int,3>> idxTrianglesNew;
+
+
 
 
 #endif // SHAPES_HPP

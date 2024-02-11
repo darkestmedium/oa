@@ -95,8 +95,8 @@ public:
   static MObject attrInTime;
 
   // Nodes's Output Attributes
-  static MObject updateAttr;
-  static MObject outputAttr;
+  static	MObject geometryChanging;
+  static	MObject attrOutText;
 
   // Public Data
   MMatrix matTransform;
@@ -132,8 +132,9 @@ public:
   static MStatus  initialize();
   virtual void    postConstructor() override;
 
-  virtual MStatus setDependentsDirty(const MPlug& plugBeingDirtied, MPlugArray& affectedPlugs) override;
+  virtual MStatus setDependentsDirty(const MPlug& plug, MPlugArray& affectedPlugs) override;
   virtual MStatus compute(const MPlug& plug, MDataBlock& dataBlock) override;
+  // MStatus         postEvaluation(const  MDGContext& context, const MEvaluationNode& evaluationNode, PostEvaluationType evalType) override; 
 
   void            getCacheSetup(const MEvaluationNode& evalNode,	MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
   SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}

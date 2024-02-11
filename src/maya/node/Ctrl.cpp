@@ -10,8 +10,6 @@
 //--------------------------------------------------------------------------------------
 
 
-// MObject Ctrl::attrOutLineMatrix	= {};
-// MObject Ctrl::inputSize            = {};
 MObject Ctrl::geometryChanging        = {};
 
 
@@ -349,11 +347,11 @@ void CtrlUserData::getPlugs(const MObject& object) {
   float sy = MPlug(object, Ctrl::localScaleY).asFloat();
   float sz = MPlug(object, Ctrl::localScaleZ).asFloat();
 
-  this->matLocal = MEulerRotation(rx, ry, rz).asMatrix();
-  this->matLocal[3][0] = tx; this->matLocal[3][1] = ty;	this->matLocal[3][2] = tz;
-  this->matLocal[0][0] *= sx; this->matLocal[0][1] *= sx;	this->matLocal[0][2] *= sx;
-  this->matLocal[1][0] *= sy; this->matLocal[1][1] *= sy;	this->matLocal[1][2] *= sy;
-  this->matLocal[2][0] *= sz; this->matLocal[2][1] *= sz;	this->matLocal[2][2] *= sz;
+  matLocal = MEulerRotation(rx, ry, rz).asMatrix();
+  matLocal[3][0] = tx; matLocal[3][1] = ty;	matLocal[3][2] = tz;
+  matLocal[0][0] *= sx; matLocal[0][1] *= sx;	matLocal[0][2] *= sx;
+  matLocal[1][0] *= sy; matLocal[1][1] *= sy;	matLocal[1][2] *= sy;
+  matLocal[2][0] *= sz; matLocal[2][1] *= sz;	matLocal[2][2] *= sz;
 
   indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
   bFillShape = MPlug(object, Ctrl::attrFillShape).asBool();
@@ -379,81 +377,81 @@ void CtrlUserData::getBbox(const MObject& object, MMatrix matrix) {
   indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
   switch(indxShape) {
     case 0: // Cube
-      this->bbox = populateBoundingBox(bboxCube);
+      bbox = populateBoundingBox(bboxCube);
       break;
     case 1: // Square
-      this->bbox = populateBoundingBox(bboxSquare);
+      bbox = populateBoundingBox(bboxSquare);
       break;
     case 2: // Cylinder
-      this->bbox = populateBoundingBox(bboxCylinder);
+      bbox = populateBoundingBox(bboxCylinder);
       break;
     case 3: // Cone
-      this->bbox = populateBoundingBox(bboxCone);
+      bbox = populateBoundingBox(bboxCone);
       break;
     case 4: // Circle
-      this->bbox = populateBoundingBox(bboxCircle);
+      bbox = populateBoundingBox(bboxCircle);
       break;
     case 5: // Sphere
-      this->bbox = populateBoundingBox(bboxSphere);
+      bbox = populateBoundingBox(bboxSphere);
       break;
     case 6: // Dome
-      this->bbox = populateBoundingBox(bboxCircle);
+      bbox = populateBoundingBox(bboxCircle);
       break;
     case 7: // Diamond
-      this->bbox = populateBoundingBox(bboxDiamond);
+      bbox = populateBoundingBox(bboxDiamond);
       break;
     case 8: // Pyramid
-      this->bbox = populateBoundingBox(bboxPyramid);
+      bbox = populateBoundingBox(bboxPyramid);
       break;
     case 9: // Triangle
-      this->bbox = populateBoundingBox(bboxTriangle);
+      bbox = populateBoundingBox(bboxTriangle);
       break;
     case 10: // Prism
-      this->bbox = populateBoundingBox(bboxPrism);
+      bbox = populateBoundingBox(bboxPrism);
       break;
     case 11: // Locator
-      this->bbox = populateBoundingBox(bboxLocator);
+      bbox = populateBoundingBox(bboxLocator);
       break;
     case 12: // Frame
-      this->bbox = populateBoundingBox(bboxFrame);
+      bbox = populateBoundingBox(bboxFrame);
       break;
     case 13: // Arrow
-      this->bbox = populateBoundingBox(bboxArrow);
+      bbox = populateBoundingBox(bboxArrow);
       break;
     case 14: // Arrow2Way
-      this->bbox = populateBoundingBox(bboxArrow2Way);
+      bbox = populateBoundingBox(bboxArrow2Way);
       break;
     case 15: // Circle4Arrows
-      this->bbox = populateBoundingBox(bboxCircle4Arrows);
+      bbox = populateBoundingBox(bboxCircle4Arrows);
       break;
     case 16: // Hip
-      this->bbox = populateBoundingBox(bboxHip);
+      bbox = populateBoundingBox(bboxHip);
       break;
     case 17: // CircleHalfDouble
-      this->bbox = populateBoundingBox(bboxCircleHalfDouble);
+      bbox = populateBoundingBox(bboxCircleHalfDouble);
       break;
     case 18: // PinRound
-      this->bbox = populateBoundingBox(bboxPinRound);
+      bbox = populateBoundingBox(bboxPinRound);
       break;
     case 19: // Clavicle
-      this->bbox = populateBoundingBox(bboxClavicle);
+      bbox = populateBoundingBox(bboxClavicle);
       break;
     case 20: // Pointer2Way
-      this->bbox = populateBoundingBox(bboxPointer2Way);
+      bbox = populateBoundingBox(bboxPointer2Way);
       break;
     case 21: // Pointer2WayArc
-      this->bbox = populateBoundingBox(bboxPointer2WayArc);
+      bbox = populateBoundingBox(bboxPointer2WayArc);
       break;
     case 22: // Cross
-      this->bbox = populateBoundingBox(bboxCross);
+      bbox = populateBoundingBox(bboxCross);
       break;
     case 23: // CrossShort
-      this->bbox = populateBoundingBox(bboxCrossShort);
+      bbox = populateBoundingBox(bboxCrossShort);
       break;
   }
 
-  this->bbox.transformUsing(matrix);
-  // this->bbox.expand(this->posDrawPvTo);
+  bbox.transformUsing(matrix);
+  // bbox.expand(posDrawPvTo);
 }
 
 
@@ -471,10 +469,10 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dpObject, MMa
 
   indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
 
-  this->arrayVertecies.clear();
-  this->arrayEdges.clear();
-  this->arrayTriangles.clear();
-  this->arrayLine.clear();  // for pole vector line only
+  arrayVertecies.clear();
+  arrayEdges.clear();
+  arrayTriangles.clear();
+  arrayLine.clear();  // for pole vector line only
 
   switch(indxShape) {
     case 0:  // Cube

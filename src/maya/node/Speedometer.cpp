@@ -13,7 +13,6 @@ const MString Speedometer::typeDrawId("speedometerPlugin");
 MObject Speedometer::localPosition, Speedometer::localPositionX, Speedometer::localPositionY, Speedometer::localPositionZ;
 MObject Speedometer::localRotate, Speedometer::localRotateX, Speedometer::localRotateY, Speedometer::localRotateZ;
 MObject Speedometer::localScale, Speedometer::localScaleX, Speedometer::localScaleY, Speedometer::localScaleZ;
-MObject Speedometer::textPosition, Speedometer::textPositionX, Speedometer::textPositionY, Speedometer::textPositionZ;
 
 MObject Speedometer::attrIndxShape;
 MObject Speedometer::attrFillShape;
@@ -25,6 +24,7 @@ Attribute Speedometer::attrInLineMatrix;
 Attribute Speedometer::attrOutLineMatrix;
 
 MObject Speedometer::attrText;
+MObject Speedometer::textPosition, Speedometer::textPositionX, Speedometer::textPositionY, Speedometer::textPositionZ;
 MObject Speedometer::attrTextSize;
 MObject Speedometer::attrXRay;
 
@@ -35,8 +35,8 @@ MObject Speedometer::attrPrecision;
 MObject Speedometer::attrUnitType;
 
 // Nodes's Output Attributes
-MObject Speedometer::updateAttr;
-MObject Speedometer::outputAttr;
+MObject Speedometer::geometryChanging;
+MObject Speedometer::attrOutText;
 
 
 
@@ -175,7 +175,7 @@ MStatus Speedometer::initialize() {
     fnNum.setChannelBox(true);
     fnNum.setReadable(false);
 
-    attrTextSize = fnNum.create("textSize", "txts", MFnNumericData::kInt, 12);
+    attrTextSize = fnNum.create("textSize", "txts", MFnNumericData::kInt, 14);
     fnNum.setKeyable(false);
     fnNum.setChannelBox(true);
     fnNum.setReadable(false);
@@ -195,10 +195,12 @@ MStatus Speedometer::initialize() {
   fnUnit.setKeyable(true);
   fnUnit.setReadable(false);
 
-  updateAttr = fnNum.create("update", "upt", MFnNumericData::kDouble, 0.0);
-  fnNum.setWritable(false);
+  geometryChanging = fnNum.create("geometryChanging", "gcg", MFnNumericData::kBoolean, true);
+  fnNum.setStorable(false);
+  fnNum.setHidden(true);
+  fnNum.setConnectable(false);
 
-  outputAttr = fnType.create("output", "out", MFnData::kString);
+  attrOutText = fnType.create("output", "out", MFnData::kString);
   fnType.setWritable(false);
 
   // Add attributes
@@ -208,14 +210,18 @@ MStatus Speedometer::initialize() {
     attrIndxShape, attrFillShape, attrFillShapeOpacity, attrWidthLine, attrXRay,
     attrInDrawLine, attrInLineMatrix,
     attrInTime,
-    updateAttr, outputAttr
+    geometryChanging,
+    attrOutText
   );
+
+  // attributeAffects(attrInTime, geometryChanging);
+  // attributeAffects(attrInLineMatrix, geometryChanging);
 
   return MS::kSuccess;
 }
 
 
-MStatus Speedometer::setDependentsDirty(const MPlug& plugBeingDirtied, MPlugArray& affectedPlugs) {
+MStatus Speedometer::setDependentsDirty(const MPlug& plug, MPlugArray& affectedPlugs) {
   /* Sets the relation between attributes and marks the specified plugs dirty.
 
   Args:
@@ -224,17 +230,28 @@ MStatus Speedometer::setDependentsDirty(const MPlug& plugBeingDirtied, MPlugArra
       to this list.
 
   */
-  if ( 
-    // plugBeingDirtied == attrInTransform
-    // || plugBeingDirtied == attrInTime
-       plugBeingDirtied == attrInTime
-    || plugBeingDirtied == attrText
-    || plugBeingDirtied == attrPrecision
-    || plugBeingDirtied == attrUnitType
-  )	{
-    affectedPlugs.append(MPlug(selfObject, outputAttr));
-    affectedPlugs.append(MPlug(selfObject, updateAttr));
+  // Update the shape attrs for editing / rig creation - draw - line has to be on for
+  // performance optimizations
+  // if (MEvaluationManager::graphConstructionActive()) {
+  if ( plug == attrInLineMatrix
+    || plug == localPosition
+    || plug == localRotate
+    || plug == localScale
+    || plug == attrIndxShape
+    || plug == attrFillShape
+    || plug == attrFillShapeOpacity
+    || plug == attrWidthLine
+    || plug == attrInDrawLine
+    || plug == attrOutLineMatrix
+    || plug == attrInTime
+    || plug == attrText
+    || plug == attrUnitType
+    || plug == attrXRay
+  ) {
+    affectedPlugs.append(MPlug(selfObject, geometryChanging));
+    affectedPlugs.append(MPlug(selfObject, attrOutText));
   }
+  // }
 
   return MS::kSuccess;
 }
@@ -320,8 +337,7 @@ double Speedometer::getNumericFPS() {
 
 void Speedometer::getSelfPosition() {
   /* Get the world position of this node. */
-  // MDagPath thisPath;
-  // MDagPath::getAPathTo(selfObject, thisPath);
+  MDagPath::getAPathTo(selfObject, selfPath);
   MMatrix matrix = selfPath.inclusiveMatrix();
   posCurrent = MPoint(matrix[3][0], matrix[3][1], matrix[3][2]);
 }
@@ -400,9 +416,6 @@ MStatus Speedometer::parseDataBlock(MDataBlock& dataBlock) {
   // Ask for time value to force refresh on the node
   timeCurrent = dataBlock.inputValue(attrInTime, &status).asTime();
 
-  // matTransform = dataBlock.inputValue(attrInTransform).asMatrix();
-  // posCurrent = MPoint(matTransform[3][0], matTransform[3][1], matTransform[3][2]);
-
   // Additional attributes
   indxUnitType = dataBlock.inputValue(attrUnitType).asShort();
   text = dataBlock.inputValue(attrText).asString().asChar();
@@ -414,8 +427,8 @@ MStatus Speedometer::parseDataBlock(MDataBlock& dataBlock) {
 
 MStatus Speedometer::getSpeed() {
 
-  // getSelfPosition();
-  posCurrent = MPoint(getTranslation(MSpace::kWorld));
+  getSelfPosition();
+  // posCurrent = MPoint(getTranslation(MSpace::kWorld));
 
   double distance = posCached.distanceTo(posCurrent);
   double timePassed = abs((timeCurrent - timeCached).value());
@@ -446,13 +459,13 @@ MStatus Speedometer::updateOutput(const MPlug& plug, MDataBlock& dataBlock) {
   */
   MStatus status;
 
-  MDataHandle dhOutput = dataBlock.outputValue(outputAttr);
+  MDataHandle dhOutput = dataBlock.outputValue(attrOutText);
   dhOutput.setString(strSpeed.c_str());
   dhOutput.setClean();
 
-  MDataHandle dhUpdate = dataBlock.outputValue(updateAttr);
-  dhUpdate.setDouble(0.0);
-  dhUpdate.setClean();
+  // MDataHandle dhUpdate = dataBlock.outputValue(updateAttr);
+  // dhUpdate.setDouble(0.0);
+  // dhUpdate.setClean();
 
   dataBlock.setClean(plug);
 
@@ -491,8 +504,26 @@ MStatus Speedometer::compute(const MPlug& plug, MDataBlock& dataBlock) {
   */
   MStatus status;
 
-  // if (plug != outputAttr || plug != updateAttr) {return MS::kUnknownParameter;}
+  // if (plug != attrOutText || plug != updateAttr) {return MS::kUnknownParameter;}
   // if (!shouldCompute(plug, attrInTime, attrInText, attrPrecision, attrUnitType)) {
+  //   return MS::kUnknownParameter;
+  // }
+
+  // if (plug == geometryChanging) {
+  //   MDataHandle boolHandle = dataBlock.outputValue(geometryChanging);
+  //   boolHandle.setBool(true);
+  //   MHWRender::MRenderer::setGeometryDrawDirty(selfObject);
+
+  //   CHECK_MSTATUS_AND_RETURN_IT(parseDataBlock(dataBlock));
+
+  //   CHECK_MSTATUS_AND_RETURN_IT(getSpeed());
+
+  //   CHECK_MSTATUS_AND_RETURN_IT(updateOutput(plug, dataBlock));
+  //   // Cache time change
+  //   posCached = posCurrent;
+  //   timeCached = timeCurrent;
+
+  // }	else {
   //   return MS::kUnknownParameter;
   // }
 
@@ -508,6 +539,25 @@ MStatus Speedometer::compute(const MPlug& plug, MDataBlock& dataBlock) {
 
   return MS::kSuccess;
 }
+
+// // Called before this node is evaluated by Evaluation Manager
+// MStatus Speedometer::postEvaluation(const MDGContext& context, const MEvaluationNode& evaluationNode, PostEvaluationType evalType) {
+//   // For cache restoration only
+//   // This method is responsible for fixing the 'geometryChanging' flag in cache restore frames
+//   // Because in cache store phase,
+//   // PopulateGeometry & Viewport-Caching happens before Evaluation-Cache store
+//   // The value of 'geometryChanging' will always be set to 'false' (it is already used by render)
+//   // Thus, we have to fix the geometryChanging attribute to the correct value 
+//   MStatus status;
+//   if (evalType == PostEvaluationEnum::kEvaluatedDirectly && evaluationNode.dirtyPlugExists(geometryChanging, &status) && status) {
+//     MDataBlock data = forceCache();
+//     MDataHandle boolHandle = data.outputValue(geometryChanging, &status);
+//     if (status != MStatus::kSuccess) return status;
+//     boolHandle.setBool(true);
+//     boolHandle.setClean();
+//   }
+//   return MPxTransform::postEvaluation(context, evaluationNode, evalType);
+// }
 
 
 void Speedometer::getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const {
@@ -596,16 +646,11 @@ void SpeedometerData::getPlugs(const MObject& object) {
   float sy = MPlug(object, Speedometer::localScaleY).asFloat();
   float sz = MPlug(object, Speedometer::localScaleZ).asFloat();
 
-  this->matLocal = MEulerRotation(rx, ry, rz).asMatrix();
-  this->matLocal[3][0] = tx; this->matLocal[3][1] = ty;	this->matLocal[3][2] = tz;
-  this->matLocal[0][0] *= sx; this->matLocal[0][1] *= sx;	this->matLocal[0][2] *= sx;
-  this->matLocal[1][0] *= sy; this->matLocal[1][1] *= sy;	this->matLocal[1][2] *= sy;
-  this->matLocal[2][0] *= sz; this->matLocal[2][1] *= sz;	this->matLocal[2][2] *= sz;
-
-  float textPositionX = MPlug(object, Speedometer::textPositionX).asFloat();
-  float textPositionY = MPlug(object, Speedometer::textPositionY).asFloat();
-  float textPositionZ = MPlug(object, Speedometer::textPositionZ).asFloat();
-  posText = MPoint(textPositionX+tx, textPositionY+ty, textPositionZ+tz);
+  matLocal = MEulerRotation(rx, ry, rz).asMatrix();
+  matLocal[3][0] = tx; matLocal[3][1] = ty;	matLocal[3][2] = tz;
+  matLocal[0][0] *= sx; matLocal[0][1] *= sx;	matLocal[0][2] *= sx;
+  matLocal[1][0] *= sy; matLocal[1][1] *= sy;	matLocal[1][2] *= sy;
+  matLocal[2][0] *= sz; matLocal[2][1] *= sz;	matLocal[2][2] *= sz;
 
   indxShape =         MPlug(object, Speedometer::attrIndxShape).asShort();
   bFillShape =        MPlug(object, Speedometer::attrFillShape).asBool();
@@ -613,7 +658,7 @@ void SpeedometerData::getPlugs(const MObject& object) {
   widthLine =         MPlug(object, Speedometer::attrWidthLine).asFloat();
   bDrawline =         MPlug(object, Speedometer::attrInDrawLine).asBool();
   bXRay =             MPlug(object, Speedometer::attrXRay).asBool();
-  textToDraw =        MPlug(object, Speedometer::outputAttr).asString();
+  textToDraw =        MPlug(object, Speedometer::attrOutText).asString();
   sizeText =          MPlug(object, Speedometer::attrTextSize).asInt();
 
   matPv = MDataHandle(MPlug(object, Speedometer::attrInLineMatrix).asMDataHandle()).asMatrix();
@@ -633,80 +678,80 @@ void SpeedometerData::getBbox(const MObject& object, MMatrix matrix) {
   indxShape = MPlug(object, Speedometer::attrIndxShape).asShort();
   switch(indxShape) {
     case 0: // Cube
-      this->bbox = populateBoundingBox(bboxCube);
+      bbox = populateBoundingBox(bboxCube);
       break;
     case 1: // Square
-      this->bbox = populateBoundingBox(bboxSquare);
+      bbox = populateBoundingBox(bboxSquare);
       break;
     case 2: // Cylinder
-      this->bbox = populateBoundingBox(bboxCylinder);
+      bbox = populateBoundingBox(bboxCylinder);
       break;
     case 3: // Cone
-      this->bbox = populateBoundingBox(bboxCone);
+      bbox = populateBoundingBox(bboxCone);
       break;
     case 4: // Circle
-      this->bbox = populateBoundingBox(bboxCircle);
+      bbox = populateBoundingBox(bboxCircle);
       break;
     case 5: // Sphere
-      this->bbox = populateBoundingBox(bboxSphere);
+      bbox = populateBoundingBox(bboxSphere);
       break;
     case 6: // Dome
-      this->bbox = populateBoundingBox(bboxCircle);
+      bbox = populateBoundingBox(bboxCircle);
       break;
     case 7: // Diamond
-      this->bbox = populateBoundingBox(bboxDiamond);
+      bbox = populateBoundingBox(bboxDiamond);
       break;
     case 8: // Pyramid
-      this->bbox = populateBoundingBox(bboxPyramid);
+      bbox = populateBoundingBox(bboxPyramid);
       break;
     case 9: // Triangle
-      this->bbox = populateBoundingBox(bboxTriangle);
+      bbox = populateBoundingBox(bboxTriangle);
       break;
     case 10: // Prism
-      this->bbox = populateBoundingBox(bboxPrism);
+      bbox = populateBoundingBox(bboxPrism);
       break;
     case 11: // Locator
-      this->bbox = populateBoundingBox(bboxLocator);
+      bbox = populateBoundingBox(bboxLocator);
       break;
     case 12: // Frame
-      this->bbox = populateBoundingBox(bboxFrame);
+      bbox = populateBoundingBox(bboxFrame);
       break;
     case 13: // Arrow
-      this->bbox = populateBoundingBox(bboxArrow);
+      bbox = populateBoundingBox(bboxArrow);
       break;
     case 14: // Arrow2Way
-      this->bbox = populateBoundingBox(bboxArrow2Way);
+      bbox = populateBoundingBox(bboxArrow2Way);
       break;
     case 15: // Circle4Arrows
-      this->bbox = populateBoundingBox(bboxCircle4Arrows);
+      bbox = populateBoundingBox(bboxCircle4Arrows);
       break;
     case 16: // Hip
-      this->bbox = populateBoundingBox(bboxHip);
+      bbox = populateBoundingBox(bboxHip);
       break;
     case 17: // CircleHalfDouble
-      this->bbox = populateBoundingBox(bboxCircleHalfDouble);
+      bbox = populateBoundingBox(bboxCircleHalfDouble);
       break;
     case 18: // PinRound
-      this->bbox = populateBoundingBox(bboxPinRound);
+      bbox = populateBoundingBox(bboxPinRound);
       break;
     case 19: // Clavicle
-      this->bbox = populateBoundingBox(bboxClavicle);
+      bbox = populateBoundingBox(bboxClavicle);
       break;
     case 20: // Pointer2Way
-      this->bbox = populateBoundingBox(bboxPointer2Way);
+      bbox = populateBoundingBox(bboxPointer2Way);
       break;
     case 21: // Pointer2WayArc
-      this->bbox = populateBoundingBox(bboxPointer2WayArc);
+      bbox = populateBoundingBox(bboxPointer2WayArc);
       break;
     case 22: // Cross
-      this->bbox = populateBoundingBox(bboxCross);
+      bbox = populateBoundingBox(bboxCross);
       break;
     case 23: // CrossShort
-      this->bbox = populateBoundingBox(bboxCrossShort);
+      bbox = populateBoundingBox(bboxCrossShort);
       break;
   }
 
-  this->bbox.transformUsing(matrix);
+  bbox.transformUsing(matrix);
 }
 
 
@@ -721,10 +766,10 @@ void SpeedometerData::getShape(const MObject& object,  const MDagPath& dpObject,
   MStatus status;
   indxShape = MPlug(object, Speedometer::attrIndxShape).asShort();
 
-  this->arrayVertecies.clear();
-  this->arrayEdges.clear();
-  this->arrayTriangles.clear();
-  this->arrayLine.clear();  // for pole vector line only
+  arrayVertecies.clear();
+  arrayEdges.clear();
+  arrayTriangles.clear();
+  arrayLine.clear();  // for pole vector line only
 
   switch(indxShape) {
     case 0:  // Cube
@@ -940,8 +985,7 @@ MUserData* SpeedometerDrawOverride::prepareForDraw(const MDagPath& objPath, cons
 }
 
 
-void SpeedometerDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDrawManager& drawManager, const MHWRender::MFrameContext& frameContext, const MUserData* data)
-{
+void SpeedometerDrawOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDrawManager& drawManager, const MHWRender::MFrameContext& frameContext, const MUserData* data) {
   /* Provides access to the MUIDrawManager, which can be used to queue up operations to draw simple
   UI shapes like lines, circles, text, etc.
 
