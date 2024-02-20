@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <atomic>
 
-
+// Maya
 #include <maya/MUserData.h>
 #include <maya/MMatrix.h>
 #include <maya/MString.h>
@@ -19,10 +19,6 @@
 #include <maya/MDataHandle.h>
 #include <maya/MColor.h>
 #include <maya/MDistance.h>
-#include <maya/MFnUnitAttribute.h>
-#include <maya/MFnNumericAttribute.h>
-#include <maya/MFnDependencyNode.h>
-#include <maya/MPxLocatorNode.h>
 #include <maya/MGlobal.h>
 #include <maya/MDagMessage.h>
 #include <maya/MEvaluationNode.h>
@@ -31,8 +27,12 @@
 #include <maya/MEvaluationNode.h>
 
 // Function sets
+#include <maya/MFnNumericAttribute.h>
+#include <maya/MFnUnitAttribute.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMessageAttribute.h>
+#include <maya/MFnMatrixAttribute.h>
+#include <maya/MFnDependencyNode.h>
 
 // Viewport 2.0 includes
 #include <maya/MDrawRegistry.h>
@@ -43,8 +43,9 @@
 
 // Proxies
 #include <maya/MPxTransform.h>
-#include <maya/MPxTransformationMatrix.h>
-#include <maya/MPxSurfaceShape.h>
+// #include <maya/MPxTransformationMatrix.h>
+// #include <maya/MPxLocatorNode.h>
+// #include <maya/MPxSurfaceShape.h>
 #include <maya/MPxDrawOverride.h>
 
 // Open APi
@@ -128,21 +129,21 @@ public:
   static MObject   localScaleY;
   static MObject   localScaleZ;
 
-  static MObject attrIndxShape;
-  static MObject attrFillShape;
-  static MObject attrFillShapeOpacity;
-  static MObject attrWidthLine;
+  static MObject shapeIndx;
+  static MObject fillShape;
+  static MObject fillShapeOpacity;
+  static MObject lineWidth;
 
-  static MObject attrText;
+  static MObject text;
   static MObject textPosition;
   static MObject   textPositionX;
   static MObject   textPositionY;
   static MObject   textPositionZ;
-  static MObject attrSizeText;
+  static MObject textSize;
 
-  static MObject attrDrawLine;
-  static MObject attrInLineMatrix;
-  static MObject attrXRay;
+  static MObject drawLine;
+  static MObject lineMatrix;
+  static MObject xRay;
 
   // Node's output attributes
 
@@ -159,6 +160,8 @@ public:
   // Class Methods
   static void *   creator() {return new TransformShape();};
   static MStatus  initialize();
+  static MStatus  initializeLocalTransforms();
+  static MStatus  initializeShape();
   // virtual void    postConstructor() override;
 
   // MStatus         setDependentsDirty(const MPlug& plugBeingDirtied, MPlugArray& affectedPlugs) override;
@@ -168,7 +171,61 @@ public:
   void            getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
   SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
 
-  // bool                  isBounded() const override {return true;}
+  bool                  isBounded() const override {return true;}
   // virtual MBoundingBox  boundingBox() const override;
   // virtual bool          treatAsTransform() const override {return false;}
 };
+
+
+
+
+
+// class TransformShapeData : public MUserData {
+// public:
+//   MMatrix       matLocal;
+//   MBoundingBox  bbox;
+//   MMatrix       matLine;
+//   MPoint        posLine;
+
+//   short         indxShape;
+//   bool          bFillShape;
+//   float         fillShapeOpacity;
+//   bool          bXRay;
+//   bool          bXRayJoint;
+//   unsigned int  prioDepth;
+
+//   MPointArray   arrayVertecies;
+//   MPointArray   arrayEdges;
+//   MPointArray   arrayTriangles;
+//   MPointArray   arrayLine;
+
+//   float         widthLine;
+//   MColor        colWireframe;
+//   MColor        colShape;
+//   MColor        colGrey;
+
+//   // Fk / Ik state
+//   MObject       objDrawLineTo;
+//   MMatrix       matTo;
+//   double        fkIk;
+//   bool          bDrawline;
+
+//   bool          bDrawSolverMode;
+//   unsigned int  sizeSolverMode;
+//   MPoint        posSolverMode;
+//   MString       strSolverMode;
+
+//   // Constructors
+//   TransformShapeData()
+//     : MUserData(false)
+//     , colGrey(0.5, 0.5, 0.5)
+//   {};
+
+//   // Destructor
+//   virtual ~TransformShapeData() override {};
+
+//   virtual void getBbox(const MObject& object, MMatrix matrix);
+//   virtual void getPlugs(const MObject& object);
+//   virtual void getShape(const MObject& object, const MDagPath& dpObject, MMatrix matrix);
+//   virtual void getText(const MObject& object);
+// }

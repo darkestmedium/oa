@@ -13,6 +13,7 @@
 #include <memory>
 #include <unordered_map>
 #include <atomic>
+#include <string>
 
 
 #include <maya/MUserData.h>
@@ -25,9 +26,6 @@
 #include <maya/MDataHandle.h>
 #include <maya/MColor.h>
 #include <maya/MDistance.h>
-#include <maya/MFnUnitAttribute.h>
-#include <maya/MFnNumericAttribute.h>
-#include <maya/MFnDependencyNode.h>
 #include <maya/MPxLocatorNode.h>
 #include <maya/MGlobal.h>
 #include <maya/MDagMessage.h>
@@ -37,6 +35,9 @@
 #include <maya/MEvaluationNode.h>
 
 // Function sets
+#include <maya/MFnUnitAttribute.h>
+#include <maya/MFnNumericAttribute.h>
+#include <maya/MFnDependencyNode.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMessageAttribute.h>
 
@@ -174,9 +175,9 @@ public:
   void            getCacheSetup(const MEvaluationNode& evalNode, MNodeCacheDisablingInfo& disablingInfo, MNodeCacheSetupInfo& cacheSetupInfo, MObjectArray& monitoredAttributes) const override;
   SchedulingType  schedulingType() const override {return SchedulingType::kParallel;}
 
-  bool                  isBounded() const override {return true;}
+  bool                  isBounded() const override {return false;}
   virtual MBoundingBox  boundingBox() const override;
-  virtual bool          treatAsTransform() const override {return false;}
+  // virtual bool          treatAsTransform() const override {return false;}
 };
 
 
@@ -232,11 +233,10 @@ public:
   // Destructor
   virtual ~CtrlUserData() override {};
 
-  virtual void getBbox(const MObject& object, MMatrix matrix);
+  virtual void getBbox(const MObject& object, const MDagPath& dpObject, MMatrix matrix);
   virtual void getPlugs(const MObject& object);
   virtual void getShape(const MObject& object, const MDagPath& dpObject, MMatrix matrix);
   virtual void getText(const MObject& object);
-
 
   MBoundingBox populateBoundingBox(const vector<array<float,3>>& bbox) {
     return MBoundingBox(MPoint(bbox[0][0], bbox[0][1], bbox[0][2]), MPoint(bbox[1][0], bbox[1][1], bbox[1][2]));
@@ -306,10 +306,7 @@ public:
   virtual MHWRender::DrawAPI supportedDrawAPIs() const override {return MHWRender::kAllDevices;}
 
   virtual bool isBounded(const MDagPath& objPath, const MDagPath& cameraPath) const override {return true;}
-  virtual MBoundingBox boundingBox(
-    const MDagPath& objPath,
-    const MDagPath& cameraPath
-  ) const override;
+  virtual MBoundingBox boundingBox(const MDagPath& objPath, const MDagPath& cameraPath) const override;
   virtual bool hasUIDrawables() const override {return true;}
   virtual MUserData* prepareForDraw(
     const MDagPath& objPath,

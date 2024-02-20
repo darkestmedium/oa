@@ -322,7 +322,28 @@ MBoundingBox Ctrl::boundingBox() const {
   // Get the size
   CtrlUserData data;
   data.getPlugs(selfObject);
-  data.getBbox(selfObject, data.matLocal);
+  data.getBbox(selfObject, selfPath, data.matLocal);
+
+  // To match the 'shape' bbox we need transform local + shape local?
+  MFnDagNode fnTransform(selfPath);
+
+  MObject objParent = fnTransform.parent(0);
+  MFnTransform fnParent(objParent);
+
+  // Query if transform is parented under world or another transform
+  if (objParent.apiType() != MFn::kWorld) {
+    MDagPath dpParent = fnParent.dagPath();
+    // MTransformationMatrix matTransformation(fnParent.transformation());
+    // MMatrix mat(matTransformation.asMatrix());
+    data.bbox.transformUsing(
+      data.matLocal
+    );
+  } else {
+    data.bbox.transformUsing(selfPath.inclusiveMatrix() + data.matLocal);
+  }
+
+  MGlobal::displayError("boundingBox() on transform");
+
 
   return data.bbox;
 }
@@ -366,7 +387,7 @@ void CtrlUserData::getPlugs(const MObject& object) {
 }
 
 
-void CtrlUserData::getBbox(const MObject& object, MMatrix matrix) {
+void CtrlUserData::getBbox(const MObject& object, const MDagPath& dpObject, MMatrix matrix) {
   /* Gets the bounding box from the shapesDefinition.h file
 
   Args:
@@ -450,8 +471,8 @@ void CtrlUserData::getBbox(const MObject& object, MMatrix matrix) {
       break;
   }
 
-  bbox.transformUsing(matrix);
-  // bbox.expand(posDrawPvTo);
+  // bbox.transformUsing(dpObject.inclusiveMatrix() + matrix);
+  // bbox.transformUsing(matrix);
 }
 
 
@@ -468,7 +489,6 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dpObject, MMa
   MStatus status;
 
   indxShape = MPlug(object, Ctrl::attrIndxShape).asShort();
-
   arrayVertecies.clear();
   arrayEdges.clear();
   arrayTriangles.clear();
@@ -551,9 +571,8 @@ void CtrlUserData::getShape(const MObject& object, const MDagPath& dpObject, MMa
 
   // Draw line for pole vectors
   if (bDrawline) { 
-    // MMatrix matDrawLineTo = MDataHandle(MPlug(object, Ctrl::attrInLineMatrix).asMDataHandle()).asMatrix();
-    arrayLine.append(MPoint() * matrix);
-    arrayLine.append(MPoint(posDrawPvTo[0], posDrawPvTo[1], posDrawPvTo[2]) * dpObject.inclusiveMatrixInverse());
+    arrayLine.append(MPoint(matrix[3][0], matrix[3][1], matrix[3][2]));
+    arrayLine.append(posDrawPvTo * dpObject.inclusiveMatrixInverse());
   }
 }
 
@@ -589,8 +608,7 @@ MBoundingBox CtrlDrawOverride::boundingBox(const MDagPath& objPath, const MDagPa
   /* Called by Maya whenever the bounding box of the drawable object is needed.
 
   This method should return the object space bounding box for the object to be drawn.
-  Note that this method will not be called if the isBounded() method returns a value of
-  false.
+  Note that this method will not be called if the isBounded() method returns a value of false.
   Default implementation returns a huge bounding box which will never cull the object.
 
   Args:
@@ -602,10 +620,15 @@ MBoundingBox CtrlDrawOverride::boundingBox(const MDagPath& objPath, const MDagPa
 
   */
   CtrlUserData data;
-  MObject node = objPath.node();
+  MObject object = objPath.node();
+  
+  data.getPlugs(object);
+  data.getBbox(object, objPath, data.matLocal);
 
-  data.getPlugs(node);
-  data.getBbox(node, data.matLocal);
+  // This is the 'shape' bbox so it needs to be in local space
+  data.bbox.transformUsing(data.matLocal);
+
+  MGlobal::displayError("boundingBox() on draw override");
 
   return data.bbox;
 }
@@ -659,7 +682,7 @@ MUserData* CtrlDrawOverride::prepareForDraw(const MDagPath& objPath, const MDagP
   data->getText(object);
 
   data->colWireframe = MHWRender::MGeometryUtilities::wireframeColor(objPath);
-  data->colShape = MColor(data->colWireframe.r, data->colWireframe.g, data->colWireframe.b, data->fillShapeOpacity);
+  data->colShape     = MColor(data->colWireframe.r, data->colWireframe.g, data->colWireframe.b, data->fillShapeOpacity);
 
   // If XRay Joints Draw in XRay Mode
   if (frameContext.getDisplayStyle() & MHWRender::MFrameContext::kXrayJoint) {data->bXRayJoint = true;}
